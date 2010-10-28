@@ -1,0 +1,37 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{Scripting Batch Processing with Web Services}
+
+
+\begin{document}
+\maketitle
+
+\abstract{One of the necessities implementing schools have is to remotely 
+execute batch processes. Many institutions already have existing enterprise
+scheduling systems that are far more robust than Quartz which is shipped with
+KFS. The cases for this are when implementing institutions use a third-party
+scheduling system (Peoplesoft or BMC Control-M). Quartz scheduling is often
+described as being ``simple'' and ``not an enterprise level scheduling system.''
+It is almost certain that institutions will want to put in place something more
+robust or may even already have a campus wide enterprise scheduling system.
+
+This is an informative talk on how to connect an enterprise scheduling system with KFS.
+
+Attendees will see examples and scenarios of how to integrate using methods like
+shell-scripting and web-services.
+
+Takeaways for attendees are that they will:
+\begin{itemize}
+  \item learn about caveats of normal shell-scripting of batch processes
+  \item experience caveats of running batch processing during scheduled maintenance periods
+  \item learn of creating a simple web service that isn't published to KSB for executing isolated batch processes.
+  \item learn how to create a client for communicating with the batch wsdl
+\end{itemize}
+
+}
+\end{document}

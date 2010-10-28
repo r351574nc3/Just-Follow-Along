@@ -1,0 +1,343 @@
+¼?xml version="1.0" encoding="UTF-8"?¾
+¼!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "DTD/xhtml1-transitional.dtd"¾
+¼html xmlns="http://www.w3.org/1999/xhtml"¾
+¼!-- XML file produced from file: LdapIntegration.tex
+     using Hyperlatex v 2.9-in-waiting-rk (oct06) (c) Otfried Cheong
+     on Emacs 23.1.1, Thu Oct 28 03:31:12 2010 --¾
+¼head¾
+¼title¾LDAP Integration¼/title¾
+
+    ¼!-- metadata --¾
+    ¼meta name="generator" content="S5" /¾
+    ¼meta name="version" content="S5 1.1" /¾
+    ¼meta name="company" content="Leosandbox " /¾
+    ¼!-- configuration parameters --¾
+    ¼meta name="defaultView" content="slideshow" /¾
+    ¼meta name="controlVis" content="hidden" /¾
+    ¼!-- style sheet links --¾
+    ¼link rel="stylesheet" href="ui/kd8/slides.css" type="text/css" media="projection" id="slideProj" /¾
+    ¼link rel="stylesheet" href="ui/kd8/outline.css" type="text/css" media="screen" id="outlineStyle" /¾
+    ¼link rel="stylesheet" href="ui/kd8/print.css" type="text/css" media="print" id="slidePrint" /¾
+    ¼link rel="stylesheet" href="ui/kd8/opera.css" type="text/css" media="projection" id="operaFix" /¾
+    ¼script src="ui/kd8/slides.js" type="text/javascript"¾¼/script¾
+
+  ü
+üüüü
+¼/head¾
+¼body¾
+¼table width="100%" cellpadding="0" cellspacing="2"¾¼tr¾
+¼td bgcolor="#99ccff"¾¼¼p¾a href=¢ü¢¾¼img border=¢0¢ alt=¢ü¢ src=¢file:/usr/share/hyperlatex/icons/ünext.png¢/¾ü¼/a¾¼/td¾¼td bgcolor="#99ccff"¾¼img alt=¢¢ src=¢file:/usr/share/hyperlatex/icons/üblank.png¢/¾¼/td¾¼td bgcolor="#99ccff"¾¼a href=¢ü¢¾¼img border=¢0¢ alt=¢ü¢ src=¢file:/usr/share/hyperlatex/icons/üprevious.png¢/¾ü¼/a¾¼/td¾¼td align="center" bgcolor="#99ccff" width="100%"¾¼b¾Top¼/b¾ü¼/td¾ü¼/tr¾¼/table¾ü
+¼/p¾
+î
+  ¼div class="header"¾
+    ¼div class="header_l"¾
+      ¼div class="header_r"¾
+      ¦nbsp;
+      ¼/div¾
+    ¼/div¾
+  ¼/div¾
+  ¼div class="content"¾
+    ¼div class="content_l"¾
+      ¼div class="content_r"¾
+        ¼img src="ui/kd8/blank.gif" id="filler" border="0"/¾
+¼div class="layout"¾
+  ¼div id="controls"¾¼!-- DO NOT EDIT --¾¼/div¾
+  ¼div id="currentSlide"¾¼!-- DO NOT EDIT --¾¼/div¾
+  ¼div id="header"¾
+    ¼img style="position: relative; top:30px; left: 18px;" id="logo" src="ui/kd8/logo.png" /¾
+  ¼/div¾
+  ¼div id="footer"¾
+    ¼div class="footer_l"¾
+      ¼div class="footer_r"¾
+        ¼h1/¾
+        ¼h2¾October 28, 2010üü¼/h2¾
+      ¼/div¾
+    ¼/div¾
+  ¼/div¾
+¼/div¾
+    ¼/div¾
+  ¼/div¾
+ ¼/div¾
+¼div class="presentation"¾
+    ü
+¼p¾¼div class="slide"¾
+¼h1¾LDAP Integrationü¼/h1¾
+¼h2¾For Kuali Financialsü¼/h2¾
+¼h3¾David Elyea, Anthony Potts, and Leo Przybylskiü¼/h3¾
+¼h4¾San Joaquin Delta College, rSmart, and University of Arizonaü¼/h4¾
+¼/div¾ü¼div class="slide"¾
+¼/p¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id1¢¾ü¼/a¾ì¼/h1¾ìOverview
+¼/p¾
+î¼ul¾ü
+î¼li¾üUniversity of Arizona LDAP Integration
+¼/li¾î¼li¾üCustomizing Rice CAS for LDAP
+¼/li¾î¼li¾üSan Joaquin Delta College LDAP Integration
+¼/li¾î¼li¾üNaval Post-Secondary School LDAP Integration 
+¼/li¾î¼/ul¾ü
+¼div class="notes"¾ü
+¼p¾The objective is to understand implementation changes necessary to integrate LDAP with KFS and
+the stories from the institutions that have done it.
+¼/div¾ü
+¼/div¾ü
+¼div class="slide"¾
+¼/p¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id2¢¾ü¼/a¾ì¼/h1¾ìUA LDAP Integration
+¼/p¾
+î¼ul¾ü
+î¼li¾üArchitectural Overview
+¼/li¾î¼li¾üKIM-to-EDS Mappings
+¼/li¾î¼li¾üSpring Configuration
+¼/li¾î¼li¾üKIM Integration/Rice Customizations
+¼/li¾î¼/ul¾ü
+¼div class="notes"¾ü
+¼p¾There isn't all that much work that goes into integrating LDAP with KFS. There are a few classes
+that needed to be extended and even fewer interfaces that needed to be implemented. We plan to go
+over all of what UA needed to do including the architecture and technical changes.
+¼/p¾
+¼p¾UA also had to overcome mapping its native user information to KIM.
+¼/p¾
+¼p¾We weill review what Spring configuration was necessary to integrate LDAP.
+¼/p¾
+¼p¾In addition to the recommended KIM implementation strategy, some changes conflicted with Rice 
+which required modifications of Rice itself.
+¼/p¾
+¼/div¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id3¢¾ü¼/a¾ì¼/h1¾ìArchitectural Overview
+¼/p¾
+î¼ul¾ü
+î¼li¾üEnterprise Directory Service (EDS)
+î¼ul¾ü
+î¼li¾üUA Directory Service Provider
+¼/li¾î¼li¾üUsed primarily for entity information (not authz)
+¼/li¾î¼/ul¾ü
+¼/li¾î¼li¾üRoles/Groups/Permissions/Responsibilities are managed in RDBMS
+¼/li¾î¼li¾üMapping Caveats with KIM
+î¼ul¾ü
+î¼li¾üWith System Parameters
+¼/li¾î¼li¾üField names differ
+¼/li¾î¼li¾üprincipalId and entityId are the same
+¼/li¾î¼/ul¾ü
+¼/li¾î¼/ul¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id4¢¾ü¼/a¾ì¼/h1¾ìMapping Examples
+¼/p¾
+î¼ul¾ü
+î¼li¾üEmployee Status
+¼code¾principal.active.Y=employeeStatus.A¼/code¾
+¼/li¾î¼li¾üEntity
+¼code¾principal.principalId=uaid¼/code¾
+¼code¾principal.principalName=uid¼/code¾
+¼/li¾î¼/ul¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id5¢¾ü¼/a¾ì¼/h1¾ìArchitectural Overview
+¼/p¾
+î¼ul¾ü
+î¼li¾üRequired libraries
+î¼ul¾ü
+î¼li¾ü¼code¾spring-ldap-1.3.0.RELEASE-all.jar¼/code¾
+¼/li¾î¼/ul¾ü
+¼/li¾î¼li¾üPackage structure
+î¼ul¾ü
+î¼li¾ü¼code¾edu.arizona.kim¼/code¾
+¼/li¾î¼li¾ü¼code¾edu.arizona.kim.businessobject.entity.dto¼/code¾
+¼/li¾î¼li¾ü¼code¾edu.arizona.kim.dataaccess¼/code¾
+¼/li¾î¼li¾ü¼code¾edu.arizona.kim.dataaccess.impl¼/code¾
+¼/li¾î¼li¾ü¼code¾edu.arizona.kim.service.impl¼/code¾
+¼/li¾î¼/ul¾ü
+¼/li¾î¼/ul¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id6¢¾ü¼/a¾ì¼/h1¾ìArchitectural Overview
+¼center¾
+¼a href="Diagrams/Class.png" id="external" rel="lightbox[gallery]"¾¼img src="Diagrams/Class.png" id="external" border="0" width="800"/¾¼/a¾
+¼/center¾
+¼/div¾ü
+¼/p¾
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id7¢¾ü¼/a¾ì¼/h1¾ìSpring Configuration
+¼/p¾
+î¼ul¾ü
+î¼li¾ü¼code¾edu/arizona/kim/spring-kim.xml¼/code¾
+¼/li¾î¼li¾üSetting up ¼code¾LdapTemplate¼/code¾
+¼/li¾î¼li¾üDependency Injection with Spring-LDAP
+¼/li¾î¼/ul¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id8¢¾ü¼/a¾ì¼/h1¾ìKIM Customization
+¼/p¾
+î¼ul¾ü
+î¼li¾ü¼code¾org.kuali.rice.kim.service.IdentityService¼/code¾
+¼/li¾î¼li¾ü¼code¾org.kuali.rice.kim.service.impl¼/code¾
+¼code¾UiDocumentServiceImpl¼/code¾
+¼/li¾î¼li¾ü¼code¾SYSTEM_USER¼/code¾
+¼/li¾î¼/ul¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id9¢¾ü¼/a¾ì¼/h1¾ìCustom Rice CAS for LDAP
+¼/p¾
+î¼ul¾ü
+î¼li¾üWhere to get it
+Download the cas source from 
+¼code¾http://www.ja-sig.org/downloads/cas/cas-server-3.3.1-release.tar.gz¼/code¾
+¼/li¾î¼li¾üRequired additional libraries
+î¼ul¾ü
+î¼li¾ü¼code¾cas-server-support-ldap¼/code¾
+¼/li¾î¼/ul¾ü
+¼/li¾î¼/ul¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id10¢¾ü¼/a¾ì¼/h1¾ìCustom Rice CAS for LDAP
+¼/p¾
+î¼ul¾ü
+î¼li¾üPath-structure
+î¼ul¾ü
+î¼li¾üMETA-INF  
+¼/li¾î¼li¾üWEB-INF
+¼/li¾î¼li¾ücss 
+¼/li¾î¼li¾üimages    
+¼/li¾î¼li¾üjs 
+¼/li¾î¼li¾üthemes
+¼/li¾î¼/ul¾ü
+¼/li¾î¼/ul¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id11¢¾ü¼/a¾ì¼/h1¾ìCustom Rice CAS for LDAP
+¼/p¾
+î¼ul¾ü
+î¼li¾üRequired changes to Spring Configuration
+î¼ul¾ü
+î¼li¾üWEB-INF/deployerConfigContext.xml
+¼/li¾î¼/ul¾ü
+¼/li¾î¼li¾üRepackaging and Deploying
+¼/li¾î¼/ul¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id12¢¾ü¼/a¾ì¼/h1¾ìSJDC LDAP Integration
+¼/p¾
+î¼ul¾ü
+î¼li¾üArchitectural Overview
+¼/li¾î¼li¾üEncountered Caveats with merging Rice 1.0.1
+¼/li¾î¼/ul¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id13¢¾ü¼/a¾ì¼/h1¾ìNPS LDAP Integration
+¼/p¾
+î¼ul¾ü
+î¼li¾üArchitectural Overview
+¼/li¾î¼li¾üIntegration modifications
+¼/li¾î¼/ul¾ü
+¼div class="notes"¾ü
+¼p¾Talk about
+¼/p¾
+î¼ul¾ü
+î¼li¾üArchitectural Overview
+¼/li¾î¼li¾üIntegration modifications
+¼/li¾î¼/ul¾ü
+¼/div¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id14¢¾ü¼/a¾ì¼/h1¾ìIntegration modifications
+¼/p¾
+î¼ul¾ü
+î¼li¾üspring-kim.xml
+î¼ul¾ü
+î¼li¾üLDAP location
+¼/li¾î¼li¾üDefaults
+¼/li¾î¼li¾üSecurity information
+¼/li¾î¼/ul¾ü
+¼/li¾î¼li¾üEdsPrincipalDaoImpl
+î¼ul¾ü
+î¼li¾üprincipalId usage
+¼/li¾î¼li¾üDefault phone number length
+¼/li¾î¼li¾üHard coded employee type and base salary 
+¼/li¾î¼/ul¾ü
+¼/li¾î¼/ul¾ü
+¼p¾¼div class="notes"¾ü
+Talk about
+¼/p¾
+î¼ul¾ü
+î¼li¾üspring-kim.xml
+î¼ul¾ü
+î¼li¾üLDAP location
+¼/li¾î¼li¾üDefaults
+¼/li¾î¼li¾üSecurity information
+¼/li¾î¼/ul¾ü
+¼/li¾î¼li¾üEdsPrincipalDaoImpl
+î¼ul¾ü
+î¼li¾üprincipalId usage
+¼/li¾î¼li¾üDefault phone number length
+¼/li¾î¼li¾üHard coded employee type and base salary 
+¼/li¾î¼/ul¾ü
+¼/li¾î¼/ul¾ü
+¼/div¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id15¢¾ü¼/a¾ì¼/h1¾ìIntegration modifications
+¼/p¾
+î¼ul¾ü
+î¼li¾üParameters
+î¼ul¾ü
+î¼li¾üKIM¦#95;TO¦#95;LDAP¦#95;FIELd¦#95;MAPPINGS
+¼/li¾î¼li¾üKIM¦#95;TO¦#95;LDAP¦#95;VALUE¦#95;MAPPINGS
+¼/li¾î¼/ul¾ü
+¼/li¾î¼/ul¾ü
+¼p¾¼div class="notes"¾ü
+¼/div¾ü
+¼div class="notes"¾ü
+Talk about
+¼/p¾
+î¼ul¾ü
+î¼li¾üParameters
+î¼ul¾ü
+î¼li¾üKIM¦#95;TO¦#95;LDAP¦#95;FIELd¦#95;MAPPINGS
+¼/li¾î¼li¾üKIM¦#95;TO¦#95;LDAP¦#95;VALUE¦#95;MAPPINGS
+¼/li¾î¼/ul¾ü
+¼/li¾î¼/ul¾ü
+¼/div¾ü
+¼/div¾ü
+¼div class="slide"¾
+ü
+¼p¾î
+¼h1¾¼a name=¢id16¢¾ü¼/a¾ì¼/h1¾ìQuestions
+¼/p¾
+¼/div¾ü
+î¼/div¾ü
+üîî¼hr /¾ü¼address¾üî¼/address¾¼br /¾ü
+¼table width="100%" cellpadding="0" cellspacing="2"¾¼tr¾
+¼td bgcolor="#99ccff"¾¼¼p¾a href=¢ü¢¾¼img border=¢0¢ alt=¢ü¢ src=¢file:/usr/share/hyperlatex/icons/ünext.png¢/¾ü¼/a¾¼/td¾¼td bgcolor="#99ccff"¾¼img alt=¢¢ src=¢file:/usr/share/hyperlatex/icons/üblank.png¢/¾¼/td¾¼td bgcolor="#99ccff"¾¼a href=¢ü¢¾¼img border=¢0¢ alt=¢ü¢ src=¢file:/usr/share/hyperlatex/icons/üprevious.png¢/¾ü¼/a¾¼/td¾¼td align="center" bgcolor="#99ccff" width="100%"¾¼b¾Top¼/b¾ü¼/td¾ü¼/tr¾¼/table¾üü¼/body¾¼/html¾

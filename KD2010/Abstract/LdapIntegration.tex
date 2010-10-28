@@ -1,0 +1,27 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{Integrating LDAP and KIM }
+
+
+\begin{document}
+\maketitle
+
+\abstract{KIM's reference implementation requires a RDBMS datastore. For systems that work together, all will 
+access to the same datastore for principal/entity information.
+However, systems university wide will need
+a common system for identity management and authentication. KIM must also tie-in 
+authorization across software from the Kuali Foundation.
+
+This session covers the ease of integrating Spring LDAP with KIM and the caveats of KIM integration and alternative
+datastores. At the time of writing this, Rice does not have a reference KIM LDAP implementation. This session will 
+explore the integrating a software extension within a KFS or Rice application.
+
+Attendees will see and experience taking an existing Kuali application and adding a directory service datastore for
+entities. The goals are that attendees will learn about what goes into mapping a directory service to KIM, and how
+to implement the necessary service overrides.
+\end{document}
