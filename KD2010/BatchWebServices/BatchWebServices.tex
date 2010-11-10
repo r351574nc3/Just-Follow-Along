@@ -1,0 +1,329 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski}
+\usepackage{graphicx}
+\input{../KD2010.tex}
+\fulltitle{Scripting Batch Processing with Web Services}
+\W \subtitle{For Kuali Financials}
+
+\W \affiliation{rSmart}
+
+\newcommand{\Encapsulation}{\sf{\href{http://en.wikipedia.org/wiki/Information_hiding}{Encapsulation}}\rm{}}
+\newcommand{\Abstraction}{\sf{\href{http://en.wikipedia.org/wiki/Abstraction}{Abstraction}}\rm{}}
+\newcommand{\Inheritance}{\sf{\href{http://en.wikipedia.org/wiki/Inheritance_(computer_science)}{Inheritance}}\rm{}}
+\newcommand{\ObjectModel}{\sf{\href{http://en.wikipedia.org/wiki/Object_model}{Object Model}}\rm{}}
+\newcommand{\Modularity}{\sf{\href{http://en.wikipedia.org/wiki/Modularity_(programming)}{Modularity}}\rm{}}
+\newcommand{\Polymorphism}{\sf{\href{http://en.wikipedia.org/wiki/Type_polymorphism}{Polymorphism}}\rm{}}
+\newcommand{\MultiInheritance}{\sf{\href{http://en.wikipedia.org/wiki/Multiple_inheritance}{Multiple-Inheritance}}\rm{}}
+\newcommand{\Kuali}{\emph{\href{http://www.kuali.org}{Kuali}}\rm{}}
+\newcommand{\KualiFinancialSystem}{\emph{\href{http://www.kuali.org}{Kuali Financial System}}\rm{}}
+\newcommand{\KFS}{\emph{\href{http://www.kuali.org}{KFS}}}
+\newcommand{\MVC}{\emph{\href{http://en.wikipedia.org/wiki/Model-view-controller}{MVC}}}
+
+\begin{document}
+  \W \begin{s5presentation}
+  \maketitle
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 1
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Overview \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    \begin{itemize}
+      \item Why Batch Processing from the Shell?
+      \item Why Batch Web Services?
+      \item Web Services Options
+      \item UA Implementation Scenario
+        \begin{itemize}
+          \item Remote Scheduler Wrapper
+          \item Web Service Clients
+        \end{itemize}
+    \end{itemize}
+    
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 2
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Why Batch Processing from the Shell? \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    \begin{itemize}
+      \item Widely supported by scheduling software vendors (This is actually consistent!)
+      \item Supports file transfer out-of-the-box
+      \item Supports status codes, logging, autocomplete!
+      \item Easy to schedule or run manually
+    \end{itemize}
+    
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 3
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Why Batch Web Services? \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    \begin{itemize}
+      \item Some vendors support this (Peoplesoft, BMC Control-M)
+      \item Easiest way to attach externally to any running Kuali instances
+      \item No need for multiple Kuali instances
+      \item Everyday more services are becoming available in the KSB
+    \end{itemize}
+    
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 4
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Web Service Options \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    \begin{itemize}
+      \item SOAP
+      \item ReST
+      \item Servlet
+      \item JSP
+    \end{itemize}
+    
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 5
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{UA Implementation Scenario \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    \begin{itemize}
+      \item BMC Control-M
+      \item Pushes files
+      \item Makes Web Servioe Calls to the Kuali application
+      \item Caveats
+        \begin{itemize}
+        \item Batch processing during maintenance periods
+        \item No WS-Security in KFS 3.0.1
+        \item Web services on the KFS application are restricted by firewall.
+        \end{itemize}
+    \end{itemize}
+    
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 6
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Scheduler Service Wrapper \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    \begin{itemize}
+      \item Why? 
+        \begin{itemize}
+          \item Give WS interface to the scheduler
+          \item Allows exposure without the service bus
+        \end{itemize}
+      \item Service Interface
+      \item Service Implementation
+      \item configuration.properties
+      \item Spring Configuration
+      \item CXFServlet
+    \end{itemize}
+    
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 7
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Scheduler Service Wrapper \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    \begin{itemize}
+      \item Why? 
+        \begin{itemize}
+          \item Give WS interface to the scheduler
+          \item Allows exposure without the service bus
+        \end{itemize}
+      \item Service Interface
+      \item Service Implementation
+      \item configuration.properties
+      \item Spring Configuration
+      \item CXFServlet
+    \end{itemize}
+    
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 8
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Interface \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    \begin{code}{java}
+@WebMethod
+public @WebResult(name="result") boolean runRemoteJob(@WebParam(name="jobName") String jobName,
+                                                      @WebParam(name="requestorEmailAddress") String requestorEmailAddress);
+     
+@WebMethod
+public @WebResult(name="result") String getStatus(String jobName);
+    \end{code}
+    
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 9
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Implementation \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    \begin{code}{java}
+public boolean runRemoteJob(String jobName, String requestorEmailAddress) {
+    final String statusBefore = getStatus(jobName);    // to verify job can run
+    getSchedulerService().runJob(jobName, requestorEmailAddress);
+        
+    pauseForJobCompletion(jobName);
+        
+    final String statusAfter = getStatus(jobName);
+        
+    if (statusAfter.toLowerCase().contains("succeeded")) {
+        return true;
+    }
+        
+    return false;
+}
+    \end{code}
+      
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 10
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Spring Configuration \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+Add namespaces to spring-sys.xml
+
+    \begin{code}{xml}
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:jaxws="http://cxf.apache.org/jaxws"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+        http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+    \end{code}
+      
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 11
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Spring Configuration \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    Add Web Service endpoint definition
+
+    \begin{code}{xml}
+<bean id="remoteSchedulerService" class="org.kuali.kfs.sys.batch.service.impl.RemoteSchedulerServiceImpl">
+    <property name="schedulerService" ref="schedulerService" />
+</bean>
+  
+    <bean id="remoteSchedulerService" class="org.kuali.kfs.sys.batch.service.impl.RemoteSchedulerServiceImpl">
+        <property name="schedulerService" ref="schedulerService" />
+        <!--  TODO: Once control-m is integrated, change this address to something else -->
+        <property name="requestorEmailAddress" value="leo@rsmart.com" />
+    </bean>
+  
+	<jaxws:endpoint id="remoteScheduler" implementor="#remoteSchedulerService" address="/remoteSchedulerService" />
+<jaxws:endpoint id="remoteScheduler" implementor="#remoteSchedulerService" address="/remoteSchedulerService" />
+    \end{code}
+      
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 12
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{CXFServlet \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    Exposes web services accessible from the SpringContext through a servlet.
+    \begin{code}{java}
+private void loadSpringBus(ServletConfig servletConfig) throws ServletException {
+    // try to pull an existing ApplicationContext out of the
+    // ServletContext
+    ServletContext svCtx = getServletContext();
+
+    ApplicationContext ctx = new CXFSpringContext().getApplicationContext();
+        
+    updateContext(servletConfig, ctx);
+
+    if (ctx instanceof ConfigurableApplicationContext) {
+        ((ConfigurableApplicationContext)ctx).addApplicationListener(this);
+    }
+}
+    \end{code}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 13
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{More CXFServlet \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    \begin{code}{xml}
+<servlet>
+	<servlet-name>CXFServlet</servlet-name>
+	<display-name>CXF Servlet</display-name>
+	<servlet-class>org.kuali.kfs.sys.web.servlet.CXFServlet</servlet-class>
+	<load-on-startup>1</load-on-startup>
+</servlet>
+...
+<servlet-mapping>
+    <servlet-name>CXFServlet</servlet-name>
+    <url-pattern>/ws/*</url-pattern>
+</servlet-mapping>
+    \end{code}
+    
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 14
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Building Web Service Clients \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    \begin{itemize}
+    \item wsdl2java
+      \begin{itemize}
+      \item source code
+      \item compiling
+      \item running
+      \end{itemize}
+      \end{itemize}
+    \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 15
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Thank you for attending \xml{img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/}}
+    \begin{itemize}
+      \item Presentations in \LaTeX and S5 with HTML5 customizations
+      \item Resources available at https://github.com/r351574nc3/Just-Follow-Along
+      \end{itemize}
+    \W \end{s5slide}
+
+\W \end{s5presentation}
+\end{document}
