@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- XML file produced from file: BatchWebServices.tex
+     using Hyperlatex v 2.9-in-waiting-rk (oct06) (c) Otfried Cheong
+     on Emacs 22.2.1, Wed Nov 10 09:01:45 2010 -->
+<head>
+<title>Scripting Batch Processing with Web Services</title>
+
+    <!-- metadata -->
+    <meta name="generator" content="S5" />
+    <meta name="version" content="S5 1.1" />
+    <meta name="company" content="Leosandbox " />
+    <!-- configuration parameters -->
+    <meta name="defaultView" content="slideshow" />
+    <meta name="controlVis" content="hidden" />
+    <!-- style sheet links -->
+    <link rel="stylesheet" href="ui/kd2010/slides.css" type="text/css" media="projection" id="slideProj" />
+    <link rel="stylesheet" href="ui/kd2010/outline.css" type="text/css" media="screen" id="outlineStyle" />
+    <link rel="stylesheet" href="ui/kd2010/print.css" type="text/css" media="print" id="slidePrint" />
+    <link rel="stylesheet" href="ui/kd2010/opera.css" type="text/css" media="projection" id="operaFix" />
+    <link href='ui/kd2010/shCore.css' rel='stylesheet' type='text/css'/>  
+    <link href='ui/kd2010/shThemeDefault.css' rel='stylesheet' type='text/css'/>
+    <script src="ui/kd2010/slides.js" type="text/javascript"></script>
+    <script src="ui/kd2010/jquery.js" type="text/javascript"></script>
+    <script src="ui/kd2010/jquery-ui.js" type="text/javascript"></script>
+    <script src='ui/kd2010/shCore.js' type='text/javascript'></script>
+    <script src='ui/kd2010/shBrushCss.js' type='text/javascript'></script>
+    <script src='ui/kd2010/shBrushJava.js' type='text/javascript'></script>
+    <script src='ui/kd2010/shBrushJScript.js' type='text/javascript'></script>
+    <script src='ui/kd2010/shBrushPhp.js' type='text/javascript'></script>
+    <script src='ui/kd2010/shBrushSql.js' type='text/javascript'></script>
+    <script src='ui/kd2010/shBrushVb.js' type='text/javascript'></script>
+    <script src='ui/kd2010/shBrushXml.js' type='text/javascript'></script>
+<script language='javascript'> 
+SyntaxHighlighter.config.bloggerMode = true;
+SyntaxHighlighter.config.clipboardSwf = "http://alexgorbatchev.com/pub/sh/2.1.364/scripts/clipboard.swf";
+SyntaxHighlighter.all();
+</script>
+
+  
+</head>
+<body>
+
+<div class="slide" style="background-image: url(ui/kd2010/front.png);">
+<div class="layout">
+  <div id="controls"><!-- DO NOT EDIT --></div>
+  <div id="currentSlide"><!-- DO NOT EDIT --></div>
+</div>
+</div>
+<div class="presentation">
+    
+<p><div class="slide">
+<h1>Scripting Batch Processing with Web Services</h1>
+<h2>For Kuali Financials</h2>
+<h3>Leo Przybylski</h3>
+<h4>rSmart</h>
+</div>
+<div class="slide"><div class="slideBody">
+</p>
+
+<h1><a name="id1">Overview <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><ul><li>Why Batch Processing from the Shell?
+</li><li>Why Batch Web Services?
+</li><li>Web Services Options
+</li><li>UA Implementation Scenario
+<ul><li>Remote Scheduler Wrapper
+</li><li>Web Service Clients
+</li></ul>
+</li></ul>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id2">Why Batch Processing from the Shell? <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><ul><li>Widely supported by scheduling software vendors (This is actually consistent!)
+</li><li>Supports file transfer out-of-the-box
+</li><li>Supports status codes, logging, autocomplete!
+</li><li>Easy to schedule or run manually
+</li></ul>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id3">Why Batch Web Services? <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><ul><li>Some vendors support this (Peoplesoft, BMC Control-M)
+</li><li>Easiest way to attach externally to any running Kuali instances
+</li><li>No need for multiple Kuali instances
+</li><li>Everyday more services are becoming available in the KSB
+</li></ul>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id4">Web Service Options <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><ul><li>SOAP
+</li><li>ReST
+</li><li>Servlet
+</li><li>JSP
+</li></ul>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id5">UA Implementation Scenario <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><ul><li>BMC Control-M
+</li><li>Pushes files
+</li><li>Makes Web Servioe Calls to the Kuali application
+</li><li>Caveats
+<ul><li>Batch processing during maintenance periods
+</li><li>No WS-Security in KFS 3.0.1
+</li><li>Web services on the KFS application are restricted by firewall.
+</li></ul>
+</li></ul>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id6">Scheduler Service Wrapper <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><ul><li>Why? 
+<ul><li>Give WS interface to the scheduler
+</li><li>Allows exposure without the service bus
+</li></ul>
+</li><li>Service Interface
+</li><li>Service Implementation
+</li><li>configuration.properties
+</li><li>Spring Configuration
+</li><li>CXFServlet
+</li></ul>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id7">Scheduler Service Wrapper <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><ul><li>Why? 
+<ul><li>Give WS interface to the scheduler
+</li><li>Allows exposure without the service bus
+</li></ul>
+</li><li>Service Interface
+</li><li>Service Implementation
+</li><li>configuration.properties
+</li><li>Spring Configuration
+</li><li>CXFServlet
+</li></ul>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id8">Interface <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><p>
+
+<div class="code">
+<pre class="brush: java" style="font-size: 50pt;">
+  
+@WebMethod
+public @WebResult(name="result") boolean runRemoteJob(@WebParam(name="jobName") String jobName,
+@WebParam(name="requestorEmailAddress") String requestorEmailAddress);
+</p>
+<p>@WebMethod
+public @WebResult(name="result") String getStatus(String jobName);
+</pre></div>
+</p>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id9">Implementation <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><p>
+
+<div class="code">
+<pre class="brush: java" style="font-size: 50pt;">
+  
+public boolean runRemoteJob(String jobName, String requestorEmailAddress) 
+final String statusBefore = getStatus(jobName);    // to verify job can run
+getSchedulerService().runJob(jobName, requestorEmailAddress);
+</p>
+<p>pauseForJobCompletion(jobName);
+</p>
+<p>final String statusAfter = getStatus(jobName);
+</p>
+<p>if (statusAfter.toLowerCase().contains("succeeded")) 
+return true;
+</p>
+<p>return false;
+</p>
+</pre></div>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id10">Spring Configuration <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><p>Add namespaces to spring-sys.xml
+</p>
+<p>
+<div class="code">
+<pre class="brush: xml" style="font-size: 50pt;">
+  
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:p="http://www.springframework.org/schema/p"
+xmlns:jaxws="http://cxf.apache.org/jaxws"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd"&gt;
+</pre></div>
+</p>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id11">Spring Configuration <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><p>Add Web Service endpoint definition
+</p>
+<p>
+<div class="code">
+<pre class="brush: xml" style="font-size: 50pt;">
+  
+&lt;bean id="remoteSchedulerService" class="org.kuali.kfs.sys.batch.service.impl.RemoteSchedulerServiceImpl"&gt;
+&lt;property name="schedulerService" ref="schedulerService" /&gt;
+&lt;/bean&gt;
+</p>
+<p>&lt;bean id="remoteSchedulerService" class="org.kuali.kfs.sys.batch.service.impl.RemoteSchedulerServiceImpl"&gt;
+&lt;property name="schedulerService" ref="schedulerService" /&gt;
+&lt;!-  TODO: Once control-m is integrated, change this address to something else -&gt;
+&lt;property name="requestorEmailAddress" value="leo@rsmart.com" /&gt;
+&lt;/bean&gt;
+</p>
+<p>&lt;jaxws:endpoint id="remoteScheduler" implementor="#remoteSchedulerService" address="/remoteSchedulerService" /&gt;
+&lt;jaxws:endpoint id="remoteScheduler" implementor="#remoteSchedulerService" address="/remoteSchedulerService" /&gt;
+</pre></div>
+</p>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id12">CXFServlet <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><p>Exposes web services accessible from the SpringContext through a servlet.
+</p>
+<p>
+<div class="code">
+<pre class="brush: java" style="font-size: 50pt;">
+  
+private void loadSpringBus(ServletConfig servletConfig) throws ServletException 
+// try to pull an existing ApplicationContext out of the
+// ServletContext
+ServletContext svCtx = getServletContext();
+</p>
+<p>ApplicationContext ctx = new CXFSpringContext().getApplicationContext();
+</p>
+<p>updateContext(servletConfig, ctx);
+</p>
+<p>if (ctx instanceof ConfigurableApplicationContext) 
+((ConfigurableApplicationContext)ctx).addApplicationListener(this);
+</p>
+</pre></div>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id13">More CXFServlet <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><p>
+
+<div class="code">
+<pre class="brush: xml" style="font-size: 50pt;">
+  
+&lt;servlet&gt;
+&lt;servlet-name&gt;CXFServlet&lt;/servlet-name&gt;
+&lt;display-name&gt;CXF Servlet&lt;/display-name&gt;
+&lt;servlet-class&gt;org.kuali.kfs.sys.web.servlet.CXFServlet&lt;/servlet-class&gt;
+&lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+&lt;/servlet&gt;
+...
+&lt;servlet-mapping&gt;
+&lt;servlet-name&gt;CXFServlet&lt;/servlet-name&gt;
+&lt;url-pattern&gt;/ws/*&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;
+</pre></div>
+</p>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id14">Building Web Service Clients <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><ul><li>wsdl2java
+<ul><li>source code
+</li><li>compiling
+</li><li>running
+</li></ul>
+</li></ul>
+</div></div>
+<div class="slide"><div class="slideBody">
+
+<h1><a name="id15">Thank you for attending <img src="ui/kd2010/z_yunsung.gif" id="external" border="0" width="80"/></a></h1><ul><li>Presentations in LaTeXand S5 with HTML5 customizations
+</li><li>Resources available at https://github.com/r351574nc3/Just-Follow-Along
+</li></ul>
+</div></div>
+</div>
+<hr />
+</body></html>
