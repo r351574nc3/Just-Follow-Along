@@ -40,7 +40,6 @@
           \item eduPerson/shibboleth data
         \end{itemize}
     \end{itemize}
-    \xml{img src="ui/kd2010/z_nightmare.gif" id="external" border="0" width="100"/}
   \W \end{s5slide}
 
 
@@ -86,13 +85,160 @@
 
 %%%%%%%%%%%%%%%%%%%$$$
 %
+% Slide 3
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Dive Even Deeper...}
+
+    \begin{itemize}
+    \item The KIMLdapSpringBeans.xml
+    \item Customizing Mappings
+      \end{itemize}
+    \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
 % Slide 4
 %
 %%%%%%%%%%%%%%%%%%%%%%%
   \W \begin{s5slide}
     \section{Reference LDAP Server Setup}
+    \begin{itemize}
+      \item Create Database
+      \item Create base DN
+      \item Add object classes for eduPerson, inetOrgPerson, etc...
+      \item Add institution-specific object class information
+      \item Add some users
+      \item You're setup!
+    \end{itemize}
 
     \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 5
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Create Database}
+    \begin{code}{java}
+dn: cn=module,cn=config
+objectClass: olcModuleList
+cn: module
+olcModulepath: /usr/lib/ldap
+olcModuleload: back_hdb.la
+
+# Database settings
+dn: olcDatabase=hdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcHdbConfig
+olcDatabase: hdb
+olcSuffix: dc=rsmart,dc=com
+olcDbDirectory: /var/lib/ldap
+olcRootDN: cn=admin,dc=rsmart,dc=com
+olcRootPW: 6h5aXHLGCysQf3N4S9zYnuOtTijDVFZk
+olcDbConfig: set_cachesize 0 2097152 0
+olcDbConfig: set_lk_max_objects 1500
+olcDbConfig: set_lk_max_locks 1500
+olcDbConfig: set_lk_max_lockers 1500
+olcDbIndex: objectClass eq
+olcLastMod: TRUE
+olcDbCheckpoint: 512 30
+olcAccess: to attrs=userPassword by dn="cn=admin,dc=rsmart,dc=com" write by anonymous auth by self write by * none
+olcAccess: to attrs=shadowLastChange by self write by * read
+olcAccess: to dn.base="" by * read
+olcAccess: to * by dn="cn=admin,dc=rsmart,dc=com" write by * read\
+    \end{code}
+
+    \W \end{s5slide}
+
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 5
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Create Base DN}
+    \begin{code}{java}
+# Create top-level object in domain
+dn: dc=rsmart,dc=com
+objectClass: top
+objectClass: dcObject
+objectclass: organization
+o: rSmart Group
+dc: rsmart
+description: rSmart Group
+    \end{code}
+
+    \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 6
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Add object classes}
+\begin{code}{java}
+ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/core.ldif
+ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/cosine.ldif
+ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/inetorgperson.ldif
+ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/nis.ldif
+ldapadd -Y EXTERNAL -H ldapi:/// -f eduPerson.ldif
+\end{code}
+
+    \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 7
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Add some users}
+    \begin{code}{java}
+dn: uid=przybyls,ou=Rice Users,dc=rsmart,dc=com
+uid: przybyls
+eduPersonAffiliation: staff
+eduPersonAffiliation: affiliate
+eduPersonAffiliation: faculty
+eduPersonAffiliation: student
+employeeType: A
+objectClass: eduMember
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: top
+objectClass: eduPerson
+objectClass: organizationalPerson
+sn: Przybylski
+givenName: Leo
+cn: Leo Przybylski
+userPassword: 6h5aXHLGCysQf3N4S9zYnuOtTijDVFkZ
+\end{code}
+    \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 4
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Reference LDAP Server Setup}
+    \begin{itemize}
+      \item Install LDAP Server
+      \item Create base DN
+      \item Add object classes for eduPerson, inetOrgPerson, etc...
+      \item Add institution-specific object class information
+      \item Add some users
+      \item You're setup!
+    \end{itemize}
+
+    \W \end{s5slide}
+
+
+
 
 %%%%%%%%%%%%%%%%%%%$$$
 %
@@ -151,22 +297,69 @@
 
 %%%%%%%%%%%%%%%%%%%$$$
 %
+% Slide 7
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{How CAS Works}
+    \begin{itemize}
+      \item CAS Client (Application side)
+      \item CAS Server (Talks to LDAP Server)
+      \item Validation (Communication between Client and Server)
+      \end{itemize}
+    
+    \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 7
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Building/Deploying/Configuring the Server}
+    Duffy Gillman at rSmart developed this really cool tool!! Just...
+    \begin{enumerate}
+      \item Checkout
+      \item Modify ldap.properties
+      \item Build!
+      \item Deploy!
+    \end{enumerate}
+    \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 7
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{ldap.properties}
+\begin{code}{java}
+ldap_server_url=ldap://localhost
+ldap.server.bind.username=cn=admin,dc=rsmart,dc=com
+ldap.server.bind.password=6h5aXHLGCysQf3N4S9zYnuOtTijDVFZk
+ldap.authentication.filter=uid=%u,ou=Rice Users
+\end{code}
+\end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
 % Slide 8
 %
 %%%%%%%%%%%%%%%%%%%%%%%
   \W \begin{s5slide}
-    \section{Rice CAS Configuration}
-
+    \section{Rice CAS Client Configuration}
+    
     \begin{code}{xml}
   <param name="server.url">\$\{application.url\}</param>
   <param name="cas.url">\$\{application.host\}:\$\{http.port\}/cas</param>
+  <param name="cas.login.url">\$\{cas.url\}/login</param>
   <param name="filter.login.class">org.jasig.cas.client.authentication.AuthenticationFilter</param>
-  <param name="filter.login.casServerLoginUrl">\$\{cas.url\}/login</param>
+  <param name="filter.login.casServerLoginUrl">\$\{cas.login.url\}</param>
   <param name="filter.login.serverName">\$\{server.url\}</param>
+  <param name="cas.validate.url">\$\{cas.url\}/serviceValidate</param>
     \end{code}
     
     \W \end{s5slide}
-
 
 %%%%%%%%%%%%%%%%%%%$$$
 %
@@ -175,16 +368,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%
   \W \begin{s5slide}
     \section{LDAP/KIM Integration Setup}
-
-    \W \end{s5slide}
-
-%%%%%%%%%%%%%%%%%%%$$$
-%
-% Slide 9
-%
-%%%%%%%%%%%%%%%%%%%%%%%
-  \W \begin{s5slide}
-    \section{Debugging LDAP...}
+    \begin{itemize}
+      \item Add appropriate system parameters
+        \begin{itemize}
+          \item KIM_TO_LDAP_FIELD_MAPPINGS
+          \item KIM_TO_LDAP_VALUE_MAPPINGS
+        \end{itemize}
+      \item Add component type
+      \item Disable "Modify Entity"
+    \end{itemize}
 
     \W \end{s5slide}
 
@@ -195,7 +387,103 @@
 %%%%%%%%%%%%%%%%%%%%%%%
   \W \begin{s5slide}
     \section{Mapping LDAP Fields to KIM}
+    KIM_TO_+LDAP_FIELD_MAPPINGS
 
+    The field mapping format is 
+    \begin{code}{java}
+some kim field name=some ldap field name;some kim field name=some ldap field name;
+    \end{code}
+
+
+    \begin{code}{sql}
+INSERT INTO KRNS_PARM_T 
+(APPL_NMSPC_CD, NMSPC_CD, PARM_DTL_TYP_CD, PARM_NM, OBJ_ID, VER_NBR, TXT, PARM_DESC_TXT, PARM_TYP_CD, CONS_CD)
+VALUES ('KFS','KFS-SYS', 'Config', 'KIM_TO_EDS_FIELD_MAPPINGS', SYS_GUID(), 1, 'entityId=uaid;principalId=uaid;principalName=uid;givenName=sn;principals.principalName=uid;principals.principalId=uaid;principals.active=employeeStatus;lastName=sn;firstName=givenName;employmentInformation.employeeStatus=employeeStatus;employmentInformation.employeeId=employeeId;names.lastName=sn;names.firstName=givenName;', 'Maps a KIM field/property name to an EDS field/property name', 'VALID', 'D');
+    \end{code}
+      \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 10
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Mapping LDAP Fields to KIM}
+    KIM_TO_LDAP_VALUE_MAPPINGS
+
+    The value mapping format is 
+    \begin{code}{java}
+some kim field name.some kim value=some ldap value, some other ldap value, etc...;
+    \end{code}
+
+    \begin{code}{sql}
+INSERT INTO KRNS_PARM_T 
+(APPL_NMSPC_CD, NMSPC_CD, PARM_DTL_TYP_CD, PARM_NM, OBJ_ID, VER_NBR, TXT, PARM_DESC_TXT, PARM_TYP_CD, CONS_CD)
+VALUES ('KFS','KFS-SYS', 'Lookup', 'KIM_TO_EDS_VALUE_MAPPINGS', SYS_GUID(), 1, 'principals.active.Y=A,B,F,N,P,L;principals.active.N=D,M,R,T,U;', 'Maps a KIM field/property name to an EDS field/property name', 'VALID', 'D');
+      \end{code}
+
+    \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 10
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Remote Modify Entity Permission}
+    Prevents users from altering the read-only content in forms.
+    
+    \begin{code}{sql}
+update KRIM_PERM_T set ACTV_IND = 'N' where NM like '\%Modify Entity\%'
+      \end{code}
+
+    \W \end{s5slide}
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 9
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Debugging LDAP...}
+    Use ldapsearch
+
+    \begin{code}{java}
+(14:03:04) [59] ldapsearch -x -b "ou=Rice Users,dc=rsmart,dc=com" -h localhost  'uid=khuntley'
+# extended LDIF
+# LDAPv3
+# base <ou=Rice Users,dc=rsmart,dc=com> with scope subtree
+# filter: uid=khuntley
+# requesting: ALL
+
+# khuntley, Rice Users, rsmart.com
+dn: cn=khuntley,ou=Rice Users,dc=rsmart,dc=com
+uid: khuntley
+...
+...
+# numResponses: 2
+# numEntries: 1
+\end{code}
+
+    \W \end{s5slide}
+
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 11
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{KIMLdapSpringBeans.xml}
+    \begin{code}{java}
+<bean id="ContextMapper-kimEntityEmploymentInformationInfo" 
+      parent="ContextMapper-kimEntityEmploymentInformationInfo-parentBean" />
+<bean id="ContextMapper-kimEntityEmploymentInformationInfo-parentBean" 
+      abstract="true" 
+      class="org.kuali.rice.kim.ldap.KimEntityEmploymentInformationInfoMapper" >
+  <property name="constants" ref="kimConstants" />
+</bean>
+
+      \end{code}
     \W \end{s5slide}
 
 %%%%%%%%%%%%%%%%%%%$$$
@@ -204,8 +492,26 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%
   \W \begin{s5slide}
-    \section{Questions}
-    \W \end{s5slide}
+    \section{Customizing Mappings}
+    \begin{code}{java}
+public Object doMapFromContext(DirContextOperations context) {
+    final KimEntityEmploymentInformationInfo employee = new KimEntityEmploymentInformationInfo();
+    final String departmentCode = context.getStringAttribute(getConstants().getDepartmentLdapProperty());        
+    if (departmentCode == null) {
+            return null;
+    }        
+    employee.setEmployeeId(context.getStringAttribute(getConstants().getEmployeeIdProperty()));
+    employee.setEmployeeStatusCode(context.getStringAttribute(getConstants().getEmployeeStatusProperty()));
+    employee.setEmployeeTypeCode("P");
+    employee.setBaseSalaryAmount(KualiDecimal.ZERO);        
+    if (departmentCode != null) {
+        employee.setPrimaryDepartmentCode("" + Integer.parseInt(departmentCode));
+    }
+    employee.setActive(true);
+    return employee;
+}
+\end{code}
+\W \end{s5slide}
 
 %%%%%%%%%%%%%%%%%%%$$$
 %
