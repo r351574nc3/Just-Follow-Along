@@ -1,0 +1,377 @@
+<h2>KIS Me Kate - RPM Packaging KFS Part 2</h2>
+Now that we know packaging is a pretty good idea, let's have a look at what needs to be done to actually create the package. I'm going to take a "city building" approach. I'll start small with a <i>no frills</i> RPM distribution of KFS. I will slowly add more complexity until there is a fully robust package building system in place. 
+<h2>Let's Get Started</h2> What do we need for a bare-bones installation of KFS?<ul><li>The source code (can't forget that).</li><li>Prebuilt local installation of KFS</li><li>RPM spec file</li><li>A repository to store packages in</li><li>rpm-build on the packaging machine</li><li>A machine setup for packaging</li><li>An environment ready to install to</li></ul>
+<h3>1 Prebuilt local installation of KFS</h3>Keep in mind that when you're packaging software, it is best to have the software built as much as possible. Compiling while installing is not the best thing. It requires more tools (development tools) on the machine you're installing on, it can complicate installation with further dependencies. Development dependencies are the worst to handle. You don't want those on your installation machine.
+
+You want to get this right. Let me show you what I did to create an installation ready for packaging. In the interest of time, I'm going to skip getting the source code and setting up your tools. I am going to assume that as a developer or configuration manager, you're already familiar with the tools and how to get the source code. Let's just pretend you just checked out the KFS source code from the Kuali Foundation as is.
+
+Once you checkout KFS, you should have something that looks like this:<p class="code">build   cnv-build.properties reg-build.properties
+build-foundation.xml dev-build.properties test
+build.xml  ptd-build.properties work
+</p>
+
+<h4>1.1 Setup Pre-processing</h4> Here we can add our pre-processing hooks. Create a directory called <b>vendor/&lt;yourinstitution&gt;/deployment</b>. This is where all the processing code is going to go, so we do not disrupt the original KFS codebase. Within, I add a build.xm:<pre class="brush: xml">
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project          name="kfs" 
+               default="dist-rpm" basedir="../../../"
+          xmlns:deploy="urn:com.rsmart.kuali"
+         xmlns:twitter="urn:com.rsmart.kuali.twitter"&gt;
+
+  &lt;property file="${tools.directory}/home/${ant.project.name}-build.properties" 
+/&gt;
+  &lt;import file="${basedir}/build.xml"/&gt;
+  &lt;import file="${tools.directory}/macros-rpm.xml" /&gt;
+
+  &lt;target      name="init-classpath" 
+          description="Initializes classpath for normal execution. Classpath consists of the normal kuali classpath plus build dependencies."
+              depends="init-properties"&gt;
+    &lt;property  name="build.temp.directory" 
+              value="${deploy.working.directory}/deploy-${build.environment}" /&gt;
+    &lt;property file="${basedir}/vendor/&lt;yourinstitution&gt;/deployment/rpm.properties" /&gt;    
+  &lt;/target&gt;
+
+  &lt;target name="prepare-rpm" depends="init-classpath"&gt;
+    &lt;mkdir dir="${rpm.appserver.deploy.dir}" /&gt;
+    &lt;mkdir dir="${rpm.external.config.directory}" /&gt;
+    &lt;mkdir dir="${rpm.appserver.localhost.dir}" /&gt;
+    &lt;mkdir dir="${rpm.external.config.directory}" /&gt;
+    &lt;mkdir dir="${rpm.settings.directory}" /&gt;
+    &lt;mkdir dir="${rpm.security.directory}" /&gt;
+    &lt;mkdir dir="${rpm.logs.directory}" /&gt;
+    &lt;mkdir dir="${rpm.reports.directory}" /&gt;
+    &lt;mkdir dir="${rpm.external.work.directory}" /&gt;
+  &lt;/target&gt;
+
+  &lt;target        name="dist-war" 
+          description="Kuali distribution plus post processing."
+              depends="init-classpath,dist"&gt;
+    &lt;fail unless="build.environment"&gt;Need the build.environment to build&lt;/fail&gt;
+    
+  &lt;/target&gt;
+
+  &lt;target name="dist-rpm" depends="prepare-rpm,dist-war" /&gt;
+&lt;/project&gt;
+</pre>
+You probably noticed right away the following line:<pre class="brush: xml">
+&lt;project          name="kfs" 
+               default="dist-rpm" basedir="../../../"
+          xmlns:deploy="urn:com.rsmart.kuali"
+         xmlns:twitter="urn:com.rsmart.kuali.twitter"&gt;
+
+  &lt;property file="${tools.directory}/home/${ant.project.name}-build.properties" /&gt;
+  &lt;import file="${basedir}/build.xml"/&gt;
+  &lt;import file="${tools.directory}/macros-rpm.xml" /&gt;
+...
+...
+&lt;/project&gt;
+</pre>
+The answer is, "Yes"! We're actually importing the original build.xml file. The reason for this is we want to execute the normal build and add hooks to it from within. This build.xml is executed via: <p class="code">% ant -f vendor/&lt;yourinstitution&gt;/deployment/build.xml dist-war</p>
+You can see from the <b>init-classpath</b> ant target the above script uses the following rpm.properties file:<pre class="code">
+rpm.appserver.deploy.dir=${rpm.build.root}${appserver.deploy.dir}/
+rpm.appserver.localhost.dir=${rpm.build.root}${appserver.localhost.dir}/
+rpm.external.config.directory=${rpm.build.root}${external.config.directory}/
+rpm.settings.directory=${rpm.build.root}${settings.directory}/
+rpm.security.directory=${rpm.build.root}${security.directory}/
+rpm.logs.directory=${rpm.build.root}${logs.directory}/
+rpm.reports.directory=${rpm.build.root}${reports.directory}/
+rpm.staging.directory=${rpm.build.root}${staging.directory}/
+rpm.external.work.directory=${rpm.build.root}${external.work.directory}/
+rpm.log4j.settings.file=${rpm.build.root}${log4j.settings.file}/
+rpm.security.property.file=${rpm.build.root}${security.property.file}/
+rpm.ingestion.directory=${rpm.external.work.directory}/staging/workflow/ingestion/
+rpm.ddl.directory=${rpm.build.root}${external.config.directory}/ddl/${build.version}/
+rpm.install.command.dev=
+rpm.install.command.tst=
+rpm.install.command.cnv=
+rpm.install.command.cfg=
+rpm.install.command.trn=
+rpm.install.command.dmo=touch work/db/changesets/configuration.sql; \
+touch work/db/changesets/conversion.sql;
+rpm.install.command.stg=
+</pre>
+
+<h3>1.2 Build Configuration</h3>
+Notice that these are pretty much the original properties set in the <b>kfs-build.properties</b> file. The new properties are:<pre class="code">rpm.ingestion.directory=${rpm.external.work.directory}/staging/workflow/ingestion/
+rpm.ddl.directory=${rpm.build.root}${external.config.directory}/ddl/${build.version}/
+rpm.install.command.dev=
+rpm.install.command.tst=
+rpm.install.command.cnv=
+rpm.install.command.cfg=
+rpm.install.command.trn=
+rpm.install.command.dmo=touch work/db/changesets/configuration.sql; \
+touch work/db/changesets/conversion.sql;
+rpm.install.command.stg=</pre>
+I will explain these later. This is how you configure what the filesystem layout of your package is going to look like. The above illustrated properties are all paths. Each one defines where files are going to go on the installed system. If you are unsure about how you want your system laid out, just use mine. I will provide a diagram of where everything ends up later.
+
+Now, let's have a look at the kfs-build.properties<pre class="code">do.filter.project.help
+# TEMPORARILY CUSTOMIZE A GIVEN EXECUTION OF THE BUILD
+appserver.home=/Library/Tomcat/Home
+drivers.directory=${user.home}/kuali/drivers
+appserver.name=localhost:8080
+appserver.url=http://${appserver.name}/
+external.config.directory=${user.home}/kuali/main/dev/
+base.security.directory=${external.config.directory}/security
+base.settings.directory=${external.config.directory}/settings
+is.local.build=true
+rice.dev.mode=false
+# this property can be used to turn the batch schedule on and off
+use.quartz.scheduling=true
+periodic.thread.dump=false
+rice.standalone=false
+rice.kew.xml.pipeline.lifecycle.enabled=true
+</pre>
+You can see that I change the <b>appserver.home</b> because I want it to point the RHEL (RedHat Enterprise Linux) default tomcat5 location.  I am going to run this build as the tomcat user on my packaging machien, so I also changed the <b>external.config.directory</b> to be <b>/home/tomcat5/app</b>. This will insure that on my installation machine, the <b>/home/tomcat/app</b> will be the path consistently. I set <b>is.local.build</b>, <b>rice.dev.mode</b> as false , and <b>rice.kew.xml.pipeline.lifecycle.enabled</b> to true because I want automatice XML ingestion on my development server. These properties in combination will enable automatic XML ingestion at the path <b>${external.config.directory}/settings/work/kfs/dev/staging/workflow/pending</b>. Next, I set <b>periodic.thread.dump=false</b> because I don't want the annoying log messages and <b>rice.standalone</b> is set to <b>false</b> as well. For simplicity, I am not going to complicate this with a Rice installation. We're going to run <b>bundled</b> to keep it simple.
+
+That's it for communication. Now we will look at what happens during building and what the actual preprocessing is.
+
+<h3>1.3 Build the WAR</h3>
+<pre class="brush: java">  &lt;target        name="dist-war" 
+          description="Kuali distribution plus post processing."
+              depends="init-classpath,dist"&gt;
+    &lt;fail unless="build.environment"&gt;Need the build.environment to build&lt;/fail&gt;
+    
+  &lt;/target&gt;
+
+  &lt;target name="dist-rpm" depends="prepare-rpm,dist-war" /&gt;</pre>
+From the above, you can probably get a basic  understanding of what is happening. So far, there isn't much going on other than creating a war file. "We could have done that with the original KFS code", right? True. We've just setup for preprocessing. We'll do some actual preprocessing later. Now let's create the spec file.
+
+<h2>2 RPM Spec File</h2>This is the part most people have been wondering about. How do we tie RPM in with building KFS? How does that work? Here we go. 
+
+Before moving on, first check to make sure your packaging system has <b>rpm-build</b> installed. Without this, the spec file is just a txt file. It's no more useful to building KFS than mindless scribbling on a bathroom stall.<pre class="code">[tomcat@uaz-kf-a00 ~]$ rpm -qi rpm-build
+Name        : rpm-build                    Relocations: (not relocatable)
+Version     : 4.4.2.3                           Vendor: Red Hat, Inc.
+Release     : 18.el5                        Build Date: Thu 23 Jul 2009 10:58:22 PM MST
+Install Date: Mon 04 Jan 2010 08:57:28 AM MST      Build Host: hs20-bc1-7.build.redhat.com
+Group       : Development/Tools             Source RPM: rpm-4.4.2.3-18.el5.src.rpm
+Size        : 1582544                          License: GPLv2+
+Signature   : DSA/SHA1, Wed 29 Jul 2009 07:39:44 AM MST, Key ID 5326810137017186
+Packager    : Red Hat, Inc. <http://bugzilla.redhat.com/bugzilla>
+URL         : http://www.rpm.org/
+Summary     : Scripts and executable programs used to build packages.
+Description :
+The rpm-build package contains the scripts and executable programs
+that are used to build packages using the RPM Package Manager.
+[tomcat@uaz-kf-a00 ~]$ 
+</pre>
+<h3>2.1 Setup Package Home</h3>Add this to the <b>.rpmmacros</b> file <pre class="code">%_topdir /home/tomcat/.workspace/redhat
+%_dbpath /home/tomcat/rpm
+</pre>
+The above sets up the <b>tomcat</b> user rpm environment so its database resides in <b>/home/tomcat/rpm</b> and the rpm environment location to <b>/home/tomcat/.workspace/redhat</b>. RHEL users will be familiar with the path for rpms<pre class="code">/usr/src/redhat/
+/usr/src/redhat/BUILD
+/usr/src/redhat/RPMS
+/usr/src/redhat/SOURCES
+/usr/src/redhat/SPECS
+/usr/src/redhat/SRPMS
+</pre>
+
+<h3>2.2 Metadata</h3><pre class="code">%define __os_install_post %{nil}
+
+Summary: Kuali Financial System
+Name: kfs
+Version: ${version}
+Release: ${release}
+Provides: kfs
+License: EPL
+BuildArch: noarch
+Requires: tomcat5
+BuildRoot: /tmp/kfs/
+Source0: kfs-${build.version}.tar.gz
+Group: Development/Tools
+Packager: leo [at] rsmart.com
+</pre>
+Given the above metadata, let's try to predict what the package will look like. The name is <b>kfs</b>, so that means we can start with:<pre class="code">kfs-</pre>There's a version and release. The version is the official KFS version. In our case 4.0. The release is what I usually use to determine what my local release is by my institution's strategy. Let's just start with 1. That will make it look like: <pre class="code">kfs-4.0-1</pre>. Our buildarch is <b>noarch</b>. Arch is for architecture. If there is a specific architecture (darwin, i386, i686, amd64, etc...), that gets declared here. KFS is platform independent and architecture free by virtue of Java; therefore, we choose <b>noarch</b>. Now it is <pre class="code">kfs-4.0-1.noarch.rpm</pre>
+
+Observe that <b>${version}</b>, <b>${release}</b>, and <b>${build.version}</b> look like they're ant tokens. They are ant tokens. This file is intended to be filtered through ant. These values are passed in. That allows us to store this spec file in version control as a template, and repopulate it as needed. The tokens we are going to use are:<pre class="code">version
+release
+build.version
+build.environment</pre>
+Before getting into how the spec file is filtered, I want to show the rest of the spec file.<pre class="code">%description
+Kuali Financial Sytem Environment based on rSmart Vendor build ${version}
+with release ${release}
+
+%prep
+%setup -q
+%build
+
+%install
+BUILDDIR=%{_builddir}/kfs-%{version}
+rm -rf %{buildroot}
+${rpm.install.command}
+ant -f vendor/kitt/deployment/build-rpm.xml -Dbasedir=$BUILDDIR -Drpm.build.root=%{buildroot} -Dbuild.environment=${build.environment} -Dbuild.version=${build.version} dist-rpm
+
+%files
+%defattr(2770,tomcat,tomcat)
+/usr/share/tomcat5/webapps/kfs/
+
+%def(-,tomcat,tomcat)
+/home/tomcat/app/work/kfs/staging/workflow/pending/
+
+%attr(2770,tomcat,tomcat)
+/usr/share/tomcat5/webapps/kfs-${build.environment}/WEB-INF/web.xml
+/usr/share/tomcat5/webapps/kfs-${build.environment}/WEB-INF/classes/configuration.properties
+/usr/share/tomcat5/webapps/kfs-${build.environment}/static/
+/home/tomcat/app/sa_forms/java/kfs/
+%config /home/tomcat/app/work/kfs/archive/
+%config /home/tomcat/app/work/kfs/attachments/
+%config /home/tomcat/app/work/kfs/reports/
+%config /home/tomcat/app/work/kfs/skel.zip
+%config /home/tomcat/app/work/kfs/staging/1099
+%config /home/tomcat/app/work/kfs/staging/ar
+%config /home/tomcat/app/work/kfs/staging/cm
+%config /home/tomcat/app/work/kfs/staging/cr
+%config /home/tomcat/app/work/kfs/staging/fp
+%config /home/tomcat/app/work/kfs/staging/gl
+%config /home/tomcat/app/work/kfs/staging/ld
+%config /home/tomcat/app/work/kfs/staging/pdp
+%config /home/tomcat/app/work/kfs/staging/purap
+%config /home/tomcat/app/work/kfs/staging/recon
+%config /home/tomcat/app/work/kfs/staging/sys
+%config /home/tomcat/app/work/kfs/staging/tax
+%config /home/tomcat/app/work/kfs/staging/WEB-INF
+%config /home/tomcat/app/work/kfs/temp/
+%config /home/tomcat/app/logs/kfs/WEB-INF/web.xml
+%config /home/tomcat/app/j2ee/kfs/log4j.properties
+
+%pre
+rm -rf /usr/share/tomcat5/webapps/kfs-*
+
+%post
+MYPWD=$PWD
+cd /usr/share/tomcat5/webapps
+mv kfs kfs-$(cat ~tomcat/kitt-tools/.envrc)
+cd $MYPWD
+
+setfacl -R -d -m g:kfs:rwx /home/tomcat/app/work/${build.environment}/kfs/ #modify directory defaults for new files 
+setfacl -R -m g:kfs:rwx /home/tomcat/app/work/${build.environment}/kfs/ #modify existing files & directories, x for directories 
+
+%clean
+rm -rf %{buildroot}
+</pre>
+I probably should have mentioned this earlier, but this is not an <a href="http://www.rpm.org">RPM</a> tutorial. I am not going to go over all of <a href="http://www.rpm.org">RPM</a> has to offer. There is just way too much to discuss. If you would like to study or know more about RPM, read the <a href="http://www.rpm.org/max-rpm/">online book</a> instead. I am simply going to review how it works for our purposes. Speaking of which! The spec file is describes two different phases. It is only used in one phase (packaging), but it describes both packaging and installation. That is, when the package is installed, it is still obeying instructions from the spec file. Keep that in mind or things can be pretty confusing. It's like working in two different universes that stare at each other.
+
+When the spec file is processed, the first thing it will try to do is build. That's what these directives are doing: <pre class="code">%prep
+%setup -q
+%build
+
+%install
+BUILDDIR=%{_builddir}/kfs-%{version}
+rm -rf %{buildroot}
+${rpm.install.command}
+ant -f vendor/kitt/deployment/build.xml -Dbasedir=$BUILDDIR -Drpm.build.root=%{buildroot} -Dbuild.environment=${build.environment} -Dbuild.version=${build.version} dist-rpm
+</pre>
+The first few steps are merely uncompressing the source into the temporary build location. RPM likes to uncompress source files into <b>%_topdir/BUILD</b> which is in our case <b>/home/tomcat/.workspace/redhat/BUILD</b>. We should expect to find a <b>/home/tomcat/.workspace/redhat/BUILD/kfs-4.0</b> directory after files have been uncompressed.
+
+Next, ant is called providing <b>basedir</b>, <b>rpm.build.root</b>, <b>build.environment</b> and <b>build.version</b>. The target is <b>dist-rpm</b> which is what we looked at before. That means that by processing the spec file after the source code has been checked out, it will create the WAR file and necessary external configuration files. Thereby, it is essentially creating our application inside of <b>/home/tomcat/.workspace/redhat/BUILD/kfs-4.0</b>. That's just what we need.
+
+<h3>2.3 Spec File Re: Packaging</h3>
+Now we need to tell RPM how the files are laid out and what the permissions are. RPM is very unforgiving when it comes to files not being where they are expected as well as finding unexpected files. Either case is considered a failure. Wouldn't want unexpected files getting into your package, right? Also wouldn't want to create a package without all the files you expect. It makes sense. This is how we do that:<pre class="code">%files
+%defattr(2770,tomcat,tomcat)
+/usr/share/tomcat5/webapps/kfs/
+
+%attr(-,tomcat,tomcat)
+/home/tomcat/app/work/kfs/staging/workflow/pending/
+
+%attr(2770,tomcat,tomcat)
+/usr/share/tomcat5/webapps/kfs-${build.environment}/WEB-INF/web.xml
+/usr/share/tomcat5/webapps/kfs-${build.environment}/WEB-INF/classes/configuration.properties
+/usr/share/tomcat5/webapps/kfs-${build.environment}/static/
+/home/tomcat/app/sa_forms/java/kfs/
+%config /home/tomcat/app/work/kfs/archive/
+%config /home/tomcat/app/work/kfs/attachments/
+%config /home/tomcat/app/work/kfs/reports/
+%config /home/tomcat/app/work/kfs/skel.zip
+%config /home/tomcat/app/work/kfs/staging/1099
+%config /home/tomcat/app/work/kfs/staging/ar
+%config /home/tomcat/app/work/kfs/staging/cm
+%config /home/tomcat/app/work/kfs/staging/cr
+%config /home/tomcat/app/work/kfs/staging/fp
+%config /home/tomcat/app/work/kfs/staging/gl
+%config /home/tomcat/app/work/kfs/staging/ld
+%config /home/tomcat/app/work/kfs/staging/pdp
+%config /home/tomcat/app/work/kfs/staging/purap
+%config /home/tomcat/app/work/kfs/staging/recon
+%config /home/tomcat/app/work/kfs/staging/sys
+%config /home/tomcat/app/work/kfs/staging/tax
+%config /home/tomcat/app/work/kfs/staging/WEB-INF
+%config /home/tomcat/app/work/kfs/temp/
+%config /home/tomcat/app/logs/kfs/WEB-INF/web.xml
+%config /home/tomcat/app/j2ee/kfs/log4j.properties
+</pre>
+You can see it has both individual files and directories. In the case of directories, these are recursive. That means, that it assumes to include all files therein. The <b>%config</b> directive denotes paths that are considered configuration paths. These paths are only created/updated on installation. They are not touched on upgrade. This is how we preserve any configuration customizations we have made. Once they have been installed, only system administrators may/can manually modify them.
+
+Permissions are set using <pre class="code">%attr(2770,tomcat,tomcat)</pre> which means the tomcat user and group have access with the mask 2770.
+
+But what is this <b>/usr/share/tomcat5/webapps/kfs/</b>? That is the location of the webapp, but there is no environment designation. This is because when the application is built using the spec file, it is environment agnostic. It is built generally, so that environment specific information does not interfere. Only when the package is created and then installed does the environment actually matter. Not during building. During installation it will create a path <b>/usr/share/tomcat5/webapps/kfs/</b>, but during post-processing, this will change to the appropriate environment. See below:<pre class="code">%pre
+rm -rf /usr/share/tomcat5/webapps/kfs-*
+
+%post
+MYPWD=$PWD
+cd /usr/share/tomcat5/webapps
+mv kfs kfs-$(cat ~tomcat/.envrc)
+cd $MYPWD
+
+setfacl -R -d -m g:kfs:rwx /home/tomcat/app/work/${build.environment}/kfs/ #modify directory defaults for new files 
+setfacl -R -m g:kfs:rwx /home/tomcat/app/work/${build.environment}/kfs/ #modify existing files & directories, x for directories 
+</pre>
+During pre-processing of the package, cleanup is done to make sure any files that are intended to be overwritten are removed first. Then in post processing the path <b>kfs</b> is moved to the environment of the machine.<pre class="code">$(cat ~tomcat/.envrc)</pre> is a file that is part of environment preparation that I will discuss prior to installation of the package. It is fair to assume though, that this contains the environment name of application.
+
+<h3>2.4 Processing the Spec File</h3>I explained earlier that the spec file we have been looking at so far is actually just a template (let's call it <b>kfs.spec.template</b>) that is filtered through ant to create the real spec file. Here's how I handle it. Earlier, I showed from the <b>build.xml</b>:<pre class="brush: xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project          name="kfs" 
+               default="dist-rpm" basedir="../../../"
+          xmlns:deploy="urn:com.rsmart.kuali"
+         xmlns:twitter="urn:com.rsmart.kuali.twitter"&gt;
+
+  &lt;property file="${tools.directory}/home/${ant.project.name}-build.properties" 
+/&gt;
+  &lt;import file="${basedir}/build.xml"/&gt;
+  &lt;import file="${tools.directory}/macros-rpm.xml" /&gt;
+...
+...
+&lt;/project&gt;</pre>
+You can see that there is an import of <b>macros-rpm.xml</b>. Within this macros file, I define:<pre class="brush: xml">
+&lt;project  xmlns:deploy="urn:com.rsmart.kuali"&gt;
+  &lt;macrodef uri="urn:com.rsmart.kuali" name="filter"&gt;
+    &lt;attribute name="property" /&gt;
+    &lt;attribute name="srcfile" /&gt;
+    &lt;attribute name="filename" /&gt;
+    &lt;sequential&gt;
+      &lt;loadfile property="@{property}"
+                srcfile="@{srcfile}"&gt;
+        &lt;filterchain&gt;
+          &lt;expandproperties/&gt;
+        &lt;/filterchain&gt;
+      &lt;/loadfile&gt;
+
+      &lt;echo file="@{filename}"&gt;${@{property}}&lt;/echo&gt;
+    &lt;/sequential&gt;
+  &lt;/macrodef&gt;
+...
+...
+&lt;/project&gt;
+</pre>
+The filter task processes a file with the currently loaded ant properties. This is where the the aforementioned properties will be populated in the spec file. In order to use this task, I add the following to the <b>build.xml</b><pre class="brush: xml">  &lt;target name="package" depends="init-classpath"&gt;
+    &lt;!-- create spec file --&gt;
+    &lt;deploy:filter   property="kfs.spec.template" 
+                      srcfile="kfs.spec.template"
+                     filename="kfs.spec" /&gt;
+
+    &lt;exec executable="rpmbuild"&gt;
+      &lt;arg value="-bb" /&gt;
+      &lt;arg value="kfs.spec" /&gt;
+    &lt;/exec&gt;
+  &lt;/target&gt;
+</pre>
+Two things are happening here. The first thing that happens is that the spec file is filtered and output to the current working directory. Then, <b>rpmbuild</b> is run against it producing the rpm file in <b>/home/tomcat/.workspace/redhat/RPMS</b>
+
+<h3>2.5 Execution</h3>We run this simply by<pre class="code">ant -Dversion=4.0 -Drelease=1 -Dbuild.environment=dev package</pre>
+
+<h2>3 Installation</h2>Now that we have a package, let's install it. 
+
+<h3>3.1 Setup the Environment First</h3>Before we actually do an installation, there are a couple things that need to be setup on the environment. 
+<h4>3.1.1 .envrc</h4>First, if you recall, the <b>.envrc</b> file contains the environment designation. We just need to create one for DEV <pre class="code">% echo dev > $HOME/.envrc</pre>
+<h4>3.1.2 RPM Database</h4>RPM normally requires root access to run because it requires root to be able to read/write the RPM database located at <b>/var/lib/rpm</b>. What we're going to do is copy the database to retain all the information in it to <b>/home/tomcat/app/rpm</b>. <pre class="code">% mkdir $HOME/app
+% cp -rf /var/lib/rpm $HOME/app/</pre>
+<h4>3.1.3 Setup .rpmmacros</h4>Now that the database has been copied. RPM needs to be told which database to use. We do this by adding the following line to the <b>.rpmmacros</b> file <pre class="code">%_dbpath /home/tomcat/app/rpm</pre>
+<h3>3.2 Installation</h3>To finally install the new RPM package I use <pre class="code">% rpm -Uvh --force $HOME/.workspace/redhat/RPMS/kfs-4.0-1.noarch.rpm</pre>
+
+That is part 2. Part 3 will add workflow, automatic database upgrades/downgrades, and multi-packages with dependency management.

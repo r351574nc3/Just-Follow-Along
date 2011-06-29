@@ -1,0 +1,118 @@
+<h2>The Only Logger You'll Ever Need</h2>
+<h3>The Status Quo for Logging in Kuali</h3>
+One of the most frustrating things about developing with
+ <a href="http://www.kuali.org">Kuali Foundation Software</a> is the logging. Setup aside, 
+just adding the logging is frustrating. Mostly because of the immense amounts of copy/paste 
+that is encouraged by it. Here's an example of some of the boiler plate.
+<pre>
+...
+...
+import org.apache.log4j.Logger;
+import org.apache.ojb.broker.query.Criteria;
+import org.apache.ojb.broker.query.QueryByCriteria;
+import org.kuali.kfs.coa.dataaccess.impl.ChartDaoOjb;
+import org.kuali.kfs.fp.businessobject.TravelMileageRate;
+import org.kuali.kfs.fp.document.dataaccess.TravelMileageRateDao;
+import org.kuali.rice.kns.dao.impl.PlatformAwareDaoBaseOjb;
+
+/**
+ * This class is the OJB implementation of the TravelMileageRate interface.
+ */
+public class TravelMileageRateDaoOjb extends PlatformAwareDaoBaseOjb implements TravelMileageRateDao {
+    private static Logger LOG = Logger.getLogger(ChartDaoOjb.class);
+...
+...
+</pre>
+Let's go through this. First, examine the import:
+<pre>
+import org.apache.log4j.Logger;
+</pre>
+Every single class you write with logging will require this weird, foreign class that 
+really has nothing to do with the functionality of your software. It's awkward, and it's 
+boilerplate. It's everywhere needlessly, and in some cases can cause you to neglect that 
+it's there. Next, is my favorite part. We declare the logger on top of having to import it:<br/>
+
+<pre>
+public class TravelMileageRateDaoOjb extends PlatformAwareDaoBaseOjb implements TravelMileageRateDao {
+    private static Logger LOG = Logger.getLogger(ChartDaoOjb.class);
+</pre>
+See anything unusual? This is really what I was getting at behind the copy/paste. To my knowledge, 
+this still exists in the KFS source code. It's misleading. This <tt>TravelMileageRateDao</tt> 
+is logging as the <tt>ChartDaoOjb</tt> I doubt this is on purpose. Rather, it is the result 
+of copy/pasting the logger declaration from another class. Many do this because it is 
+tedious. As a result, many forget to change the class name.<p>I am not going to blame the 
+developer for this. In my mind, it shouldn't even be necessary to do this. Shouldn't the 
+framework just know what class I'm logging from? Is that really so hard?<br />
+<h3>Researching the Performance of Logging</h3><p>After putting together 
+<a href="http://blog.leosandbox.org/2008/05/string-concatenation-in-java-2-logging.html">this post</a> on another blog,
+ I became determined to devise a simpler way to handle logging. Here were my goals.<br />
+<ul><li>Limit Logger boilerplate to the import statement</li><li>Efficient logging where the full log message is not concatenated until it is determined whether the message would be used or not</li><li>printf style formatting if possible.</li></ul>
+<h3>Back to the Question</h3>Shouldn't the framework just know what class I'm logging from? Is that really so hard?
+</p><p>No. It's not.</p><p>I have created two classes called <tt><a href="https://test.kuali.org/svn/kc_project/trunk/src/main/java/org/kuali/kra/logging/BufferedLogger.java">BufferedLogger</a>
+</tt> and <tt><a href="https://test.kuali.org/svn/kc_project/trunk/src/main/java/org/kuali/kra/logging/FormattedLogger.java">FormattedLogger</a></tt>. 
+These are "The Only Loggers You'll Ever Need".</p><p><h4>How to use them</h4>It's easy. Before now, you probably thought static imports are pretty useless. Think again.<br />
+<pre>
+import static org.kuali.kra.logging.BufferedLogger.*;
+</pre>
+That's your boilerplate. Next, let's use it:
+<pre>
+public ActionForward insertProposalPerson(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+...
+...
+    // if the rule evaluation passed, let's add it<br />
+    if (rulePassed) {
+        document.getDevelopmentProposal().addProposalPerson(pdform.getNewProposalPerson());
+        info(ADDED_PERSON_MSG, pdform.getNewProposalPerson().getProposalNumber(), pdform.getNewProposalPerson().getProposalPersonNumber());
+        // handle lead unit for investigators respective to coi or pi<br />           
+
+        if (getKeyPersonnelService().isPrincipalInvestigator(pdform.getNewProposalPerson())) {
+            getKeyPersonnelService().assignLeadUnit(pdform.getNewProposalPerson(), document.getDevelopmentProposal().getOwnedByUnitNumber());
+        }
+...
+...
+</pre>
+Very easy stuff. Notice that there are multiple objects being passed to the <tt>info</tt> 
+method. They are not concatenated yet. The info method first checks if the message will be 
+used before concatenating. This is actually a huge timesaver if you consider that the '+' 
+and '+=' concatenation is pretty time consuming.</p><p>What about printf style logging? 
+Here's another example:
+<pre>
+void prepare(ActionForm form, HttpServletRequest request) {
+    ProposalDevelopmentForm pdform = (ProposalDevelopmentForm) form;
+    request.setAttribute(NEW_PERSON_LOOKUP_FLAG, EMPTY_STRING);
+    ProposalDevelopmentDocument document=pdform.getDocument();
+    List proposalpersons=document.getDevelopmentProposal().getProposalPersons();
+    for (Iterator iter = proposalpersons.iterator(); iter.hasNext();) {
+        ProposalPerson person=(ProposalPerson) iter.next();
+        if (person.getRole() != null) {
+            person.getRole().setReadOnly(getKeyPersonnelService().isRoleReadOnly(person.getRole()));
+            }
+        }
+        pdform.populatePersonEditableFields();
+        handleRoleChangeEvents(pdform.getDocument());
+
+        debug(INV_SIZE_MSG, pdform.getDocument().getDevelopmentProposal().getInvestigators().size());
+
+        try {
+            boolean creditSplitEnabled = this.getParameterService().getIndicatorParameter(ProposalDevelopmentDocument.class, CREDIT_SPLIT_ENABLED_RULE_NAME)
+                      &amp;&amp; pdform.getDocument().getDevelopmentProposal().getInvestigators().size() &gt; 0;
+            request.setAttribute(CREDIT_SPLIT_ENABLED_FLAG, new Boolean(creditSplitEnabled));
+            pdform.setCreditSplitEnabled(creditSplitEnabled);
+        }
+        catch (Exception e) {
+            warn(MISSING_PARAM_MSG, CREDIT_SPLIT_ENABLED_RULE_NAME);
+            warn(e.getMessage());
+        }       
+    }
+</pre>
+You can see that this looks no different than the <tt>info</tt> illustrated earlier.
+ There is one difference though. Examine the <tt>warn</tt> statement:<br /><br /> 
+<pre>
+warn(MISSING_PARAM_MSG, CREDIT_SPLIT_ENABLED_RULE_NAME);
+</pre>
+It uses a constant called <tt>MISSING_PARAM_MSG</tt>. This is actually a format string 
+that looks like:
+<pre>
+private static final String MISSING_PARAM_MSG = "Couldn't find parameter '%s'";
+</pre>
+<h4>Which is better? <tt><a href="https://test.kuali.org/svn/kc_project/trunk/src/main/java/org/kuali/kra/logging/BufferedLogger.java">BufferedLogger</a></tt> or <tt><a href="https://test.kuali.org/svn/kc_project/trunk/src/main/java/org/kuali/kra/logging/FormattedLogger.java">FormattedLogger</a></tt></h4><tt><a href="https://test.kuali.org/svn/kc_project/trunk/src/main/java/org/kuali/kra/logging/FormattedLogger.java">FormattedLogger</a></tt> has its downside. Formatting actually takes more clock cycles than concatenation. It's friendlier to developers though. With a rather large number of parameters to format, it can be relatively fast. I fall on <tt><a href="https://test.kuali.org/svn/kc_project/trunk/src/main/java/org/kuali/kra/logging/BufferedLogger.java">BufferedLogger</a></tt> the most, but <tt><a href="https://test.kuali.org/svn/kc_project/trunk/src/main/java/org/kuali/kra/logging/FormattedLogger.java">FormattedLogger</a></tt> has its uses.</p><p>There you have it. No more copy paste. printf style logging.<div></div></p></p>

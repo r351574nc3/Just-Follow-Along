@@ -1,0 +1,229 @@
+<h2>KIS Me Kate - RPM Packaging KFS Part 3</h2>
+<h3>Overview/Recap</h3>
+This is the last part of a 3 part series on packaging KFS with <a href="http://www.rpm.org">RPM</a>. Just when you thought there wasn't anything left to say about the subject, there's more. What didn't we cover last time? <ul><li><b>Workflow packaging</b> - this is actually useful to separate from the main package. Sometimes, you do not want to install/upgrade/reinstall your workflow definitions</li><li><b>Database Upgrade/Installation</b> - if you use liquibase, this is a very useful thing to split out from the main package. It is a useful thing to on-demand upgrade your database.</li><li><b>KC Setup/Packaging (Part 4)</b> - backtracking a little and it doesn't really have anything to do with KFS, but you have to admit that if you're interested in packaging KFS, you're also interested in packaging KC.</lI></ul>
+<h3>Workflow Packaging</h3>This refers to workflow as in the workflow XML that one ingests (usually manually). Sometimes workflow changes are couple to java source code changes in <a href="http://rice.kuali.org">Rice</a>. As a project manager/release manager, you want your project to deploy with as little hiccups as possible. This includes <b>all</b> of your changes that are interdependent to be deployed. If you deploy documents that require workflow changes, your application may not work unless you get those changes in somehow. I wouldn't trust a person to do it, so how do you get this done automatically?
+
+In <a href="http://kualigan.blogspot.com/2011/03/kis-me-kate-rpm-packaging-kfs-part-2.html">a previous post</a>, I showed some configuration source code <pre class="code">rice.dev.mode=false
+rice.standalone=false
+rice.kew.xml.pipeline.lifecycle.enabled=true</pre>These are important. I'll explain:<ul><li><b>rice.kew.xml.pipeline.lifecycle.enabled</b> - turns on a thread that runs periodically to ingest KEW xml (it does not use quartz, but an internal scheduler)</li><li><b>rice.dev.mode</b> - you want to set to false because unless, it is in dev, the xml pipeline will not run (regardless of the previous setting). There's a good reason for this. You generally do not want this running in any kind of production environment.</li><li><b>rice.standalone</b> - for now we are building KFS with rice running bundled/embedded. If this were set to false, then our rice would run separately, and we wouldn't be ingesting workflow through the KFS application.</lI></ul>
+Now, let's move from theory to practice. It appears that things are mostly setup through our configuration. What we need next is<ol><li>Copy workflow xml to the appropriate ingestion directory during the build process</li><li>Setup the spec file so that the files are included in their correct locations at packaging</li></ol>
+<h4>Modify Build to Move Workflow XML</h4>We now need to modify our <b>build.xml</b> in <b>vendor/&lt;your institution&gt;/</b>. In <a href="http://kualigan.blogspot.com/2011/03/kis-me-kate-rpm-packaging-kfs-part-2.html">a previous post</a>, there is a target called <b>dist-rpm</b>. It looks like, <pre class="brush: xml">&lt;target        name="dist-war" 
+          description="Kuali distribution plus post processing."
+              depends="init-classpath,dist"&gt;
+    &lt;fail unless="build.environment"&gt;Need the build.environment to build&lt;/fail&gt;
+    
+  &lt;/target&gt;
+
+  &lt;target name="dist-rpm" depends="prepare-rpm,dist-war" /&gt;</pre>
+We add a new target <b>dist-workflow</b> <pre class="brush: xml"> &lt;target        name="dist-war" 
+          description="Kuali distribution plus post processing."
+              depends="init-classpath,dist"&gt;
+    &lt;fail unless="build.environment"&gt;Need the build.environment to build&lt;/fail&gt;
+    
+  &lt;/target&gt;
+
+&lt;target        name="dist-workflow" 
+          description="Kuali post processing for KEW XML."
+              depends="init-classpath"&gt;
+    &lt;fail unless="build.environment"&gt;Need the build.environment to build&lt;/fail&gt;
+    
+    &lt;deploy:workflow-sieve release="${build.version}" kfspath="${basedir}" /&gt;
+   
+   &lt;mkdir dir="${rpm.ingestion.directory}" /&gt;
+    
+    &lt;copy todir="${rpm.ingestion.directory}" flatten="true"&gt;
+      &lt;fileset dir="${work.directory}/src/com" erroronmissingdir="false"&gt;
+        &lt;include name="**/workflow/*.xml" /&gt;
+      &lt;/fileset&gt;
+      &lt;fileset dir="${work.directory}/src/edu" erroronmissingdir="false"&gt;
+        &lt;include name="**/workflow/*.xml" /&gt;
+      &lt;/fileset&gt;
+
+    &lt;/copy&gt;
+  &lt;/target&gt;
+
+  &lt;target name="dist-rpm" depends="prepare-rpm,dist-war" /&gt;
+</pre>
+Obviously, we want to find the workflow xml and copy it to our desired location which is <pre class="code">rpm.ingestion.directory=${rpm.external.work.directory}/staging/workflow/pending/</pre> set in the <b>rpm.properties</b> file mentioned in <a href="http://kualigan.blogspot.com/2011/03/kis-me-kate-rpm-packaging-kfs-part-2.html">KIS Me Kate - RPM Packaging KFS Part 2</a>. There is a caveat though. In recent versions of <a href="http://rice.kuali.org">Rice</a>, a new ingestion of a workflow document type does <b>NOT</b> replace the old document type. It creates a new one. The old type still exists. This means that with subsequent ingestion, new document types will be created regardless of their differences. If your institution fancies having daily building/packaging, you could find yourself with a rather large list of document types with very little different from each other. How do we get around this? What I did was create a <b>workflow-sieve</b> task in the <b>macros-rpm.xml</b> that determines whether the workflow XML had any changes. This is what it looks like:<pre class="brush:xml">&lt;project  xmlns:deploy="urn:com.rsmart.kuali"&gt;
+...
+...
+   &lt;macrodef uri="urn:edu.arizona.kitt" name="workflow-sieve"&gt;
+    &lt;attribute name="release" /&gt;
+    &lt;attribute name="kfsPath" /&gt;
+    &lt;sequential&gt;
+      &lt;echo file="/tmp/workflow-sieve.py"&gt;&lt;![CDATA[
+#!/usr/bin/env python
+
+import os.path
+import re
+import sys
+from subprocess import *
+
+svnpath = "https://subversion.uits.arizona.edu/kitt-anon/kitt/financial-system/kfs/branches"
+trunkpath = "https://subversion.uits.arizona.edu/kitt-anon/kitt/financial-system/kfs/trunk"
+
+def findWorkflowFiles(basedir):
+    retval = []
+    for root, dirs, files in os.walk(basedir):
+        for file in (files):
+            if (re.match(".*workflow$", root)):
+                newroot = root.split('/work/')[1]
+                retval.append('/'.join(['work', newroot, file]))
+
+    return retval
+
+def getLastReleaseRevision(release):
+    releaseLoc = svnpath + "/3.0-" + str(release)
+    return getRevisionFor(releaseLoc)
+
+def getRevisionFor(path):
+    retval = Popen(["svn", "info", path], stdout=PIPE).communicate()[0]
+    retval = int(retval.split("Last Changed Rev: ")[1].split("\n")[0])
+    return retval
+
+def command(command):
+    print 'Executing: ' + command
+    os.system(command)
+
+
+release = int("@{release}".split("-")[1]) - 1
+workflowFiles = findWorkflowFiles('@{kfsPath}/work/src/edu/')
+workflowFiles.extend(findWorkflowFiles('@{kfsPath}/work/src/com/'))
+revision = getLastReleaseRevision(release)
+
+for workflow in workflowFiles:
+    filename = trunkpath + "/" + workflow
+    print "Checking revision on " + filename
+    fileRev = getRevisionFor(filename)
+    if (revision &gt; fileRev):
+        print "Removing " + workflow + " from package"
+        os.remove(workflow)
+      ]]&gt;
+      &lt;/echo&gt;
+      &lt;exec executable="${user.home}/python/bin/python"&gt;
+        &lt;arg value="/tmp/workflow-sieve.py" /&gt;
+      &lt;/exec&gt;
+      &lt;delete file="/tmp/workflow-sieve.py" /&gt;
+    &lt;/sequential&gt;
+  &lt;/macrodef&gt;
+...
+...
+&lt;/project&gt;
+</pre>
+Above is a simply python script that gets run as part of the <b>workflow-sieve</b> task which occurs during the <b>dist-workflow</b> target! This is great! Now our build is altered sufficiently to handle the workflow XML.
+<h4>Define Workflow Package</h4>Now I will add workflow to the <b>kfs.spec.template</b><pre class="code">%define __os_install_post %{nil}
+
+Summary: Kuali Financial System
+Name: kfs
+Version: ${version}
+Release: ${release}
+Provides: kfs
+License: EPL
+BuildArch: noarch
+Requires: tomcat5
+BuildRoot: /tmp/kfs/
+Source0: kfs-${build.version}.tar.gz
+Group: Development/Tools
+Packager: leo [at] rsmart.com
+
+%package workflow
+Summary: Kuali Financial System Workflow Document Types
+Group: System/Base
+Requires: kfs
+...
+...
+</pre>
+We set our requirement for KFS. this will ensure that all our KFS prerequisites exist before this is installed.
+After that, I add my description <pre class="code">%description  workflow
+Workflow XML for %release</pre>
+Notice that after <b>%description</b>, I give the string "workflow". Normally, there is no qualifier for <b>%description</b>. That indicates that it's going into the default package. We qualify with "workflow". This means that there will be a workflow qualifier added to the package name. The resulting package will be called <b>kfs-workflow-4.0-1.noarch.rpm</b>.
+
+Next, we specify our <b>%files</b> just like we did with the default package. <pre class="code">%files workflow
+%defattr(-,tomcat,tomcat)
+/home/tomcat/app/work/kfs/staging/workflow/</pre>
+
+Now when you rerun your packaging, you will have a workflow package that can be installed with your KFS application as well as all your workflow customizations for that release!
+
+<h3>Packaging Database Changes</h3>In particular, packaging your liquibase changelogs and having them run on installation! This is actually, a really good idea. Just like workflow changes, your database changes are coupled to your java source code. This is especially the case thanks to ORM. KFS may not even start correctly if you do not have tables mentioned in your mappings. The best way to make sure they exist is to add your liquibase change logs to installation. As an added bonus, you can now have visibility on all changes made to your database from release to release.
+<h4>Update build.xml</h4>Just like we did with our workflow packaging, we will need to change the build to include the liquibase change logs.<pre class="brush: xml">&lt;target name="dist-ddl" depends="init-classpath"&gt;
+  &lt;mkdir dir="${rpm.ddl.directory}" /&gt;
+      
+  &lt;copy todir="${rpm.ddl.directory}"&gt;
+    &lt;fileset dir="${work.directory}/db/"&gt;
+     &lt;include name="changesets/**/*" /&gt;
+     &lt;include name="scripts/**/*" /&gt;
+    &lt;/fileset&gt;
+  &lt;/copy&gt;
+
+&lt;/target&gt;
+
+&lt;target name="dist-rpm" depends="prepare-rpm,dist-war,dist-ddl,dist-workflow" /&gt;
+</pre>I have added now <b>dist-ddl</b> to the <b>dist-rpm</b> dependencies. I have also created the target for it. All it does is copy files out of <b>kfs-4.0/work/db/changets</b> and <b>kfs-4.0/work/db/scripts</b> into my build directory for packaging. 
+<h4>Add Spec Information</h4>Just like I did with workflow, I now add the <b>%package</b> for changelogs <pre class="code">%package changelogs
+Summary: Kuali Financial System KITT Customization Schema
+Group: System/Base
+Requires: liquibase,kfs,wget</pre>
+This will create a new package with the name <b>kfs-changelogs-4.0-1.noarch.rpm</b>. Also, notice that my dependency is liquibase. This means that liquibase will required as well as KFS before the changelogs can be run! A program called wget is required too. I will explain why later.
+
+Now I add <b>%description</b> and <b>files</b>.<pre class="code">%description changelogs
+Liquibase change logs for %release
+...
+...
+%files changelogs
+%defattr(-,tomcat,tomcat)
+/home/tomcat/app/ddl/${build.version}/changesets/latest
+/home/tomcat/app/ddl/${build.version}/changesets/install.xml
+/home/tomcat/app/ddl/${build.version}/changesets/constraints.xml
+%config /home/tomcat/app/ddl/${build.version}/changesets/update.xml
+%config /home/tomcat/app/ddl/${build.version}/changesets/update/
+...
+...
+</pre>
+The above describes that a new changeset path is created for each <b>${build.version}</b>. The reason for this is because we want to keep all the changelogs from previous builds. This allows us to quickly revert back in case we need to undo packages. One of the advantages of package management is being able to cleanly and systematically remove the software change without any evidence that it ever happened. The update.xml is listed as a configuration item because we never want this overwritten.
+<h4>Installation Post processing Script</h4>Unlike with workflow, we now have some pre/post processing to do. Until now, just files are being dropped in for installation. We don't do anything with these files. That is, liquibase is required, but it never runs. The database isn't actually changed yet. We still need to run liquibase on the changelogs.<pre class="code">%post changelogs 
+set -x
+
+VERSION=%release
+CURRENT=$(ls -t ~tomcat/app/ddl/|grep -v %release|head -1|cut -d- -f 2)
+REPO_URL=&lt;your institutions' SVN repo accessible via http&gt;
+KFS_VERSION=%version
+
+for x in $(seq $(expr $CURRENT + 1) $VERSION);
+do
+    if [ ! -e ~tomcat/app/ddl/$KFS_VERSION-$x ];
+    then
+        cd ~tomcat/app/ddl
+        wget -r -l 2 --no-parent -nH --cut-dirs=5 $REPO_URL/$KFS_VERSION-$x/
+    fi
+
+    cd ~tomcat/app/ddl/$KFS_VERSION-$x/changesets
+    liquibase --changeLogFile=update.xml --logLevel=finest update
+    liquibase --logLevel=finest tag %version.$x
+    cd 
+done
+
+if [ -e ~tomcat/app/ddl/%version-$(expr %release + 1) ];
+then
+    echo '%release' > /tmp/lquninst
+fi</pre>
+The above script is running liquibase on the current installation. This is pretty tricky which is why it's a shell script. When we upgrade/install our liquibase changelogs, we need to run all of the changes subsequently between the last and current version. For example, if we are upgrading from release 3 - release 15, we need to run all the scripts in between <b>in order</b>. The caveat is that when we upgrade directly (going from package for release 3 to package for release 15), we're skipping packages that contain the changelogs. This means we cannot assume the system has the changelogs installed. This is where wget comes in. We actually setup an anonymous, read-only accessible SVN rep url in the script <pre class="code">REPO_URL=&lt;your institutions' SVN repo accessible via http&gt;</pre>. We now use wget to retrieve from SVN the missing changelogs and install them before proceeding to process them through liquibase.<pre class="code">   liquibase --changeLogFile=update.xml --logLevel=finest update
+    liquibase --logLevel=finest tag %version.$x</pre>it is important to note that liquibase is tagging a version after each update. We will use this in a moment.
+<h4>Uninstallation Post-processing Script</h4>That handles installation/upgrades, but ... what about uninstallations. Well, an uninstallation is pretty much reverting liquibase to the state of the previous changelog. The way we know the state of the previous changelog is that the state was tagged on installation (mentioned earlier). Now we know where to downgrade to. To handle uninstallations, RPM has a directive called <b>%postun</b>. We use that here<pre class="code">%postun kittdb
+if [ -e /tmp/lquninst ];
+then
+
+    START=%release
+    END=$(cat /tmp/lquninst)
+    for x in $(seq $START -1 $END); 
+    do 
+        cd /home/tomcat/app/ddl/%version}-$x/changesets
+        liquibase --changeLogFile=update.xml rollback %version.$(expr $x - 1)
+
+        cd -;
+    done
+    rm /tmp/lquninst
+fi 
+exit</pre>
+Just as before, the uninstallation script determines what versions it needs to uninstall, then it loops through each one doing a "rollback" through liquibase.
+
+Part 4 will be packaging KC which is really interesting compared to KFS because it uses maven and the concept of xml configuration by environment instead of property-based configuration.

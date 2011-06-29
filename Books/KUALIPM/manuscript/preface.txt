@@ -1,0 +1,17 @@
+<h1>Preface</h1>
+
+I am a problem solving personality. This book is written with the premise that there is a problem or set of problems out there that need to be solved within the <a href="http://www.kuali.org">Kuali Community</a>. In this case, the problems relate specifically to <i>Project Management</i>. I've found in the community and on mailing lists
+that there are multitudes of questions about basic project management from institutions 
+just starting to engage the community and also well-established institutions that are coming into their own implementations.
+
+I think answers to the questions that are floating around in the community should be easy to find. The easiest way shouldn't be re-asking questions. The reason why there are references, wiki's, mailing lists, issue tracking, and other tools out there are to make information easy for people to get without feeling intrusive. These are meant to be welcoming to people. 
+
+<h2>The Problem</h2>
+
+The problem is that the resources available are sparse, unorganized, or just undermaintained. Many manuals and specifications exist on developing and using Kuali software. These resources are often out-of-date, ill-maintained, difficult to read as a resources, or unavailable offline. 
+
+Let's do a case study now. Suppose you are the project manager. You need to estimate how much hardware and administrative staffing you will need. We search the wiki on 'hardware and personnel estimates'. Now search the mailing lists. One starts to see the problem. These resources available are most useful to well-established and experienced community members. For those just starting, finding information is more than daunting. The resources are dispersed and segmented with no real way to parse it or find what you need.
+
+That is the problem I want to address. I am giving a book that is good as a tutorial and a reference to newcomers and professionals that want to know how to manage their Kuali project. This manual contains case studies, examples, and breakdowns in a way that project managers will understand and be able to use. 
+
+Much of the information is not readily available. Even if it is, it is not searchable or in a compile format available offline. Owners of the electronic version of this book can get continuous updates between revisions which is huge. This is what is missing in most documentation. Continuous updates.

@@ -1,0 +1,286 @@
+<h2>Implementing KC 2.0 as an Overlay</h2>
+
+<h3>Overview</h2><a href="http://maven.apache.org/plugins/maven-war-plugin/overlays.html">Maven overlays</a> are a way to take 2 web application projects and combine them with one <i>overlaying</i> the other. It sounds like it would be interesting if you want to use another project as the base for your own, right? Almost as if it is slightly wrong. This only makes sense when your project builds on that of another. Literally building upon another project as a foundation. You would only make another project the foundation when you are in absolute control of that other project. <a href="http://www.kuali.org">Kuali</a> is community source, so the community runs the <i>foundation</i> project in this case. The other project is intended to be an <i>implementation</i> of Kuali Coeus where the implementing institution is a member of the community. Then technically, an overlay makes sense. You wouldn't want to make an overlay of just any project you found that you thought was cool and you wanted to change. It would be much better to fork that project instead. If you overlay, you run the risk of the foundation changing from underneath you. When implementing <a href="http://www.kuali.org">Kuali</a> software, this is fine because you have the community supporting you and the software. 
+
+<h3>The Problem with Enterprise Software Maintenance at a University</h3>To truly understand why overlays are a good idea at institutions and particularly universities, you need to understand the problem universities have had implementing software pretty much throughout history.
+
+Universities are used to getting this software implemented, but as time goes business processes and practices change. Business is changing. Universities are changing. Why shouldn't their business practices change? It makes sense. The trouble is that they bankrupt their budgets on implementing the software and have nothing left to maintain it. All they budget for maintaining it is fixing leaks and bandaiding. Eventually, these institutions are left with failing systems on the brink of demise. It all comes down to maintenance. These systems can't just be good now. They need the potential to be good 10 years from now. 
+
+<a href="http://www.kuali.org">Kuali</a> is no different in that respect. Compared to other enterprise software, the source code is very extensive. Making bug fixes to it will have effects on upgrading. Every change an institution adds to the source code, that does not get back to the trunk will cause problems because the institution's code base differs that much from that which is upgraded. The mindset is change as little of the original codebase as possible. Only build upon it if possible. If you're going to change something, find a way to do it without modifying the original distribution. No matter what you do, keep a record between versions so we know what changed. Among all of these, the consistent idea is to modify the distribution as little as possible.
+
+That is what overlays allow. Modifying and customizing the distribution by overlaying it affords institutions the ability to <ul><li>make changes without making patching or upgrading difficult in the future</li><li>track what changes you made</li><li>simplify your local distribution</li></ul>
+<h3>The Screencast</h3>
+<a href="http://www.youtube.com/v/teCJd9eIEOU?hd=1&showinfo=0&amp;enablejsapi=1&amp;et=OEgsToPDskJni4UfFH3f0WbK6L_15ohf&amp;hl=en_US&amp;fs=1">
+This is a screencast</a> based on the instructions laid out in <a href="https://wiki.kuali.org/display/KRADOC/KC+2.0+Customization">KC 2.0 Customization</a>.
+<h3>Instructions</h3>Written instructions for following along with the screencast.
+
+<h3>1 Checkout the KC Project</h3>First, you need to download the full KC project. I created a path in my workspace to store all this.<pre class="code">% mkdir -p .workspace/rsmart</pre>Then checkout the source code from it. I used export because eventually, I want to import this into my own svn repository<pre class="code">% cd .workspace/rsmart
+% svn export https://test.kuali.org/svn/kc_project/tags/kc-release-2_0-tag</pre>
+The above creates a new <b>kc-release-2_0-tag</b> directory.
+
+<h3>2 Install KC WAR and JAR Files</h3>To install the WAR file in our maven repository, we use <pre class="code">% mvn -Dmaven.test.skip=true install</pre>
+Installing the JAR is a little different. <pre class="code">% mvn install:install-file -Dpackaging=jar -DgroupId=org.kuali.kra -DartifactId=kc_project -Dversion=2.0 -DgeneratePom=true -Dfile=target/kc_project-2.0.jar</pre>
+That should be the end of our work with the <b>kc_project</b>. 
+<h3>3 Setup kc_custom</h3>Create the directory structure and <b>pom.xml</b>.
+
+<h4>3.1 Create Directory Structure</h4><pre class="code">% mkdir kc
+% mkdir -p kc/src/main/java/com/rsmart/kuali/kc
+% mkdir -p kc/src/main/java/org/kuali/kra/infrastructure
+% mkdir -p kc/src/main/config
+% mkdir -p kc/src/main/resources/com/rsmart/kuali/kc
+% mkdir -p kc/src/main/webapp/WEB-INF/
+</pre>
+<h4>3.1 Copy Some Files Over</h4>Might as well copy a couple files from the <b>kc_project</b>. <pre class="code">% cp kc-release-2_0-tag/src/main/webapp/WEB-INF/web.xml kc/src/main/webapp/WEB-INF/
+% cp kc-release-2_0-tag/src/main/java/org/kuali/kra/infrastructure/KraServiceLocator.java kc/src/main/java/org/kuali/kra/infrastructure</pre>
+<h4>3.2 Create pom.xml</h4>The new overlay project needs its own pom.xml<pre class="brush: xml">&lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+  &lt;groupId&gt;com.rsmart.kuali.kc&lt;/groupId&gt;
+  &lt;artifactId&gt;kc&lt;/artifactId&gt;
+  &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+  &lt;packaging&gt;jar&lt;/packaging&gt;
+
+  &lt;name&gt;kc&lt;/name&gt;
+  &lt;url&gt;http://maven.apache.org&lt;/url&gt;
+
+  &lt;properties&gt;
+    &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+  &lt;/properties&gt;
+
+  &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.kuali.kra&lt;/groupId&gt;
+      &lt;artifactId&gt;kc_project&lt;/artifactId&gt;
+      &lt;version&gt;2.0&lt;/version&gt;
+      &lt;type&gt;war&lt;/type&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.kuali.kra&lt;/groupId&gt;
+      &lt;artifactId&gt;kc_project&lt;/artifactId&gt;
+      &lt;version&gt;2.0&lt;/version&gt;
+      &lt;scope&gt;provided&lt;/scope&gt;
+      &lt;type&gt;jar&lt;/type&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+          &lt;groupId&gt;org.kuali.rice&lt;/groupId&gt;
+          &lt;artifactId&gt;rice-kns&lt;/artifactId&gt;
+      &lt;version&gt;1.0.2.1&lt;/version&gt;                               
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;junit&lt;/groupId&gt;
+      &lt;artifactId&gt;junit&lt;/artifactId&gt;
+      &lt;version&gt;3.8.1&lt;/version&gt;
+      &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+ &lt;repositories&gt;
+  &lt;repository&gt;
+   &lt;id&gt;kuali&lt;/id&gt;
+   &lt;name&gt;Kuali Repository&lt;/name&gt;
+   &lt;url&gt;https://test.kuali.org/maven&lt;/url&gt;
+   &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+  &lt;/repository&gt;
+  &lt;repository&gt;
+   &lt;id&gt;codehaus&lt;/id&gt;
+   &lt;name&gt;Codehaus&lt;/name&gt;
+   &lt;url&gt;http://dist.codehaus.org&lt;/url&gt;
+  &lt;/repository&gt;
+  &lt;repository&gt;
+   &lt;id&gt;apache&lt;/id&gt;
+   &lt;name&gt;apache&lt;/name&gt;
+   &lt;url&gt;http://people.apache.org/repo/m2-ibiblio-rsync-repository&lt;/url&gt;
+  &lt;/repository&gt;
+  &lt;repository&gt;
+   &lt;id&gt;jboss&lt;/id&gt;
+   &lt;name&gt;jboss&lt;/name&gt;
+   &lt;url&gt;http://repository.jboss.com/maven2&lt;/url&gt;
+  &lt;/repository&gt;
+  &lt;repository&gt;
+   &lt;id&gt;atlassian&lt;/id&gt;
+   &lt;name&gt;atlassian&lt;/name&gt;
+   &lt;url&gt;http://maven.atlassian.com/repository/public&lt;/url&gt;
+  &lt;/repository&gt;
+  &lt;repository&gt;
+     &lt;snapshots /&gt;
+     &lt;id&gt;maven-repo1&lt;/id&gt;
+     &lt;name&gt;maven2 repo&lt;/name&gt;
+     &lt;url&gt;http://repo1.maven.org/maven2&lt;/url&gt;
+  &lt;/repository&gt; 
+
+ &lt;/repositories&gt;
+
+  &lt;build&gt;
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;
+        &lt;version&gt;2.1.1&lt;/version&gt;
+        &lt;configuration&gt;
+          &lt;overlays&gt;
+            &lt;overlay&gt;
+              &lt;groupId&gt;org.kuali.kra&lt;/groupId&gt;
+              &lt;artifactId&gt;kc_project&lt;/artifactId&gt;
+            &lt;/overlay&gt;
+          &lt;/overlays&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+  &lt;/build&gt;
+&lt;/project&gt;
+</pre>
+The important parts to notice are the <ul><li><b>dependencies</b> - there are 2 <b>kc_project</b> dependencies. One is for the JAR we installed and the other is for the WAR.<pre class="brush: java">    &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.kuali.kra&lt;/groupId&gt;
+      &lt;artifactId&gt;kc_project&lt;/artifactId&gt;
+      &lt;version&gt;2.0&lt;/version&gt;
+      &lt;type&gt;war&lt;/type&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.kuali.kra&lt;/groupId&gt;
+      &lt;artifactId&gt;kc_project&lt;/artifactId&gt;
+      &lt;version&gt;2.0&lt;/version&gt;
+      &lt;scope&gt;provided&lt;/scope&gt;
+      &lt;type&gt;jar&lt;/type&gt;
+    &lt;/dependency&gt;
+</pre>Notice that the JAR dependency uses the <b>provided</b> flag. This states how to use the jars in classpath when building. Here is an excerpt from <a href="http://maven.apache.org/pom.html">Maven POM Reference</a> <blockquote>provided - this is much like compile, but indicates you expect the JDK or a container to provide it at runtime. It is only available on the compilation and test classpath, and is not transitive.</blockquote> </li><li>repositories - I added the rice repository to pick up all the Rice dependencies at build time <pre class="brush: xml"> &lt;repositories&gt;
+  &lt;repository&gt;
+   &lt;id&gt;kuali&lt;/id&gt;
+   &lt;name&gt;Kuali Repository&lt;/name&gt;
+   &lt;url&gt;https://test.kuali.org/maven&lt;/url&gt;
+   &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+  &lt;/repository&gt;
+    &lt;/repositories&gt;</pre></li><li>plugins - here's what actually does the overlay<pre class="brush: xml">  &lt;build&gt;
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;
+        &lt;version&gt;2.1.1&lt;/version&gt;
+        &lt;configuration&gt;
+          &lt;overlays&gt;
+            &lt;overlay&gt;
+              &lt;groupId&gt;org.kuali.kra&lt;/groupId&gt;
+              &lt;artifactId&gt;kc_project&lt;/artifactId&gt;
+            &lt;/overlay&gt;
+          &lt;/overlays&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+  &lt;/build&gt;</pre></li></ul>
+<h3>4 Add a Custom O/R Mapping File</h3>Create a file in <b>src/main/resources/com/rsmart/kuali/kc</b> which is my institution's module path. I call it <b>rsmart-repository.xml</b><pre class="brush: xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;descriptor-repository version="1.0"&gt;
+&lt;/descriptor-repository&gt;</pre>
+<h3>5 Add a Custom Spring Beans File</h3>To load our O/R mapping, we'll need to wire it up with Spring. Kuali has a facility to handle this. We just create a <b>CustomSpringBeans.xml</b> file <pre class="brush: xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!--
+ Copyright 2005-2010 The Kuali Foundation.
+
+ Licensed under the Educational Community License, Version 1.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.opensource.org/licenses/ecl1.php
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+--&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:p="http://www.springframework.org/schema/p" 
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+                           http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop-2.0.xsd"&gt; 
+  &lt;bean id="customModuleConfiguration-parentBean" class="org.kuali.rice.kns.bo.ModuleConfiguration" abstract="true"&gt;
+    &lt;property name="databaseRepositoryFilePaths"&gt;
+      &lt;list&gt;
+        &lt;value&gt;com/rsmart/kuali/kc/rsmart-repository.xml&lt;/value&gt;
+      &lt;/list&gt;
+    &lt;/property&gt;
+  &lt;/bean&gt;
+&lt;/beans&gt;</pre>
+<h3>6 Add Custom Struts Config XML File</h3>Struts has this concept of a context specific configuration where you can have more than one configuration. This is very helpful, but we need to list ours in the <b>web.xml</b> and create it. This is a bare one fresh for putting new forms, actions, forwards, etc... into <b>src/main/webapp/WEB-INF/struts-custom-config.xml</b><pre class="brush: xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.2//EN" "http://struts.apache.org/dtds/struts-config_1_2.dtd" [
+ &lt;!ENTITY protocol_forwards SYSTEM "struts_protocol_forwards.xml"&gt;
+ ]&gt;
+&lt;struts-config&gt;
+  &lt;data-sources&gt;
+  &lt;/data-sources&gt;
+  
+  &lt;form-beans&gt;
+  &lt;/form-beans&gt;
+  
+  &lt;global-exceptions&gt;
+  &lt;/global-exceptions&gt;
+
+  &lt;global-forwards&gt;
+  &lt;/global-forwards&gt;
+
+  &lt;action-mappings&gt;
+  &lt;/action-mappings&gt;
+
+  &lt;controller processorClass="org.kuali.kra.web.struts.action.KraRequestProcessor" /&gt;
+  &lt;message-resources factory="org.kuali.rice.kns.web.struts.action.KualiPropertyMessageResourcesFactory" parameter="" /&gt;
+  &lt;plug-in className="org.kuali.kra.web.struts.action.GlobalFormatterRegistry" /&gt;
+&lt;/struts-config&gt;</pre>
+Of course, I change the <b>web.xml</b> from <pre class="brush: xml">&gt;servlet&gt;
+        &gt;servlet-name&gt;action&gt;/servlet-name&gt;
+        &gt;servlet-class&gt;org.kuali.rice.kns.web.struts.action.KualiActionServlet&gt;/servlet-class&gt;
+&gt;init-param&gt;
+  &gt;param-name&gt;config&gt;/param-name&gt;
+  &gt;param-value&gt;/WEB-INF/struts-config.xml&gt;/param-value&gt;
+&gt;/init-param&gt;
+        &gt;init-param&gt;
+                &gt;param-name&gt;debug&gt;/param-name&gt;
+                &gt;param-value&gt;3&gt;/param-value&gt;
+        &gt;/init-param&gt;
+        &gt;init-param&gt;
+                &gt;param-name&gt;detail&gt;/param-name&gt;
+                &gt;param-value&gt;3&gt;/param-value&gt;
+        &gt;/init-param&gt;
+        &gt;load-on-startup&gt;0&gt;/load-on-startup&gt;
+&gt;/servlet&gt;
+</pre>
+to <pre class="brush: xml">&gt;servlet&gt;
+        &gt;servlet-name&gt;action&gt;/servlet-name&gt;
+        &gt;servlet-class&gt;org.kuali.rice.kns.web.struts.action.KualiActionServlet&gt;/servlet-class&gt;
+&gt;init-param&gt;
+  &gt;param-name&gt;config&gt;/param-name&gt;
+  &gt;param-value&gt;/WEB-INF/struts-config.xml,/WEB-INF/struts-custom-config.xml&gt;/param-value&gt;
+&gt;/init-param&gt;
+        &gt;init-param&gt;
+                &gt;param-name&gt;debug&gt;/param-name&gt;
+                &gt;param-value&gt;3&gt;/param-value&gt;
+        &gt;/init-param&gt;
+        &gt;init-param&gt;
+                &gt;param-name&gt;detail&gt;/param-name&gt;
+                &gt;param-value&gt;3&gt;/param-value&gt;
+        &gt;/init-param&gt;
+        &gt;load-on-startup&gt;0&gt;/load-on-startup&gt;
+&gt;/servlet&gt;</pre>
+I just added <b>,/WEB-INF/struts-custom-config.xml</b> to the parameter.
+
+<h3>7 Replace the KraServiceLocator.java</h3>This is a little strange because you are not extending, but overriding the <b>KraServiceLocator</b> class. That means that if there are any changes made to it, you will probably not pick those up unless you explicitly know. This is of course, a maintenance issue, but we're only making minor changes. Remaking them is not a hassle. 
+
+<h4>7.1 Add the Custom Spring Beans as a Constant</h4>First, we create a constant in <b>KraServiceLocator</b> called <b>CUSTOM_SPRING_BEANS</b><pre class="brush: java">private static final String CUSTOM_SPRING_BEANS = "com/rsmart/kuali/kc/CustomSpringBeans.xml";</pre>
+<h4>7.2 Add the Constant to the springFiles Array</h4>Now we make use of the constant.<pre class="brush: java">...
+...
+    private static final class ContextHolder {
+        
+        static String[] springFiles = new String[] {COMMON_SPRING_BEANS,BUDGET_SPRING_BEANS, AWARD_SPRING_BEANS, IRB_SPRING_BEANS, COMMITTEE_SPRING_BEANS, 
+                                                    INSTITUTIONAL_PROPOSAL_SPRING_BEANS, QUESTIONNAIRE_SPRING_BEANS, TIME_AND_MONEY_SPRING_BEANS, CUSTOM_SPRING_BEANS};
+...
+...
+    }</pre>
+<h3>8 Love</h3> Now you have your overlay project. Just run the following to create your war. <pre class="code">% mvn -Dmaven.test.skip=true package</pre> 
+You will see a new WAR file in <b>target</b><pre class="code">leo@behemoth~/.workspace/rsmart/kc
+(18:54:16) [48] ls target/
+classes   kc-1.0-SNAPSHOT.war war
+kc-1.0-SNAPSHOT  maven-archiver
+</pre>

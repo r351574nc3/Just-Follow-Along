@@ -1,0 +1,29 @@
+<h2>Turning on Oracle Driver Tracing</h2>
+You are probably asking right about now, "Why would I do this if I have p6spy?" Well, here
+ are my reasons.<ul><li>P6Spy is a proxy on the driver. It watches SQL that goes in and 
+prints it.</li><li>OJDBC in debug mode prints what goes in (not just SQL).</li><li>OJDBC
+ in debug mode reports what comes out (including exceptions!)</li></ul>Basically, if there's
+ an exception or any kind of warning handled by the driver, you would find out about it. 
+This is useful for too many reasons to count. Further, it doesn't just spit out the SQL you
+ send it. It spits out any requests to recover connections or API level communication
+ happening in the backend. Really, anything over Net8 happens will get reported. That's 
+huge if you're working with Oracle.<p>Without further ado, here it is. Pass the following
+ in when starting your JVM.</p><p>
+<pre>-Doracle.jdbc.Trace=true -Djava.util.logging.config.file=&lt;location of your java logging configuration file&gt;</pre>
+<br /
+>ojdbc debug mode uses java.util.logging framework to define its logging. You simply 
+configure it. Here is what our config looks like:</p><p>
+<pre>.level=SEVERE 
+oracle.jdbc.level=WARNING
+oracle.jdbc.handlers=java.util.logging.FileHandler
+java.util.logging.FileHandler.level=WARNING
+java.util.logging.FileHandler.pattern=/usr/share/tomcat5/logs/jdbc.log
+java.util.logging.FileHandler.count=3
+java.util.logging.FileHandler.formatter=java.util.logging.SimpleFormatter
+</pre><br />We use a java.util.logging.FileHandler, but you can use the ConsoleHandler
+ which is useful for development; however, this merges all your logs to file which may not 
+always be ideal</p><p>That's it. If you're working with tomcat, just set this in your
+ CATALINA_OPTS environment variable. You can also set this in your Eclipse JRE settings 
+for your <a href="http://kuali.org">Kuali</a> project. If you're using eclipse, you may 
+want to look at the <a href="http://marketplace.eclipse.org/content/eclipse-log-viewer">Eclipse Log Viewer</a>
+plugin which will allow you to follow external logs from within eclipse.<div></div></p>

@@ -1,0 +1,49 @@
+<h2>Tuning the Garbage Collection in KFS</h2>
+KFS does not ship with JVM configuration that optimizes the application. Implementing 
+institutions are expected to do that themselves. At
+<a href="http://www.arizona.edu">University of Arizona</a>, we have spent some time tuning 
+KFS garbage collection for what seems to be pretty decent performance. Our results came 
+mostly from trial-and-error, research from literature, and 
+<a href="http://java.sun.com/docs/hotspot/gc5.0/gc_tuning_5.html">Tuning Garbage Collection with the 5.0 Java[tm] Virtual Machine</a>
+<p><h3>This is what we've come up with.</h3>
+<pre>-Xms2g -Xmx2g -XX:MaxPermSize=512m -Doracle.jdbc.Trace=true -Djava.util.logging.config.file=/usr/share/tomcat5/conf/ojdbclog.conf -server -XX:+UseParNewGC -XX:MaxNewSize=256m -XX:NewSize=256m -XX:SurvivorRatio=128 -XX:MaxTenuringThreshold=0 -XX:+UseTLAB -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled</pre>
+<br /><h3>Concurrent Low Pause Collector</h3>What we decided to use is the <b>Concurrent Low 
+Pause Collector</b>. We run our application out of a 64-bit Redhat Enterprise Linux VM 
+running from Vmware ESX Server with 2 processors and 4 gb of RAM. Now that's a mouthful.
+ You may be wondering, "With 2 processors, why don't you use the parallel GC?" Well, we 
+tried both parallel and concurrent low pause gc. Really, the only reason why you would 
+use a parallel is not because you have an extra processor, but rather that sacrificing 
+that processor during runtime is better than bringing the system to its knees. Well, 
+there's got to be a way that you run the garbage collector without sacrificing processing 
+power at what might be a crucial time. That's where the <b>concurrent low pause collector</b> 
+comes in. <i>Concurrent</i> means it runs in a separate thread. You may sacrifice a 
+processor here, yes. <i>Low Pause</i> means that unlike a <b>Parallel Collector</b>, this 
+runs in a separate thread for a short amount of time. Win-win!! So what's this other stuff? Read on.<br />
+<h3>Heap Memory Requirements</h3>We set the min and max to be the same. This way the JVM 
+doesn't have to reallocate memory. It's greedy and takes everything it can right away. 
+This saves time. In a server environment, you don't want to be conservative. Greedy is a 
+better way to go.</p><p><h3>Optimizing for Caching</h3>The 
+<tt>-XX:MaxNewSize=256m -XX:NewSize=256m</tt> properties grow the Eden gen space to 
+256 mb immediately. Just like with the heap, we don't want to reallocate on a server
+ platform. Let's be as greedy as possible. We've optimized to 256mb because we expect to 
+have a large amount of cache rewriting.
+ <a href="http://download-llnw.oracle.com/docs/cd/E13209_01/wlcp/wlss30/configwlss/jvmgc.html">Tuning JVM Garbage Collection for Production Deployments</a>
+ recommends setting it to 32mb for caching systems, but we've found that for larger 
+retained caches like what we want, maybe 256mb is more about what we want to use. This 
+is especially the case with the number and size of HashMap instances in use in KFS between 
+Spring and Rice. We also optimize the survivor space for the young generation to be 128th
+ the size of the eden space. <tt>MaxTenuringThreshold</tt> is turned off so that a new 
+<tt>NewSize</tt> space becomes reusable with each collection. This is actually really
+ really small, and works well for caching.</p><p><h3>Optimizing for Concurrency</h3>
+<tt>CMSClassUnloadingEnabled</tt>, <tt>CMSPermGenSweepingEnabled</tt>, and
+ <tt>UseConcMarkSweepGC</tt> give us our concurrentcy collection. Together, they force 
+different algorithms for the GC that are optimal for multiprocessor system like forcing
+ class unloading to prevent the GC from being intrusive on the application. 
+<tt>UseTLAB</tt> &quot;uses thread-local object allocation blocks. This improves
+ concurrency by reducing contention on the shared heap lock.&quot; from 
+<a href="http://download-llnw.oracle.com/docs/cd/E13209_01/wlcp/wlss30/configwlss/jvmgc.html">Tuning JVM Garbage Collection for Production Deployments</a>.</p>
+<p><h3>Conclusion</h3>We had tried numerous configurations, and this worked out the best
+ for us. It gave us a 4x improvement when processing large batch jobs during the day. In 
+most cases, we won't process large batch jobs while users are in the system; however, for 
+testing we are limited on servers and sometimes we try to get more out of our systems than
+ they can give.<div></div></p>

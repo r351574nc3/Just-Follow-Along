@@ -1,0 +1,286 @@
+<h2>KIS Me Kate - RPM Packaging KFS Part 4</h2>
+<h3>KC Packaging</h3>Packaging KC is much the same as KFS. The only difference is that when you build, you are using maven instead of ant. 
+<h4>Setting up Hudson</h4>Therefore, to get around adding my own hooks to the build, all I did was use <a href="http://www.hudson-ci.org">Hudson</a>. First, I setup a maven build. 
+<img src="images/kc_mvn_build.png" />It is the equivalent to <pre class="code">% mvn -Dmaven.test.skip=true package</pre>
+Then, I created an <b>invoke shell</b> command 
+<img src="images/Screen shot 2011-04-02 at 10.59.49 AM.png" />
+<pre class="code">TARFILE=kuali-coeus-2.0-$(cut -d= -f 2 kc-2.0/version.properties).tar.gz
+rm -rf kuali-coeus-2.0
+mkdir kuali-coeus-2.0
+cp -rf kc-2.0/target/kc_custom-2.0 kuali-coeus-2.0
+
+for x in $HOME/kuali/main/[a-z]*; do 
+    mkdir -p kuali-coeus-2.0/kuali/main/$(basename $x)/
+    cp -rf $HOME/kuali/main/$(basename $x)/kc-config.xml kuali-coeus-2.0/kuali/main/$(basename $x)
+done
+cp $HOME/lib/ojdbc* kuali-coeus-2.0/kc_custom-2.0/WEB-INF/lib
+cp $HOME/*.properties kuali-coeus-2.0
+tar -czf $TARFILE kuali-coeus-2.0 kc-cfg-dbs/
+mv $TARFILE /mosaic/data/KITT/SOURCES</pre>
+You can see that I am using a <b>version.properties</b>. It looks like <pre class="code">leo@behemoth~/.workspace/kc
+(11:02:12) [21] cat version.properties 
+release=11</pre>
+Finally, I create the package by calling the build-rpm.xml using ant.
+<img src="images/Screen shot 2011-04-02 at 11.00.01 AM.png" /> The build-rpm.xml looks like<pre class="brush: xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project             name="kc" 
+                  default="build" 
+         xmlns:kitt-tools="urn:com.rsmart.ant"&gt;
+  &lt;target name="build" depends="filter-spec"&gt;
+    &lt;exec executable="rpmbuild"&gt;
+      &lt;arg value="-bb" /&gt;
+      &lt;arg value="kc.spec" /&gt;
+    &lt;/exec&gt;
+  &lt;/target&gt;
+
+  &lt;target name="filter-spec"&gt;
+    &lt;property file="version.properties" /&gt;
+    &lt;kitt-tools:filter srcfile="kc.spec.template"
+                       filename="kc.spec" /&gt;
+    
+  &lt;/target&gt;
+  
+  &lt;macrodef uri="urn:com.rsmart.ant" name="filter"&gt;
+    &lt;attribute name="srcfile" /&gt;
+    &lt;attribute name="filename" /&gt;
+    &lt;sequential&gt;
+      &lt;loadfile property="buildroot.filter.template"
+                srcfile="@{srcfile}"&gt;
+        &lt;filterchain&gt;
+          &lt;expandproperties/&gt;
+        &lt;/filterchain&gt;
+      &lt;/loadfile&gt;
+
+      &lt;echo file="@{filename}"&gt;${buildroot.filter.template}&lt;/echo&gt;
+    &lt;/sequential&gt;
+  &lt;/macrodef&gt;
+&lt;/project&gt;
+</pre>
+A lot like our original build.xml for KFS. The differences here are <ul><li>No vendor path, so we use build-rpm.xml instead of build.xml</li><li>no workflow</li><li>no changelogs</li><li>Building doesn't happen here since hudson did that for us</li><li>No importing the other build.xml</li></ul> You can see we use a kc.spec.template and filter that just as we did with kfs.
+<h4>KC spec file</h4>
+Here is the spec file I used<pre class="code">
+%define __os_install_post %{nil}
+%define debug_package %{nil} 
+
+Summary: Kuali Coeus
+Name: kuali-coeus
+Version: 2.0
+Release: %release
+Provides: kuali-coeus
+License: EPL
+BuildArch: noarch
+Source0: kuali-coeus-2.0-%release.tar.gz
+BuildRoot: /tmp/kc
+Requires: ant
+Group: Development/Tools
+Packager: przybyls@arizona.edu
+
+%package settings-${build.environment}
+Summary: External configuration settings for Kuali Coeus
+Group: System/Base
+Requires: kuali-coeus
+
+%package changelogs
+Summary: Kuali Coeus KITT Customization Schema
+Group: System/Base
+Requires: kc,liquibase,wget
+
+%description
+The Kuali Foundation research administration software
+
+%description changelogs
+Mosaic Kuali Coeus Environment Database Schema for KITT customizations based on KITT
+modification set %release
+
+%description settings-${build.environment}
+Mosaic Kuali Coeus external configuration and settings. These files are located
+in /home/tomcat/app
+
+%prep
+%setup -q
+
+%install
+TOOLSDIR=%{_builddir}/kuali-coeus-2.0/kitt-tools-1.0
+mkdir -p %{buildroot}/home/tomcat/kitt-tools
+mkdir -p %{buildroot}/home/tomcat/kitt-tools/bin
+mkdir -p %{buildroot}/home/tomcat/kitt-tools/config
+mkdir -p %{buildroot}/home/tomcat/kitt-tools/lib
+mkdir -p %{buildroot}/home/tomcat/kuali/main/2.0-%release/changesets/
+mkdir -p %{buildroot}/usr/share/tomcat5/webapps/
+mkdir -p %{buildroot}/usr/share/tomcat5/webapps/kra-${build.environment}/WEB-INF/
+mkdir -p %{buildroot}/usr/share/tomcat5/webapps/kra-${build.environment}/WEB-INF/classes/META-INF
+
+cp ${build.environment}.properties %{buildroot}/home/tomcat/kitt-tools
+cp $HOME/apache-ant/lib/ant.jar %{buildroot}/home/tomcat/kitt-tools/lib
+cp $HOME/apache-ant/lib/ant-launcher.jar %{buildroot}/home/tomcat/kitt-tools/lib
+
+cd kc_custom-2.0/WEB-INF/classes/META-INF/
+sed -e 's/\(.*build.environment.*"false"&gt;\).*/\1${build.environment}&lt;\/param&gt;/' kc-config-defaults.xml | sed -e 's/\(.*build.version.*"false"&gt;\).*/\12.0-%release&lt;\/param&gt;/' &gt; /tmp/kc-config-defaults.xml
+mv /tmp/kc-config-defaults.xml %{buildroot}/usr/share/tomcat5/webapps/kra-${build.environment}/WEB-INF/classes/META-INF
+cd -
+
+cp kc_custom-2.0/WEB-INF/web-${build.environment}.xml %{buildroot}/usr/share/tomcat5/webapps/kra-${build.environment}/WEB-INF/web.xml
+cp -rf kuali/main/${build.environment} %{buildroot}/home/tomcat/kuali/main/
+
+
+cat &lt;&lt;EOF &gt; %{buildroot}/home/tomcat/.rpmmacros
+%%_topdir /home/tomcat/.workspace/redhat
+%%_dbpath /home/tomcat/rpm
+EOF
+
+cat &lt;&lt;EOF &gt; %{buildroot}/home/tomcat/kitt-tools/.envrc
+${build.environment}
+EOF
+
+mv %{_builddir}/kuali-coeus-2.0/kc_custom-2.0 %{buildroot}/usr/share/tomcat5/webapps/kra/
+mv %{_builddir}/kc-cfg-dbs/update* %{buildroot}/home/tomcat/kuali/main/2.0-%release/changesets/
+
+set -x 
+
+ant -f /dev/stdin -Dbuild.environment=${build.environment}&lt;&lt;EOF
+&lt;?xml version="1.0"?&gt;
+&lt;project name="kitt-tools" default="run" basedir="." xmlns:kitt-tools="urn:com.rsmart.ant"&gt;
+    &lt;target name="run"&gt;
+        &lt;property file="$TOOLSDIR/\${build.environment}.properties" /&gt;
+        &lt;echo file="%{buildroot}/home/tomcat/kitt-tools/credentials.properties"&gt;
+source.driver=\${dbcopy.default.driver}
+source.url=jdbc:oracle:thin:@uaz-kf-d02.mosaic.arizona.edu:1521:UAZKRDEV
+source.username=sandbox
+source.password=kulowner
+source.schema=SANDBOX
+target.driver=\${dbcopy.default.driver}
+target.url=\${oracle.datasource.url}
+target.username=\${datasource.username}
+target.schema=KULOWNER
+encrypted.password=\${encrypted.password}
+        &lt;/echo&gt;
+    &lt;/target&gt;
+&lt;/project&gt;
+EOF
+
+%clean
+rm -rf %{buildroot}
+
+%files settings-${build.environment}
+%defattr(2770,tomcat,kuali)
+/home/tomcat/.rpmmacros
+/home/tomcat/kitt-tools
+/home/tomcat/kuali/main/${build.environment}/kc-config.xml
+/usr/share/tomcat5/webapps/kra-${build.environment}/WEB-INF/web.xml
+/usr/share/tomcat5/webapps/kra-${build.environment}/WEB-INF/classes/META-INF/kc-config-defaults.xml
+
+
+%files changelogs
+%defattr(-,tomcat,kuali)
+%config /home/tomcat/kuali/main/2.0-%release/changesets/update.xml
+%config /home/tomcat/kuali/main/2.0-%release/changesets/update/
+
+%files
+%defattr(2770,tomcat,kuali)
+/usr/share/tomcat5/webapps/kra/
+
+%pre
+rm -rf /usr/share/tomcat5/webapps/kra-*
+
+%post
+set -x
+
+MYPWD=$PWD
+cd /usr/share/tomcat5/webapps
+mv kra kra-$(cat ~tomcat/kitt-tools/.envrc)
+cd $MYPWD
+
+%post changelogs 
+set -x
+
+VERSION=%release
+CURRENT=$(ls -t ~tomcat/kuali/main/|grep -v %release|head -1|cut -d- -f 2)
+REPO_URL=
+KC_VERSION=2.0
+
+for x in $(seq $(expr $CURRENT + 1) $VERSION);
+do
+    if [ ! -e ~tomcat/kuali/main/$KC_VERSION-$x ];
+    then
+        cd ~tomcat/kuali/main
+        wget -r -l 2 --no-parent -nH --cut-dirs=5 $REPO_URL/$KC_VERSION-$x/
+    fi
+
+    cd ~tomcat/kuali/main/$KC_VERSION-$x/changesets
+    liquibase --changeLogFile=update.xml --logLevel=finest update
+    liquibase --logLevel=finest tag $KC_VERSION.$x
+    cd 
+done
+
+cd -
+
+if [ -e ~tomcat/kuali/main/$KC_VERSION-$(expr %release + 1) ];
+then
+    echo '%release' &gt; /tmp/lquninst
+fi
+
+%postun changelogs
+if [ -e /tmp/lquninst ];
+then
+
+    START=%release
+    END=$(cat /tmp/lquninst)
+    for x in $(seq $START -1 $END); 
+    do 
+        cd /home/tomcat/kuali/main/2.0-$x/changesets
+        liquibase --changeLogFile=update.xml rollback 2.0.$(expr $x - 1)
+
+        cd -;
+    done
+    rm /tmp/lquninst
+fi 
+exit
+</pre>The script is pretty crazy looking, so I will take a jab at explaining it. It will help to explain the major differences in project organization and structure between KFS and KC.<ul><li>New XML Configuration for KC/Rice in kuali/main/dev</li><li>no more security.properties (normally where database passwords are stored)</li><li>No build.properties since we're not using ant. Configuration is now in kc-config.xml in kuali/main/&lt;environment&gt;</ul>
+
+<h4>Handle PreProcessing</h4>Keeping that in mind, let's have a look at the <b>%install</b> section which is where most of the work that is going on is. Since we can't bootstrap or hook into the regular maven packaging for the WAR, what I've done instead is to handle that preprocessing here.
+
+Keep in mind that since this is the <b>%install</b> directive, this is not packaging yet. This is just creating the build sandbox we're going to package later. So first we need to prepare the structure<pre class="code">TOOLSDIR=%{_builddir}/kuali-coeus-2.0/kitt-tools-1.0
+mkdir -p %{buildroot}/home/tomcat/kitt-tools
+mkdir -p %{buildroot}/home/tomcat/kitt-tools/bin
+mkdir -p %{buildroot}/home/tomcat/kitt-tools/config
+mkdir -p %{buildroot}/home/tomcat/kitt-tools/lib
+mkdir -p %{buildroot}/home/tomcat/kuali/main/2.0-%release/changesets/
+mkdir -p %{buildroot}/usr/share/tomcat5/webapps/
+mkdir -p %{buildroot}/usr/share/tomcat5/webapps/kra-${build.environment}/WEB-INF/
+mkdir -p %{buildroot}/usr/share/tomcat5/webapps/kra-${build.environment}/WEB-INF/classes/META-INF</pre>
+You can see this is building out the path for the webapp to live. There is also this new concept of a <b>kitt-tools</b> path. These are actually environment utilities for administrating KC. They are outside the scope of this explanation, but we do have to add to them a few things during installation. One of these is the <b>credential.properties</b><pre class="code">ant -f /dev/stdin -Dbuild.environment=${build.environment}&lt;&lt;EOF
+&lt;?xml version="1.0"?&gt;
+&lt;project name="kitt-tools" default="run" basedir="." xmlns:kitt-tools="urn:com.rsmart.ant"&gt;
+    &lt;target name="run"&gt;
+        &lt;property file="$TOOLSDIR/\${build.environment}.properties" /&gt;
+        &lt;echo file="%{buildroot}/home/tomcat/kitt-tools/credentials.properties"&gt;
+source.driver=\${dbcopy.default.driver}
+source.url=jdbc:oracle:thin:@uaz-kf-d02.mosaic.arizona.edu:1521:UAZKRDEV
+source.username=sandbox
+source.password=kulowner
+source.schema=SANDBOX
+target.driver=\${dbcopy.default.driver}
+target.url=\${oracle.datasource.url}
+target.username=\${datasource.username}
+target.schema=KULOWNER
+encrypted.password=\${encrypted.password}
+        &lt;/echo&gt;
+    &lt;/target&gt;
+&lt;/project&gt;
+EOF
+</pre>
+Ant is used to populate this based on values set in the configuration.
+
+Each environment is going to get its own <b>kc-config.xml</b>. For example, TST would be <b>kuali/main/tst/kc-config.xml</b>. Usually, the there are very slight differences between each environment configuration. Usually, the only difference is the database password. For most of the common settings, we use a kc-config-defaults.xml. These files are maintained on the build system (where hudson is living). As a result our build version is usually clobbered by the default. I do a little hacking to get around that. The following takes care of that for us.<pre class="code">cd kc_custom-2.0/WEB-INF/classes/META-INF/
+sed -e 's/\(.*build.environment.*"false"&gt;\).*/\1${build.environment}&lt;\/param&gt;/' kc-config-defaults.xml | sed -e 's/\(.*build.version.*"false"&gt;\).*/\12.0-%release&lt;\/param&gt;/' &gt; /tmp/kc-config-defaults.xml
+mv /tmp/kc-config-defaults.xml %{buildroot}/usr/share/tomcat5/webapps/kra-${build.environment}/WEB-INF/classes/META-INF
+</pre>
+We have environment specific web.xml files for any weird changes that are by environment <pre class="code">cp kc_custom-2.0/WEB-INF/web-${build.environment}.xml %{buildroot}/usr/share/tomcat5/webapps/kra-${build.environment}/WEB-INF/web.xml
+cp -rf kuali/main/${build.environment} %{buildroot}/home/tomcat/kuali/main/
+</pre>
+Once a package is installed, tools that we install take advantage of knowing what environment they're on. We handle this by creating an <b>.envrc</b> file on the environment.<pre class="code">cat &lt;&lt;EOF &gt; %{buildroot}/home/tomcat/kitt-tools/.envrc
+${build.environment}
+EOF</pre>
+The last thing done is to move the changelogs and the webapp to it's environment agnostic locations. Remember from <a href="http://kualigan.blogspot.com/2011/03/kis-me-kate-rpm-packaging-kfs-part-2.html">Part 2</a> we move these files into their appropriate locations during <b>post processing</b><pre class="code">mv %{_builddir}/kuali-coeus-2.0/kc_custom-2.0 %{buildroot}/usr/share/tomcat5/webapps/kra/
+mv %{_builddir}/kc-cfg-dbs/update* %{buildroot}/home/tomcat/kuali/main/2.0-%release/changesets/</pre>
+
+<h4>New packages</h4>Aside from the <b>%install</b>, the spec file and packages are very much the same or at least familiar to the KFS packages. For KC, it was decided that workflow would be handled manually instead of automatically, so the packages are:<ul><li>kuali-coeus-2.0-1.noarch.rpm</li><li>kuali-coeus-settings-2.0-1.noarch.rpm</li><li>kuali-coeus-changelogs-2.0-1.noarch.rpm</ul>
