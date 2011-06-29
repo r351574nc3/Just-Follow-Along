@@ -1,0 +1,116 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{Building a Path to Something That Works}
+
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Desired Process}
+\subsection{Actors}
+\begin{description}
+  \item[Environment Owner] the primary contact for a given environment
+  \item[Environment Maintainer] the designated environment team personnel responsible for the refresh action.
+  \item[Automation] non-human actor responsible for predefined processes.
+  \item[Principals] not really responsible for anything. Just a group of individuals that are notified whenever
+    a notification is required to be sent.
+\end{description}
+
+\subsection{The Script}
+
+\begin{description}
+\item[Environment Owner] creates a Jira task to refresh an environment with a specific build version and assigns
+  \textbf{Principals}.
+\item[Environment Maintainer] updates the Jira task when the process starts and notifies \textbf{Principals}.
+\item[Environment Maintainer] updates the install log file that notes the desired build to install
+\item[Automation] watching the install log notices a change and parses the file for information about the desired build.
+\item[Automation] selects and installs the appropriate packages based on installation from the install log.
+\item[Environment Maintainer] updates the original Jira task stating that the refresh is completed and notifies the \textbf{Principals}.
+\end{description}
+
+
+\section{Technical Details}
+\subsection{The Install Log}
+\begin{lstlisting}[caption=An example of the install log]
+rsmart-1187    workflow,encrypt,demodata,conversion
+kitt-1212-51    workflow,encrypt,demodata,conversion,rsmartdb,kittdb
+\end{lstlisting}
+
+The above describes that there were two builds done on that environment. The last record is
+what the current build should be at. A cron process verifies that is the case by comparing the version
+``kitt-1212-51'' to the current version in the system. The current version is stored in an
+RPM database.
+
+\lstset{basicstyle=\tiny,
+  breaklines=true,
+  includerangemarker=false}
+\begin{lstlisting}
+tomcat@uaz-kf-a02:/mosaic/data/KITT/RPMS/noarch> rpm -qi kfs-3.0-cfg.1212.51
+Name        : kfs                          Relocations: (not relocatable)
+Version     : 3.0                               Vendor: (none)
+Release     : cfg.1212.51                   Build Date: Tue 20 Jul 2009 01:14:41 AM MST
+Install Date: Wed 20 Jul 2009 10:44:58 AM MST      Build Host: uaz-kf-a00.mosaic.arizona.edu
+Group       : System/Base                   Source RPM: kfs-3.0-cfg.1212.51.src.rpm
+Size        : 279                              License: EPL
+Signature   : (none)
+Packager    : przybyls@arizona.edu
+Summary     : Kuali Financial System Field Encryption
+Description :
+Mosaic KFS cfg Environment Web Application based on rSmart Vendor build 1212
+with KITT modification set 51
+\end{lstlisting}
+\lstset{basicstyle=\small,
+  breaklines=true,
+  includerangemarker=false}
+
+If the version doesn't exist, there will be no data at all. The cron process will then determine it needs
+to install the necessary packages described and their dependencies. The install log is considered a log because
+it has a record of every build. If there is ever a need to rollback to a previous build, the install log 
+will simply look like:
+
+\begin{lstlisting}[caption=Rollback scenario]
+rsmart-1187    workflow,encrypt,demodata,conversion
+kitt-1212-51    workflow,encrypt,demodata,conversion,rsmartdb,kittdb
+rsmart-1187    workflow,encrypt,demodata,conversion
+\end{lstlisting}
+
+The above install log shows that ``kitt-1212-51'' was installed, but we can clearly see was 
+rolled back because a previous line was copied to the end.
+
+\subsection{Predefined Processes}
+
+\begin{enumerate}
+\item Environment Owner Creates Jira Task
+\item Scripts run on environment to kick off update
+\item tomcat restarts
+\item Jira Task is updated and notifications are sent out
+\end{enumerate}
+
+Continuous Integration Weekly
+\begin{itemize}
+  \item Source Code Import
+  \item Impex
+\end{itemize}
+
+Continuous Integration Daily
+\begin{itemize}
+  \item Sandbox Build
+  \item selenium scripts (smoke tests against Sandbox Build)
+  \item integration tests
+\end{itemize}
+
+Continuous Integration Bi-Daily
+\begin{itemize}
+  \item conversion scripts and CFG Copy
+  \item unit tests  
+\end{itemize}
+
+\input{BuildProcessPlan.tex}
+
+\end{document}

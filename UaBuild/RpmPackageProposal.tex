@@ -1,0 +1,203 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{KFS RPM Packaging Proposal}
+
+\begin{document}
+\maketitle
+
+\lstset{basicstyle=\small,
+  breaklines=true,
+  includerangemarker=false}
+
+\section{Overview}
+The objective is to standardize deployment of the application an possible configurations across 
+platforms and environments. Currently, we use a non-standard tool for deploying artifacts and exposing
+login credentials via public/private key across several environments. Deployment forces taking down an 
+application server for a large amount of time unnecessarily and preforms numerous redundant tasks against
+the environment. 
+
+The following improvements can be made through RPM Packages:
+
+\begin{itemize}
+  \item Packages allow better accuracy of what is performed as well as reporting on previous installations. Also, RPM packages take advantage of previously executed deferred processing to do this. 
+  \item Previously built nature of packages, allows a gain in 
+    \begin{itemize}
+      \item compilation of java source 
+      \item XML-to-SQL source code generation
+      \item file transfers
+    \end{itemize}
+  \item Dramatically increases the speed and thus reduces downtime
+  \item RPM packages are also an established, well-known standard in distributing software on Redhat Linux distributions.
+\end{itemize}
+
+\section{RPM Packages}
+RPM stands for ``Redhat Package Manager.'' RPM Packages are the standard for Redhat Linux distributions.
+It defines a standard for dependency management and dependency packaging.
+
+\subsection{kfs.spec}
+When building RPM packages, a spec file is required to instruct RPM how to create the packages. Information like
+dependencies, file locations, pre-processing and post-processing scripts, etc\ldots are described within it.
+
+\section{Using RPM Packages}
+When installing RPM packages, the preferred command is the following:
+\begin{lstlisting}
+rpm -Uvh --force /mosaic/data/KITT/RPMS/noarch/kfs-3.0-dmo.1196.26.noarch.rpm
+\end{lstlisting}
+
+\begin{description}
+  \item[-Uvh] Upgrade showing verbose output and hash (\#) marks for progress. Always use upgrade
+\end{description}
+
+It can be determined what packages are running on an installation via:
+
+\begin{lstlisting}
+tomcat@uaz-kf-a02:~> rpm -qa | grep kfs
+kfs-workflow-3.0-dev.1196.29
+kfs-3.0-dev.1196.29
+kfs-encrypt-3.0-dev.1196.29
+\end{lstlisting}
+
+The following can be used to report what workflow XML files were ingested:
+
+\lstset{basicstyle=\tiny,
+  breaklines=true,
+  includerangemarker=false}
+\begin{lstlisting}
+tomcat@uaz-kf-a02:/mosaic/data/KITT/RPMS/noarch> rpm -ql kfs-workflow-3.0-dev.1196.29
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/CheckReconciliationMaintenanceDocument.xml
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/DisbursementVoucherBatchDefaultMaintenanceDocument.xml
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/FACostSubCategoryMaintenanceDocument.xml
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/PRJESetMaintenance.xml
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/PRJETypeMaintenance.xml
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/PayeeMaintenanceDocument.xml
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/PayerMaintenanceDocument.xml
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/PaymentMaintenanceDocument.xml
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/ProcurementCardDocument.xml
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/ProcurementCardHolderDetailMaintenanceDocument.xml
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/PurchaseOrderBatchDefaultMaintenanceDocument.xml
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/RouteCodeMaintenanceDocument.xml
+/home/tomcat/app/work/dev/kfs/staging/workflow/ingestion/SourceOfFundsMaintenanceDocument.xml
+\end{lstlisting}
+
+Information about the RPM can be gotten like this:
+
+\begin{lstlisting}
+tomcat@uaz-kf-a02:/mosaic/data/KITT/RPMS/noarch> rpm -qi kfs-encrypt-3.0-dev.1196.29
+Name        : kfs-encrypt                  Relocations: (not relocatable)
+Version     : 3.0                               Vendor: (none)
+Release     : dev.1196.29                   Build Date: Tue 07 Jul 2009 01:14:41 AM MST
+Install Date: Wed 08 Jul 2009 10:44:58 AM MST      Build Host: uaz-kf-a00.mosaic.arizona.edu
+Group       : System/Base                   Source RPM: kfs-3.0-dev.1196.29.src.rpm
+Size        : 279                              License: EPL
+Signature   : (none)
+Packager    : przybyls@arizona.edu
+Summary     : Kuali Financial System Field Encryption
+Description :
+Mosaic KFS dev Environment Field Encryption Data based on rSmart Vendor build 1196
+with KITT modification set 29
+\end{lstlisting}
+
+\subsection{kitt-tools}
+\subsubsection{Installing}
+Run the following command as the \emph{tomcat} user
+
+\lstset{basicstyle=\small,
+  breaklines=true,
+  includerangemarker=false}
+\begin{lstlisting}
+rpm -Uvh --force --nodeps --dbpath /home/tomcat/app/rpm /mosaic/data/KITT/RPMS/noarch/kitt-tools-1.0-1.noarch.rpm 
+\end{lstlisting}
+
+\begin{description}
+  \item[-Uvh] Upgrade showing verbose output and hash (\#) marks for progress
+  \item[--force] A macro for upgrading both files and package names in the database
+  \item[--nodeps] Initially, the database will be empty, so none of the dependencies are expected to pass. This
+    is fixed by installing kitt-tools, so it is necessary when installing them.
+  \item[--dbpath] Initially, the dbpath is set to /var/lib/rpm which is not what we want. This will be
+    fixed upon installing kitt-tools, but is necessary for the first installation.
+  \item[/mosaic/data/KITT/RPMS/noarch/kitt-tools-1.0-1.noarch.rpm] is the path of the RPM package. 
+    \verb|/mosaic/data/kitt/RPMS/noarch| are where all RPM packages are stored that are created by
+    KITT.
+\end{description}
+\section{KITT Packages}
+Below is a list of packages that are created through the DEV Continuous Integration process.
+
+\lstset{basicstyle=\tiny,
+  breaklines=true,
+  includerangemarker=false}
+
+\begin{lstlisting}
+[przybyls@uaz-kf-a00 ~]$ cd /mosaic/data/KITT/RPMS/noarch/
+[
+[przybyls@uaz-kf-a00 noarch]$ ls *1196.23*
+kfs-3.0-cfg.1196.23.noarch.rpm             kfs-encrypt-3.0-cfg.1196.23.noarch.rpm
+kfs-3.0-cnv.1196.23.noarch.rpm             kfs-encrypt-3.0-cnv.1196.23.noarch.rpm
+kfs-3.0-dev.1196.23.noarch.rpm             kfs-encrypt-3.0-dev.1196.23.noarch.rpm
+kfs-3.0-trn.1196.23.noarch.rpm             kfs-encrypt-3.0-trn.1196.23.noarch.rpm
+kfs-3.0-tst.1196.23.noarch.rpm             kfs-encrypt-3.0-tst.1196.23.noarch.rpm
+kfs-bootstrap-3.0-cfg.1196.23.noarch.rpm   kfs-kittdb-3.0-cfg.1196.23.noarch.rpm
+kfs-bootstrap-3.0-cnv.1196.23.noarch.rpm   kfs-kittdb-3.0-cnv.1196.23.noarch.rpm
+kfs-bootstrap-3.0-dev.1196.23.noarch.rpm   kfs-kittdb-3.0-dev.1196.23.noarch.rpm
+kfs-bootstrap-3.0-trn.1196.23.noarch.rpm   kfs-kittdb-3.0-trn.1196.23.noarch.rpm
+kfs-bootstrap-3.0-tst.1196.23.noarch.rpm   kfs-kittdb-3.0-tst.1196.23.noarch.rpm
+kfs-conversion-3.0-cfg.1196.23.noarch.rpm  kfs-rsmartdb-3.0-cfg.1196.23.noarch.rpm
+kfs-conversion-3.0-cnv.1196.23.noarch.rpm  kfs-rsmartdb-3.0-cnv.1196.23.noarch.rpm
+kfs-conversion-3.0-dev.1196.23.noarch.rpm  kfs-rsmartdb-3.0-dev.1196.23.noarch.rpm
+kfs-conversion-3.0-trn.1196.23.noarch.rpm  kfs-rsmartdb-3.0-trn.1196.23.noarch.rpm
+kfs-conversion-3.0-tst.1196.23.noarch.rpm  kfs-rsmartdb-3.0-tst.1196.23.noarch.rpm
+kfs-demodata-3.0-cfg.1196.23.noarch.rpm    kfs-workflow-3.0-cfg.1196.23.noarch.rpm
+kfs-demodata-3.0-cnv.1196.23.noarch.rpm    kfs-workflow-3.0-cnv.1196.23.noarch.rpm
+kfs-demodata-3.0-dev.1196.23.noarch.rpm    kfs-workflow-3.0-dev.1196.23.noarch.rpm
+kfs-demodata-3.0-trn.1196.23.noarch.rpm    kfs-workflow-3.0-trn.1196.23.noarch.rpm
+kfs-demodata-3.0-tst.1196.23.noarch.rpm    kfs-workflow-3.0-tst.1196.23.noarch.rpm
+\end{lstlisting}
+
+\lstset{basicstyle=\small,
+  breaklines=true,
+  includerangemarker=false}
+
+\subsection{Naming}
+The convention for naming of packages is as follows:
+\verb|{application name}|-\verb|{version}|-\verb|{environment}|-\verb|{build number}|.
+\verb|{kitt build}|.\verb|{architecture}|.rpm
+
+\begin{description}
+  \item[application name] can be kfs, kc, or rice. It represents the name of the application 
+    being packaged. Within each application, there may be subpackages. Here is a list of sub
+    packages for KFS.
+    \begin{description}
+      \item[bootstrap] is the bootstrap dataset. This package will install/run SQL scripts required
+        for bootstrapping the database configured for this package. Consists of only
+        \verb|CREATE TABLE|, \verb|INSERT|, and \verb|ALTER TABLE| SQL statements.
+      \item[conversion] is the conversion dataset. This package will install/run SQL scripts required
+        for adding conversion data to the database configured for this package. Consists of only
+        \verb|CREATE TABLE|, \verb|INSERT|, and \verb|ALTER TABLE| SQL statements.
+      \item[demodata] is the ``demo'' dataset. This package will install/run SQL scripts required for
+        adding demo data to the database configured for this package. Consists of only
+        \verb|CREATE TABLE|, \verb|INSERT|, and \verb|ALTER TABLE| SQL statements.
+      \item[encryption] encrypts the database fields configured for this environment
+      \item[kittdb] is the KITT dataset. Only install this if you intend to use KITT modifications. At
+        the time of writing this document, only the DEV environment does this. Consists of only
+        \verb|CREATE TABLE|, \verb|INSERT|, and \verb|ALTER TABLE| SQL statements.
+      \item[rsmartdb] is the rSmart dataset. Only install this if you intend to use rSmart modifications.
+        Consists of only \verb|CREATE TABLE|, \verb|INSERT|, and \verb|ALTER TABLE| SQL statements.
+      \item[workflow] contains all of the workflow XML that needs to be ingested prior to application use.
+        Relies on the ingester to pick these up prior to application start. Consists of only
+        \verb|CREATE TABLE|, \verb|INSERT|, and \verb|ALTER TABLE| SQL statements.
+    \end{description}
+  \item[version] of the application. For KFS at this time, it is 3.0.
+  \item[environment] being packaged for. The configuration files are tightly couple to the
+    environment, so each build gets a specific environment it's tied to.
+  \item[build number] the Kuali Community build number for the application. It is used to identify
+    which build is being used.
+  \item[kitt build] the build number that the UA Kuali Implementation Technical Team uses to version 
+    its modifications.
+  \item[architecture] will always be ``noarch'' because Kuali is intended to run architecture independent.
+\end{description}
+\end{document}

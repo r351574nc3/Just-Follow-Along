@@ -1,0 +1,127 @@
+#+COLUMNS: %58ITEM %5Estimate %5Clock %5State
+* Refining the Mosaic KFS Build Process
+  :PROPERTIES:
+  :Estimate: 47:00
+  :END:
+** Low Hanging Fruit
+   :PROPERTIES:
+   :Estimate: 6:00
+   :Clock:    1:30
+   :END:
+*** Configuration Files in SVN
+    :PROPERTIES:
+    :Estimate: 1:00
+    :State:    Ready
+    :Clock:    0:30
+    :END:
+*** Configuration Password Encryption
+    :PROPERTIES:
+    :Estimate: 1:00
+    :State:    Complete
+    :Clock:    1:00
+    :END:
+*** Build Process Sandbox
+    :PROPERTIES:
+    :Estimate: 4:00
+    :State:    Ready
+    :END:
+    - No actual testing, just automating builds in Continuous Integration and manually 
+      verifying the sandbox prior to builds.
+** Continuous Integration
+   :PROPERTIES:
+   :Estimate: 36:00
+   :END:
+*** Add Selenium Tests to verify builds in the sandbox
+    :PROPERTIES:
+    :State:    Estimating
+    :END:
+    - This needs more investigation to estimate
+*** Run conversion scripts continuously with unit tests
+    :PROPERTIES:
+    :Estimate: 36:00
+    :Clock:    1:00
+    :END:
+- Any data that is copied from configuration is done at this time as well. It is
+assumed that configuration data and conversion data are handled together. Currently,
+copying of configuration data requires sysdba privileges. Continuous integration
+runs without privileges, so it needs to be possible to copy the configuration
+                       data without privileges.
+**** Write unit tests for verifying role data
+     :PROPERTIES:
+     :Estimate: 5:00
+     :State:    Ready
+     :END:
+**** Write unit tests for verifying COA data
+     :PROPERTIES:
+     :Estimate: 5:00
+     :State:    Ready
+     :END:
+**** Write unit tests for verifying LD data
+     :PROPERTIES:
+     :Estimate: 5:00
+     :State:    Ready
+     :END:
+**** Write unit tests for verifying CA data
+     :PROPERTIES:
+     :Estimate: 5:00
+     :State:    Ready
+     :END:
+**** Write unit tests for verifying CG data
+     :PROPERTIES:
+     :Estimate: 5:00
+     :State:    Ready
+     :END:
+**** Write unit tests for verifying ORG data
+     :PROPERTIES:
+     :Estimate: 5:00
+     :State:    Ready
+     :END:
+**** Script to filter grants for running conversion scripts as any user
+     :PROPERTIES:
+     :Estimate: 1:00
+     :Clock:    1:00
+     :State:    Complete
+     :END:
+**** Incremental Update to UA Schema
+     :PROPERTIES:
+     :State:    In-Progress
+     :Estimate: 5:00
+     :END:
+*** Integration tests
+    :PROPERTIES:
+    :Estimate: 8:00
+    :State:    Ready
+    :END:
+    - Tests like running encryption and verifying that the expected data to be encrypted 
+      was encrypted.
+**** Workflow Document Tests
+     :PROPERTIES:
+     :Estimate: 4:00
+     :State:    Ready
+     :END:
+     - Validates that appropriate workflow documents are loaded
+**** Encryption Tests
+    :PROPERTIES:
+    :Estimate: 4:00
+    :State:    Ready
+    :END:
+*** Cleanup process for cleaning up old RPM package artifacts
+    :PROPERTIES:
+    :Estimate: 1:00
+    :State:    Ready
+    :END:
+    - Packages older than a week that weren't created on Sunday are deleted.
+** RPM Packaging
+   :PROPERTIES:
+   :Estimate: 3:30
+   :END:
+*** Verify necessary changes are made to support RPMs for all environments
+    :PROPERTIES:
+    :Estimate: 1:00
+    :State:    Ready
+    :END:
+*** add install log cron process to individual environments
+    :PROPERTIES:
+    :Estimate: 5:00
+    :State:    Ready
+    :END:

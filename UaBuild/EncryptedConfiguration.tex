@@ -1,0 +1,127 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{Encrypted Password Configuration Proposal}
+
+\begin{document}
+\maketitle
+
+\lstset{basicstyle=\small,
+  breaklines=true,
+  includerangemarker=false}
+
+\section{Overview}
+Configuration files are separated by environment. Each environment gets its own configuration, but
+usually only credentials are what differs. These environment specific configurations cannot be added
+to SVN or any kind of version control because there are credentials in them.
+
+This leads a problem that has caused a number of headaches. That is that whenever a change occurs to
+these configuration files, they have to be propogated to the environments. Usually, the change is tested
+in DEV and passed on, but the human factor can leave some elements missing or mispelled. Further, there
+is no change record to determine who, when, or whether at all a configuration was updated with the 
+required change.
+
+\subsection{Configuration Files in SVN}
+To alleviate the aforementioned issues, the simplest solution is to store configurations in SVN; however, 
+there is still the matter of storing credentials. The question arises, ``How can we store the configuration
+information entirely without having to worry about insecure credentials and while maintaining configurations
+independent by environment?'' This can be done with public/private key encryption.
+
+\subsection{Public/Private Key Encryption}
+With public/private key encryption, only the encrypted data is stored in SVN while the public/private key information
+is stored within the environment. With private key being the only means to unlock the encrypted credentials
+residing within the environment, it can be considered that the environment still holds the credentials.
+
+\section{Steps}
+In order to enable encryption on the environment, the \emph{kitt-tools} package needs to be installed on the
+environment. This will add a script for generating the RSA public/private keys.
+
+\begin{lstlisting}
+rpm -Uvh --force --nodeps --dbpath /home/tomcat/app/rpm /mosaic/data/KITT/RPMS/noarch/kitt-tools-1.0-1.noarch.rpm 
+\end{lstlisting}
+
+\begin{description}
+  \item[-Uvh] Upgrade showing verbose output and hash (\#) marks for progress
+  \item[--force] A macro for upgrading both files and package names in the database
+  \item[--nodeps] Initially, the database will be empty, so none of the dependencies are expected to pass. This
+    is fixed by installing kitt-tools, so it is necessary when installing them.
+  \item[--dbpath] Initially, the dbpath is set to /var/lib/rpm which is not what we want. This will be
+    fixed upon installing kitt-tools, but is necessary for the first installation.
+  \item[/mosaic/data/KITT/RPMS/noarch/kitt-tools-1.0-1.noarch.rpm] is the path of the RPM package. 
+    \verb|/mosaic/data/kitt/RPMS/noarch| are where all RPM packages are stored that are created by
+    KITT.
+\end{description}
+
+\subsection{Creating the Key}
+The public/private key pairs need to be created on the application server. This can be done with the \emph{kitt-tools}
+by executing:
+
+\begin{lstlisting}
+tomcat@uaz-kf-a02:~> kitt-tools/bin/rsaGenerateKey.sh 
+Buildfile: /dev/stdin
+
+run:
+     [java] Generating Rivest, Shamir, and Adleman 4096 Keypair...
+     [java] ...done generating Keypair!
+     [java] Saving private key...
+     [java] ...saving public key...
+     [java] ...done generating keys!
+
+BUILD SUCCESSFUL
+Total time: 1 minute 16 seconds
+\end{lstlisting}
+
+Two files are created \verb|/home/tomcat/.ssh/kuali_rsa| and \verb|/home/tomcat/.ssh/kuali_rsa.pub|. These
+will be used for encryption/decryption. The public key is used for encryption and the private key
+is used for decryption. The private key will need to reside in the build system while the public key
+can stay on the application server. It will be used in the next step for encrypting the configuration.
+
+\subsection{Encrypting the Configuration}
+Copy the configuration file (ie., dev.properties) to the application server. Run the following command:
+
+\begin{lstlisting}
+tomcat@uaz-kf-a02:~> kitt-tools/bin/rsaEncrypt.sh ~/dev.properties 
+Buildfile: /dev/stdin
+
+run:
+     [echo] Using properties file /home/tomcat/dev.properties
+\end{lstlisting}
+
+Use the full path of dev.properties because pwd and \verb|./| seem to point to \verb|/dev| on the application servers.
+
+dev.properties will be overwritten. It may look something like this:
+
+\begin{lstlisting}
+datasource.sid=UAZKFDEV
+datasource.username=kulowner
+encrypted.password=GqgxNSaLktlZH3upMIBbRNQE5k93u/gO1Z3mhR7ppvsiGASTi8AWUCrsafSFt
+K0CI5dSUQxb0JeTE7wBGu5nghZ6AwqHN9pzjdQ6s6uP0Ph9y8YkfbmvuaJ6uqPhwnXfced/sYt6YhIT9
+RR+VeSlByuO2sSyJ4PQY+Y3+UzpBbuCNzgsbIou7ivwiuac0RIQqf4OftJBhv7lPbyPQFTIP0vHAKUoE
+BUoBSIgVPtC2jM5433yADPRWYQxK9cNtHjEZBqtNepxj8pqqPOXl1WL5tvuyZqXGBvJ7olX3+CkEvjcK
+f5lO1lwFfztX3Q9C9Rk1CCWXcitQ3L1HeFdb9TjonvhTE+cZl91JEp7W6xIzmIdPPeK5y0WtFvmEdOgH
+uA/yURwkug8mNzy5HBuup3bsx57fv4X40/G6kcFgkh2iV6sm1S3Nmq1z4VDYireXJeZcx29i5mkRYWLq
+M19bWno6Y6rq8/RafWErqIkT6V6mTpMF+bUQ/nBbyHLAQw1G+TX2htisaSCRYSSrDWawZJSLMEENBc1j
+eoQZTq9cLjPjoa9Be6y19gwX1sSmcw9xtYvCNw4xsAPER0RYYWf6uv75ebrZwwq+qy894xlf03n/mi7M
+3albLBqMb0U6AJp6uK1OBOoqB4xESY4aWG1C1QykobhB0zPoB6cUeUL//Ou+do=
+oracle.datasource.url=jdbc:oracle:thin:@uaz-kf-d02.mosaic.arizona.edu:1521:UAZKFDEV
+batch.mailing.list=kuali+dev@email.arizona.edu
+post.target.server=uaz-kf-a02.mosaic.arizona.edu
+shared.external.build.properties=${shared.external.properties}
+appserver.name=uaz-kf-a02.mosaic.arizona.edu:8240
+appserver.url=http://uaz-kf-a02.mosaic.arizona.edu:8240/
+cas.application=cas
+externalizable.static.content.url=https://pa-dev.mosaic.arizona.edu:8443/kfs/static
+
+\end{lstlisting}
+
+\subsection{Decrypting the Configuration}
+Decryption happens at build time. The private key resides in the \verb|.ssh/| directory
+associated by environment name. For example, \verb|/home/tomcat/.ssh/kfs_dev/| is the file
+path for the dev environment private key. This key is used by an automation tool when the 
+environment is built to decrypt the password.
+
+\end{document}

@@ -1,0 +1,84 @@
+                  BuildingAPathToSomethingThatWorks
+                  =================================
+
+Author: Leo Przybylski <void@leosandbox.org>
+Date: 2009-07-22 06:46:46 MST
+
+
+Table of Contents
+=================
+1 Refining the Mosaic KFS Build Process 
+    1.1 Low Hanging Fruit 
+        1.1.1 Configuration Files in SVN 
+        1.1.2 Configuration Password Encryption 
+        1.1.3 Build Process Sandbox 
+    1.2 Continuous Integration 
+        1.2.1 Add Selenium Tests to verify builds in the sandbox 
+        1.2.2 Run conversion scripts continuously with unit tests 
+        1.2.3 Integration tests 
+        1.2.4 Cleanup process for cleaning up old RPM package artifacts 
+    1.3 RPM Packaging 
+        1.3.1 Verify necessary changes are made to support RPMs for all environments 
+        1.3.2 add install log cron process to individual environments 
+
+
+1 Refining the Mosaic KFS Build Process 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1.1 Low Hanging Fruit 
+======================
+
+1.1.1 Configuration Files in SVN 
+---------------------------------
+
+1.1.2 Configuration Password Encryption 
+----------------------------------------
+
+1.1.3 Build Process Sandbox 
+----------------------------
+    - No actual testing, just automating builds in Continuous Integration and manually 
+      verifying the sandbox prior to builds.
+
+1.2 Continuous Integration 
+===========================
+
+1.2.1 Add Selenium Tests to verify builds in the sandbox 
+---------------------------------------------------------
+    - This needs more investigation to estimate
+
+1.2.2 Run conversion scripts continuously with unit tests 
+----------------------------------------------------------
+- Any data that is copied from configuration is done at this time as well. It is
+assumed that configuration data and conversion data are handled together. Currently,
+copying of configuration data requires sysdba privileges. Continuous integration
+runs without privileges, so it needs to be possible to copy the configuration
+                       data without privileges.
+* Write unit tests for verifying role data 
+* Write unit tests for verifying COA data 
+* Write unit tests for verifying LD data 
+* Write unit tests for verifying CA data 
+* Write unit tests for verifying CG data 
+* Write unit tests for verifying ORG data 
+* Script to filter grants for running conversion scripts as any user 
+* Incremental Update to UA Schema 
+
+1.2.3 Integration tests 
+------------------------
+    - Tests like running encryption and verifying that the expected data to be encrypted 
+      was encrypted.
+* Workflow Document Tests 
+  - Validates that appropriate workflow documents are loaded
+* Encryption Tests 
+
+1.2.4 Cleanup process for cleaning up old RPM package artifacts 
+----------------------------------------------------------------
+    - Packages older than a week that weren't created on Sunday are deleted.
+
+1.3 RPM Packaging 
+==================
+
+1.3.1 Verify necessary changes are made to support RPMs for all environments 
+-----------------------------------------------------------------------------
+
+1.3.2 add install log cron process to individual environments 
+--------------------------------------------------------------

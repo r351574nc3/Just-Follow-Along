@@ -1,0 +1,167 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{CAS Extraction Integration}
+
+\begin{document}
+\maketitle
+
+\lstset{basicstyle=\small,
+  breaklines=true,
+  includerangemarker=false}
+\section{Technical Description}
+CAS was extracted into a separate application. Unlike KEW, KSB, or KEN, CAS is a separate web 
+application that runs independently. It can run within the same servlet container, or separately.
+
+\subsection{edu.yale.its.tp.cas.client.filter.CASFilter}
+\verb|KualiCasFilter| has been replaced by a newer \verb|CASFilter|. 
+This filter still runs within the KFS application or any application that is built upon \emph{Kuali Rice.}
+Like the \verb|KualiCasFilter|, the \verb|CASFilter| must also be declared within the KFS web.xml file; 
+likewise, it also has a plethora of parameters that can be set in the declaration the determine its
+overall behavior.
+
+\subsection{context-cas.xml}
+Because the \verb|kuali-cas-1.0.0.war| is distributed complete and packaged, the only way to manipulate
+its settings (ie., datasource settings) is through a filtered \verb|context-cas.xml| located in the 
+\verb|build/external/appserver/| path of KFS. It serves much the same purpose as the \verb|context.xml| 
+file does for KFS.
+
+\subsection{casclient-2.1.1.jar}
+The \verb|SecureURL| and \verb|CASFilter| classes are included here. KFS uses these classes to handle validation
+and url redirection between the \emph{kuali-cas} application and the \emph{kfs} application.
+
+\section{Details}
+\subsection{Modifications to build.properties}
+\verb|build.properties| was modified so that a ``name'' is available. The ``name'' is pretty much the
+same as \verb|${appserver.url}|. It just lacks the protocol. The reason for this is to configure \verb|CASFilter|
+as described later.
+
+\begin{lstlisting}
+appserver.name=localhost:8080
+appserver.url=http://${appserver.name}/
+\end{lstlisting}
+
+\subsection{Modifications to kfs-build.properties}
+Any user building KFS with the new extracted CAS application must make the following adjustments
+to the \verb|kfs-build.properties| file.
+
+\begin{lstlisting}[caption=kfs-build.properties]
+appserver.name=uaz-kf-a02.mosaic.arizona.edu:8240
+appserver.url=http://${appserver.name}/
+cas.application=${cas.application}
+cas.war.file.path=${appserver.home}/webapps/
+cas.datasource.username=${datasource.username}
+cas.datasource.password=${datasource.password}
+cas.datasource.url=${oracle.datasource.url}
+cas.datasource.driver.class=oracle.jdbc.driver.OracleDriver
+cas.require.https=false
+cas.validate.password=false
+\end{lstlisting}
+
+\subsection{Modifications to configuration.properties}
+The following was added to the \verb|build/project/configuration.properties| file so that
+the \verb|KualiConfigurationService| will be able to get to the \verb|cas.require.https| property.
+\begin{lstlisting}
+cas.require.https=${cas.require.https}
+\end{lstlisting}
+
+\subsection{Modifications to web.xml}
+A new \verb|CASFilter| is used instead of \verb|KualiCasFilter|. Parameters are pretty 
+much the same as before, only there are now a couple more of note. First notice that 
+\verb|${appserver.url}${cas.application}| is used. The reason is because CAS now runs as 
+a separate application. This means, it no longer runs in \verb|${application.url}| like it
+used to. We have to take a step back and use the \verb|${appserver.url}| instead.
+
+\begin{description}
+  \item[edu.yale.its.tp.cas.client.filter.serverName] Supposedly, this will fix our problems
+    with proxies. This is set to expect \verb|serviceUrl| to come from \verb|serviceName|. 
+    This is yet to be tested, but it is assumed that this will redirect relatively rather than
+    strictly to the same url that was being accessed.
+  \item[edu.yale.its.tp.cas.client.filter.wrapRequest] Sets the \verb|request.remoteUser| attribute.
+    This is significant because the reference implementation \verb|AuthenticationService| shipped
+    for KIM uses \verb|request.getRemoteUser()| to determine the principalName for the \verb|UserLoginFilter|.
+    If this is not set, the principalName will be \verb|null| which will trigger a 
+    \verb|NullPointerException|. Make sure this is set to \verb|true|.
+\end{description}
+
+\begin{lstlisting}
+<web-app>
+...
+...
+  <filter>
+	<filter-name>cas</filter-name>
+	<filter-class>edu.yale.its.tp.cas.client.filter.CASFilter</filter-class>
+	<init-param>
+	  <param-name>edu.yale.its.tp.cas.client.filter.loginUrl</param-name>
+	  <param-value>${appserver.url}${cas.application}/login</param-value>
+	</init-param>
+	<init-param>
+	  <param-name>edu.yale.its.tp.cas.client.filter.validateUrl</param-name>
+	  <param-value>${appserver.url}${cas.application}/serviceValidate</param-value>
+	</init-param>
+	<init-param>
+	  <param-name>edu.yale.its.tp.cas.client.filter.serverName</param-name>
+	  <param-value>${appserver.name}</param-value>
+	</init-param>
+	<init-param>
+	  <param-name>edu.yale.its.tp.cas.client.filter.wrapRequest</param-name>
+	  <param-value>true</param-value>
+	</init-param>
+  </filter>
+...
+...
+</web-app>
+\end{lstlisting}
+
+\subsection{Custom casclient-2.1.1.jar}
+This is a temporary modification for build-1155 only. A \verb|rice-release-0-9-4-cas-br| was created
+to address the extracted CAS application. As a result, a different \verb|CASFilter| and \verb|SecureURL|
+are used in this branch. I had to checkout this branch and rebuild the casclient-2.1.1.jar to include
+the \verb|rice-release-0-9-4-cas-br| specific \verb|CASFilter| and \verb|SecureURL| classes.
+
+Also, KFS ships with its own \verb|edu.yale.its.tp.cas.util.SecureURL| class. I had to remove this
+from our source code repository because it is redundant (there's already one in the \verb|casclient-2.1.1.jar|)
+and it's not compliant with the \verb|rice-release-0-9-4-cas-br| branch.
+
+I replaced the casclient-2.1.1.jar file in our source code repository. Hopefully, this will not be necessary
+in subsequent builds of KFS.
+
+\subsection{Overview of Build Process Changes}
+Due to the new \verb|kuali-cas-1.0.0.war| and \verb|context-cas.xml| files and modifications
+to the \verb|kfs-build.properties|, the build process has changed. A new \verb|kuali-cas.war| file is
+copied to the \verb|${appserver.deploy.dir}| folder and the \verb|context-cas.xml| is copied to
+\verb|${appserver.config.dir}| as \verb|kuali-cas.xml|.
+
+All users building with the new extracted CAS will need to make the above described modifications
+to the \verb|kfs-build.properties| file.
+
+\subsection{Developer Integration}
+KITT members should run the ``install-cas'' target of the \verb|vendor/kitt/deployment/ua-build.xml| file upon updating to build-1155. 
+This is only necessary to do once ever. 
+
+Running ``install-cas'' from Eclipse
+
+\begin{enumerate}
+  \item Make sure necessary changes were made to the \verb|kfs-build.properties|
+  \item Add the \verb|ua-build.xml| to the ant view from \verb|vendor/kitt/deployment/|
+  \item Run ``install-cas'' by double-clicking.
+  \item \verb|SecureUrl| in \verb|work/src/edu/yale| is compatible with \verb|KualiCasFilter|
+    and not \verb|CASFilter|. It should be removed from your class path (probably by deleting it)
+    if you want to use the CASFilter.
+  \item A custom \verb|casclient-2.1.1.jar| file is added to \verb|work/web-root/WEB-INF/lib|. Add it
+    to your Eclipse build path.
+    \begin{enumerate}
+      \item click your right button on \verb|casclient-2.1.1.jar|
+      \item Select ``Build Path''
+      \item Select ``Add to Build Path''
+      \item Your workspace will automatically start rebuilding
+    \end{enumerate}
+\end{enumerate}
+
+
+
+\end{document}

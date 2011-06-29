@@ -1,0 +1,152 @@
+#+COLUMNS: %50ITEM %5Effort(Estimate){:} %5CLOCKSUM(Clocked) %5TODO(State)
+* Refining the Mosaic KFS Build Process
+  :PROPERTIES:
+  :FOR_EXPORT_COLUMNS:  %50ITEM %5Effort(Estimate){:}
+  :COLUMNS:  %50ITEM %5Effort(Estimate){:} %5CLOCKSUM(Clocked) %5TODO(State)
+  :ID:       project-1
+  :EXPORT_TITLE: Refining the Mosaic KFS Build Process
+  :EXPORT_OPTIONS: toc:nil
+  :END:
+** Low Hanging Fruit
+   :PROPERTIES:
+   :Effort:   6:00
+   :Clock:    1:30
+   :END:
+*** TODO Configuration Files in SVN
+    :PROPERTIES:
+    :Effort:   1:00
+    :Clock:    0:30
+    :END:
+*** DONE Configuration Password Encryption
+    :PROPERTIES:
+    :Effort:   1:00
+    :Clock:    1:00
+    :END:
+*** TODO Build Process Sandbox
+    :PROPERTIES:
+    :Effort:   4:00
+    :END:
+    - No actual testing, just automating builds in Continuous Integration and manually 
+      verifying the sandbox prior to builds.
+** TODO Continuous Integration
+   :PROPERTIES:
+   :Effort:   45:00
+   :END:
+*** TODO Add Selenium Tests to verify builds in the sandbox
+    :PROPERTIES:
+    :State:    Estimating
+    :END:
+    - This needs more investigation to estimate
+*** TODO Run conversion scripts continuously with unit tests
+    :PROPERTIES:
+    :Estimate: 36:00
+    :Clock:    1:00
+    :END:
+- Any data that is copied from configuration is done at this time as well. It is
+assumed that configuration data and conversion data are handled together. Currently,
+copying of configuration data requires sysdba privileges. Continuous integration
+runs without privileges, so it needs to be possible to copy the configuration
+                       data without privileges.
+**** TODO Write unit tests for verifying role data
+     :PROPERTIES:
+     :Effort: 5:00
+     :END:
+**** TODO Write unit tests for verifying COA data
+     :PROPERTIES:
+     :Effort: 5:00
+     :END:
+**** TODO Write unit tests for verifying LD data
+     :PROPERTIES:
+     :Effort: 5:00
+     :END:
+**** TODO Write unit tests for verifying CA data
+     :PROPERTIES:
+     :Effort: 5:00
+     :END:
+**** TODO Write unit tests for verifying CG data
+     :PROPERTIES:
+     :Effort: 5:00
+     :END:
+**** TODO Write unit tests for verifying ORG data
+     :PROPERTIES:
+     :Effort: 5:00
+     :END:
+**** DONE Script to filter grants for running conversion scripts as any user
+     :PROPERTIES:
+     :Effort: 1:00
+     :Clock:    1:00
+     :END:
+**** TODO Incremental Update to UA Schema
+     :PROPERTIES:
+     :Effort: 5:00
+     :END:
+*** TODO Integration tests
+    :PROPERTIES:
+    :Effort: 8:00
+    :END:
+    - Tests like running encryption and verifying that the expected data to be encrypted 
+      was encrypted.
+**** TODO Workflow Document Tests
+     :PROPERTIES:
+     :Effort: 4:00
+     :END:
+     - Validates that appropriate workflow documents are loaded
+**** TODO Encryption Tests
+    :PROPERTIES:
+    :Effort: 4:00
+    :END:
+*** Cleanup process for cleaning up old RPM package artifacts
+    :PROPERTIES:
+    :Effort: 1:00
+    :END:
+    - Packages older than a week that weren't created on Sunday are deleted.
+** TODO RPM Packaging
+   :PROPERTIES:
+   :Effort: 6:00
+   :END:
+*** TODO Verify necessary changes are made to support RPMs for all environments
+    :PROPERTIES:
+    :Effort: 1:00
+    :END:
+*** TODO add install log cron process to individual environments
+    :PROPERTIES:
+    :Effort: 5:00
+    :END:
+
+#+BEGIN: columnview :hlines 2 :vlines t :id "project-1" :skip-empty-rows t
+|   | ITEM                                           | Estimate |
+|---+------------------------------------------------+----------|
+|   | * Refining the Mosaic KFS Build Process        |          |
+|---+------------------------------------------------+----------|
+|   | ** Low Hanging Fruit                           |  06:00   |
+|   | *** Configuration Files in SVN                 |  01:00   |
+|   | *** Configuration Password Encryption          |  01:00   |
+|   | *** Build Process Sandbox                      |  04:00   |
+|---+------------------------------------------------+----------|
+|   | ** Continuous Integration                      |  36:00   |
+|   | *** Add Selenium Tests to verify builds in the |          |
+|   |     sandbox                                    |          |
+|   | *** Run conversion scripts continuously with   |  36:00   |
+|   |     unit tests                                 |          |
+|   | **** Write unit tests for verifying role data  |  05:00   |
+|   | **** Write unit tests for verifying COA data   |  05:00   |
+|   | **** Write unit tests for verifying LD data    |  05:00   |
+|   | **** Write unit tests for verifying CA data    |  05:00   |
+|   | **** Write unit tests for verifying CG data    |  05:00   |
+|   | **** Write unit tests for verifying ORG data   |  05:00   |
+|   | **** Script to filter grants for running       |          |
+|   |      conversion scripts as any user            |  01:00   |
+|   | **** Incremental Update to UA Schema           |  05:00   |
+|   | *** Integration tests                          |  08:00   |
+|   | **** Workflow Document Tests                   |  04:00   |
+|   | **** Encryption Tests                          |  04:00   |
+|   | *** Cleanup process for cleaning up old RPM    |          |
+|   |     package artifacts                          |  01:00   |
+|---+------------------------------------------------+----------|
+|   | ** RPM Packaging                               |  06:00   |
+|   | *** Verify necessary changes are made to       |          |
+|   |     support RPMs for all environments          |  01:00   |
+|   | *** add install log cron process to individual |          |
+|   |     environments                               |  05:00   |
+| / | <>                                             |       <> |
+#+END:

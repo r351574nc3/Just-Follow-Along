@@ -1,0 +1,167 @@
+\section{Refining the Mosaic KFS Build Process}
+\label{sec-1}
+
+\subsection{Low Hanging Fruit}
+\label{sec-1.1}
+
+\subsubsection{Configuration Files in SVN}
+\label{sec-1.1.1}
+
+\subsubsection{Configuration Password Encryption}
+\label{sec-1.1.2}
+
+\subsubsection{Build Process Sandbox}
+\label{sec-1.1.3}
+
+\begin{itemize}
+\item No actual testing, just automating builds in Continuous Integration and manually 
+      verifying the sandbox prior to builds.
+\end{itemize}
+
+\subsection{Continuous Integration}
+\label{sec-1.2}
+
+\subsubsection{Add Selenium Tests to verify builds in the sandbox}
+\label{sec-1.2.1}
+
+\begin{itemize}
+\item This needs more investigation to estimate
+\end{itemize}
+
+\subsubsection{Run conversion scripts continuously with unit tests}
+\label{sec-1.2.2}
+
+\begin{itemize}
+\item Any data that is copied from configuration is done at this time as well. It is
+\end{itemize}
+
+assumed that configuration data and conversion data are handled together. Currently,
+copying of configuration data requires sysdba privileges. Continuous integration
+runs without privileges, so it needs to be possible to copy the configuration
+                       data without privileges.
+\begin{description}
+
+\item[Write unit tests for verifying role data]\label{sec-1.2.2.1}
+
+
+\end{description}
+\begin{description}
+
+\item[Write unit tests for verifying COA data]\label{sec-1.2.2.2}
+
+
+\end{description}
+\begin{description}
+
+\item[Write unit tests for verifying LD data]\label{sec-1.2.2.3}
+
+
+\end{description}
+\begin{description}
+
+\item[Write unit tests for verifying CA data]\label{sec-1.2.2.4}
+
+
+\end{description}
+\begin{description}
+
+\item[Write unit tests for verifying CG data]\label{sec-1.2.2.5}
+
+
+\end{description}
+\begin{description}
+
+\item[Write unit tests for verifying ORG data]\label{sec-1.2.2.6}
+
+
+\end{description}
+\begin{description}
+
+\item[Script to filter grants for running conversion scripts as any user]\label{sec-1.2.2.7}
+
+
+\end{description}
+\begin{description}
+
+\item[Incremental Update to UA Schema]\label{sec-1.2.2.8}
+
+
+\end{description}
+\subsubsection{Integration tests}
+\label{sec-1.2.3}
+
+\begin{itemize}
+\item Tests like running encryption and verifying that the expected data to be encrypted 
+      was encrypted.
+\end{itemize}
+
+\begin{description}
+
+\item[Workflow Document Tests]\label{sec-1.2.3.1}
+
+
+\begin{itemize}
+\item Validates that appropriate workflow documents are loaded
+\end{itemize}
+
+\end{description}
+\begin{description}
+
+\item[Encryption Tests]\label{sec-1.2.3.2}
+
+
+\end{description}
+\subsubsection{Cleanup process for cleaning up old RPM package artifacts}
+\label{sec-1.2.4}
+
+\begin{itemize}
+\item Packages older than a week that weren't created on Sunday are deleted.
+\end{itemize}
+
+\subsection{RPM Packaging}
+\label{sec-1.3}
+
+\subsubsection{Verify necessary changes are made to support RPMs for all environments}
+\label{sec-1.3.1}
+
+\subsubsection{add install log cron process to individual environments}
+\label{sec-1.3.2}
+
+
+\begin{tabular}{|l|l|}
+ ITEM                                              &  Estimate  \\
+\hline
+ \textbf{*} Refining the Mosaic KFS Build Process           &            \\
+\hline
+ \textbf{**} Low Hanging Fruit                              &     06:00  \\
+ \textbf{***} Configuration Files in SVN                    &     01:00  \\
+ \textbf{***} Configuration Password Encryption             &     01:00  \\
+ \textbf{***} Build Process Sandbox                         &     04:00  \\
+\hline
+ \textbf{**} Continuous Integration                         &     36:00  \\
+ \textbf{***} Add Selenium Tests to verify builds in the    &            \\
+ sandbox                                           &            \\
+ \textbf{***} Run conversion scripts continuously with      &     36:00  \\
+ unit tests                                        &            \\
+ \textbf{****} Write unit tests for verifying role data     &     05:00  \\
+ \textbf{****} Write unit tests for verifying COA data      &     05:00  \\
+ \textbf{****} Write unit tests for verifying LD data       &     05:00  \\
+ \textbf{****} Write unit tests for verifying CA data       &     05:00  \\
+ \textbf{****} Write unit tests for verifying CG data       &     05:00  \\
+ \textbf{****} Write unit tests for verifying ORG data      &     05:00  \\
+ \textbf{****} Script to filter grants for running          &            \\
+ conversion scripts as any user                    &     01:00  \\
+ \textbf{****} Incremental Update to UA Schema              &     05:00  \\
+ \textbf{***} Integration tests                             &     08:00  \\
+ \textbf{****} Workflow Document Tests                      &     04:00  \\
+ \textbf{****} Encryption Tests                             &     04:00  \\
+ \textbf{***} Cleanup process for cleaning up old RPM       &            \\
+ package artifacts                                 &     01:00  \\
+\hline
+ \textbf{**} RPM Packaging                                  &     06:00  \\
+ \textbf{***} Verify necessary changes are made to support  &            \\
+ RPMs for all environments                         &     01:00  \\
+ \textbf{***} add install log cron process to individual    &            \\
+ environments                                      &     05:00  \\
+ \hline
+\end{tabular}

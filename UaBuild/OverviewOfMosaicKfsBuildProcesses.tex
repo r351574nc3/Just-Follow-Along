@@ -1,0 +1,36 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{An Overview of Mosaic Kfs Build Processes}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+There are several different processes or phases to building that can happen
+in parallel to each other. That is, there is no single process that happens in
+a series of steps that can be illustrated or described. The overall process, must
+be described as a set of several processes or phases that happen independently
+of each other.
+
+\section{Deployment}
+The overall process of deploying KFS and dependencies to a specific environment of DEV, CFG, CNV, DMO, TRN, TST, or STG.
+
+\section{Building}
+Where actual builds take place. Builds are verified and tested. Not all builds
+end up packaged or deployed. Some builds may fail.
+
+\section{Packaging}
+The process of distributable representation of builds to be installed. Packages themselves do not need
+to be tested, but rather the packaging needs to be tested.
+
+\section{Inception}
+Source code is pulled into the Version Control System. 
+
+
+\end{document}
