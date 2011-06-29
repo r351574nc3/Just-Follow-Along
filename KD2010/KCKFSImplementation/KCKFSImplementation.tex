@@ -1,0 +1,223 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski}
+\usepackage{graphicx}
+\input{../KD2010.tex}
+\fulltitle{LDAP Integration}
+\W \subtitle{For Kuali Financials and Kuali Rice}
+
+\W \affiliation{rSmart}
+
+\newcommand{\Encapsulation}{\sf{\href{http://en.wikipedia.org/wiki/Information_hiding}{Encapsulation}}\rm{}}
+\newcommand{\Abstraction}{\sf{\href{http://en.wikipedia.org/wiki/Abstraction}{Abstraction}}\rm{}}
+\newcommand{\Inheritance}{\sf{\href{http://en.wikipedia.org/wiki/Inheritance_(computer_science)}{Inheritance}}\rm{}}
+\newcommand{\ObjectModel}{\sf{\href{http://en.wikipedia.org/wiki/Object_model}{Object Model}}\rm{}}
+\newcommand{\Modularity}{\sf{\href{http://en.wikipedia.org/wiki/Modularity_(programming)}{Modularity}}\rm{}}
+\newcommand{\Polymorphism}{\sf{\href{http://en.wikipedia.org/wiki/Type_polymorphism}{Polymorphism}}\rm{}}
+\newcommand{\MultiInheritance}{\sf{\href{http://en.wikipedia.org/wiki/Multiple_inheritance}{Multiple-Inheritance}}\rm{}}
+\newcommand{\Kuali}{\emph{\href{http://www.kuali.org}{Kuali}}\rm{}}
+\newcommand{\KualiFinancialSystem}{\emph{\href{http://www.kuali.org}{Kuali Financial System}}\rm{}}
+\newcommand{\KFS}{\emph{\href{http://www.kuali.org}{KFS}}}
+\newcommand{\MVC}{\emph{\href{http://en.wikipedia.org/wiki/Model-view-controller}{MVC}}}
+
+\begin{document}
+  \W \begin{s5presentation}
+  \maketitle
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 1
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Overview}
+
+    \begin{itemize}
+      \item What were the concerns?
+      \item What were the risks?
+      \item How did we do it?
+      \item What is left?
+    \end{itemize}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 2
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Concerns}
+    \begin{itemize}
+    \item KFS version (3.0.1) vs. KC Version (2.0)
+    \item Common action list
+    \item Common/maintainable user base
+    \item Common authorization maintenance
+    \item Where is the data coming from?
+    \end{itemize}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 3
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{More Concerns}
+    \begin{itemize}
+    \item Projects started unaware of each other
+    \item Interaction with KFS
+    \item KFS upgrade or separate rice installations?
+    \item Dataset gaps?
+    \item Schema gaps?
+    \end{itemize}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 4
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Projects Unaware}
+    \begin{itemize}
+    \item KFS implementation started before KC
+    \item KC 1.0 features delayed until 2.0
+    \item Many KC requisites were coupled to changes in more recent
+      versions of Rice than KFS.
+    \end{itemize}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 4
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{KFS Upgrade}
+    \begin{itemize}
+    \item UC Davis using custom version of KFS/Rice that allowed sharing of an
+      action list provided the same version of Rice was used.
+    \item KC 2.0 is compatible with Rice 1.0.2 and Rice 1.0.2.1.
+    \item KFS 3.0.1 is incompatible with recent versions of Rice
+    \end{itemize}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 5
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{More KFS Upgrade}
+    \begin{itemize}
+      \item KFS implementation at UA would require an upgrade
+      \item Alternative to an upgrade is to use two action lists
+      \item Concerns around this are data migration later
+    \end{itemize}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 6
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Risks}
+    \begin{itemize}
+      \item LDAP v. JDBC Datastore
+      \item Who is responsible for integration?
+      \item Timeline?
+      \item Possibly huge integration hassle if proceeded with separate rice
+        installations.
+    \end{itemize}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 7
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{LDAP v. JDBC Datastore}
+    \begin{itemize}
+      \item JDBC is reference implementation and complete
+      \item Some overriding and development is required
+      \item Unsure whether all the data will come from a singular source
+      \item KC Person has more information than is stored in KIM
+      \item KFS and KC handle organizations differently with people
+      \item How is the LDAP Server populated?
+    \end{itemize}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 8
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{More LDAP v. JDBC Datastore}
+    \begin{itemize}
+      \item LDAP is live (queries server directly and immediately). Alternative
+        is populating KIM tables with real users (approx. 30k including students).
+    \end{itemize}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 9
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{Who is Responsible for the Integration?}
+    \begin{itemize}
+      \item Comes down to Java developers or SQL developers (resource management)
+      \item LDAP (preferred) would require java developers
+      \item JDBC Datastore would require populating the database with
+        real data taken from an external system.
+    \end{itemize}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 10
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{How did we do it?}
+    \begin{itemize}
+      \item Went with LDAP integration for users.
+      \item Separate rice installations for now. Our answer is coming!
+      \item Parallel deployment (running legacy and KC software together).
+    \end{itemize}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 11
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{What separate rice installations}
+    \begin{itemize}
+      \item Went with LDAP integration for users.
+      \item Separate rice installations for now. Our answer is coming!
+      \item Parallel deployment (running legacy and KC software together).
+    \end{itemize}
+  \W \end{s5slide}
+
+%%%%%%%%%%%%%%%%%%%$$$
+%
+% Slide 12
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+  \W \begin{s5slide}
+    \section{What is left?}
+    \begin{itemize}
+      \item Common action lists/workflow
+      \item Full KC software implementation
+      \item Unit integration over web services
+      \item Account creation over web services
+    \end{itemize}
+  \W \end{s5slide}
+  
+  \W \end{s5presentation}
+\end{document}
