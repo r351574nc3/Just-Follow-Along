@@ -1,0 +1,268 @@
+\documentclass[12pt,notitlepage]{article}
+\author{David Elyea, Anthony Potts, and Leo Przybylski}
+\usepackage{graphicx}
+\input{../KD8.tex}
+\fulltitle{LDAP Integration}
+\W \subtitle{For Kuali Financials}
+
+\W \affiliation{San Joaquin Delta College, rSmart, and University of Arizona}
+
+\newcommand{\Encapsulation}{\sf{\href{http://en.wikipedia.org/wiki/Information_hiding}{Encapsulation}}\rm{}}
+\newcommand{\Abstraction}{\sf{\href{http://en.wikipedia.org/wiki/Abstraction}{Abstraction}}\rm{}}
+\newcommand{\Inheritance}{\sf{\href{http://en.wikipedia.org/wiki/Inheritance_(computer_science)}{Inheritance}}\rm{}}
+\newcommand{\ObjectModel}{\sf{\href{http://en.wikipedia.org/wiki/Object_model}{Object Model}}\rm{}}
+\newcommand{\Modularity}{\sf{\href{http://en.wikipedia.org/wiki/Modularity_(programming)}{Modularity}}\rm{}}
+\newcommand{\Polymorphism}{\sf{\href{http://en.wikipedia.org/wiki/Type_polymorphism}{Polymorphism}}\rm{}}
+\newcommand{\MultiInheritance}{\sf{\href{http://en.wikipedia.org/wiki/Multiple_inheritance}{Multiple-Inheritance}}\rm{}}
+\newcommand{\Kuali}{\emph{\href{http://www.kuali.org}{Kuali}}\rm{}}
+\newcommand{\KualiFinancialSystem}{\emph{\href{http://www.kuali.org}{Kuali Financial System}}\rm{}}
+\newcommand{\KFS}{\emph{\href{http://www.kuali.org}{KFS}}}
+\newcommand{\MVC}{\emph{\href{http://en.wikipedia.org/wiki/Model-view-controller}{MVC}}}
+
+\begin{document}
+  \W \begin{s5presentation}
+  \maketitle
+  \W \begin{s5slide}
+    \W \section{Overview}
+    \begin{itemize}
+      \item University of Arizona LDAP Integration
+      \item Customizing Rice CAS for LDAP
+      \item San Joaquin Delta College LDAP Integration
+      \item Naval Post-Secondary School LDAP Integration 
+    \end{itemize}
+    \W \begin{s5notes}
+      The objective is to understand implementation changes necessary to integrate LDAP with KFS and
+      the stories from the institutions that have done it.
+      \W \end{s5notes}
+    \W \end {s5slide}
+  \W \begin{s5slide}
+    \W \section{UA LDAP Integration}
+    \begin{itemize}
+      \item Architectural Overview
+      \item KIM-to-EDS Mappings
+      \item Spring Configuration
+      \item KIM Integration/Rice Customizations
+    \end{itemize}
+    \W \begin{s5notes}
+      There isn't all that much work that goes into integrating LDAP with KFS. There are a few classes
+      that needed to be extended and even fewer interfaces that needed to be implemented. We plan to go
+      over all of what UA needed to do including the architecture and technical changes.
+
+      UA also had to overcome mapping its native user information to KIM.
+
+      We weill review what Spring configuration was necessary to integrate LDAP.
+
+      In addition to the recommended KIM implementation strategy, some changes conflicted with Rice 
+      which required modifications of Rice itself.
+    
+      \W \end{s5notes}
+    \W \end {s5slide}
+
+  
+  \W \begin{s5slide}
+    \W \section{Architectural Overview}
+    \begin{itemize}
+    \item Enterprise Directory Service (EDS)
+      \begin{itemize}
+      \item UA Directory Service Provider
+      \item Used primarily for entity information (not authz)
+      \end{itemize}
+    \item Roles/Groups/Permissions/Responsibilities are managed in RDBMS
+    \item Mapping Caveats with KIM
+      \begin{itemize}
+      \item With System Parameters
+      \item Field names differ
+      \item principalId and entityId are the same
+      \end{itemize}
+    \end{itemize}
+    \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \W \section{Mapping Examples}
+    \begin{itemize}
+      \item Employee Status
+        \verb|principal.active.Y=employeeStatus.A|
+      \item Entity
+        \verb|principal.principalId=uaid|
+        \verb|principal.principalName=uid|
+    \end{itemize}
+    \W \end{s5slide}
+
+  \W \begin{s5slide}
+    \W \section{Architectural Overview}
+    \begin{itemize}
+    \item Required libraries
+      \begin{itemize}
+        \item \verb|spring-ldap-1.3.0.RELEASE-all.jar|
+      \end{itemize}
+    \item Package structure
+      \begin{itemize}
+      \item \verb|edu.arizona.kim|
+      \item \verb|edu.arizona.kim.businessobject.entity.dto|
+      \item \verb|edu.arizona.kim.dataaccess|
+      \item \verb|edu.arizona.kim.dataaccess.impl|
+      \item \verb|edu.arizona.kim.service.impl|
+      \end{itemize}
+    \end{itemize}
+    \W \end {s5slide}
+  \W \begin{s5slide}
+    \section{Architectural Overview}
+    \xml{center}
+    \xml{a href="Diagrams/Class.png" id="external" rel="lightbox[gallery]"}\xml{img src="Diagrams/Class.png" id="external" border="0" width="800"/}\xml{/a}
+    \xml{/center}
+    \W \end{s5slide}
+  
+  \W \begin{s5slide}
+    \W \section{Spring Configuration}
+    \begin{itemize}
+      \item \verb|edu/arizona/kim/spring-kim.xml|
+      \item Setting up \verb|LdapTemplate|
+      \item Dependency Injection with Spring-LDAP
+    \end{itemize}
+    \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \W \section{KIM Customization}
+    \begin{itemize}
+      \item \verb|org.kuali.rice.kim.service.IdentityService|
+      \item \verb|org.kuali.rice.kim.service.impl|
+        \verb|UiDocumentServiceImpl|
+      \item \verb|SYSTEM_USER|
+    \end{itemize}
+    \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \W \section{Custom Rice CAS for LDAP}
+    \begin{itemize}
+      \item Where to get it
+        Download the cas source from 
+        \verb|http://www.ja-sig.org/downloads/cas/cas-server-3.3.1-release.tar.gz|
+      \item Required additional libraries
+        \begin{itemize}
+          \item \verb|cas-server-support-ldap|
+        \end{itemize}
+    \end{itemize}
+    \W \end {s5slide}
+
+
+  \W \begin{s5slide}
+    \W \section{Custom Rice CAS for LDAP}
+    \begin{itemize}
+      \item Path-structure
+        \begin{itemize}
+          \item META-INF  
+          \item WEB-INF
+          \item css 
+          \item images    
+          \item js 
+          \item themes
+        \end{itemize}
+    \end{itemize}
+  \W \end{s5slide}
+  \W \begin{s5slide}
+    \W \section{Custom Rice CAS for LDAP}
+    \begin{itemize}
+      \item Required changes to Spring Configuration
+        \begin{itemize}
+        \item WEB-INF/deployerConfigContext.xml
+        \end{itemize}
+      \item Repackaging and Deploying
+    \end{itemize}
+    \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \W \section{SJDC LDAP Integration}
+    \begin{itemize}
+      \item Architectural Overview
+      \item Encountered Caveats with merging Rice 1.0.1
+    \end{itemize}
+    \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \W \section{NPS LDAP Integration}
+    \begin{itemize}
+      \item Architectural Overview
+      \item Integration modifications
+        
+    \end{itemize}
+\W \begin{s5notes}
+  Talk about
+    \begin{itemize}
+      \item Architectural Overview
+      \item Integration modifications
+        
+    \end{itemize}
+\W \end{s5notes}
+
+    \W \end {s5slide}
+  \W \begin{s5slide}
+    \section{Integration modifications}
+    \begin{itemize}
+      \item spring-kim.xml
+        \begin{itemize}
+        \item LDAP location
+        \item Defaults
+        \item Security information
+        \end{itemize}
+      \item EdsPrincipalDaoImpl
+        \begin{itemize}
+          \item principalId usage
+          \item Default phone number length
+          \item Hard coded employee type and base salary 
+        \end{itemize}
+    \end{itemize}
+
+    \W \begin{s5notes}
+      Talk about
+    \begin{itemize}
+      \item spring-kim.xml
+        \begin{itemize}
+        \item LDAP location
+        \item Defaults
+        \item Security information
+        \end{itemize}
+      \item EdsPrincipalDaoImpl
+        \begin{itemize}
+          \item principalId usage
+          \item Default phone number length
+          \item Hard coded employee type and base salary 
+        \end{itemize}
+    \end{itemize}
+
+      \W \end{s5notes}
+    \W \end{s5slide}
+
+  \W \begin{s5slide}
+    \section{Integration modifications}
+    \begin{itemize}
+      \item Parameters
+        \begin{itemize}
+          \item KIM_TO_EDS_FIELD_MAPPINGS
+          \item KIM_TO_EDS_VALUE_MAPPINGS
+          \item KIM_TO_EDS_UNMAPPED_FIELDS 
+        \end{itemize}
+    \end{itemize}
+
+    \W \begin{s5notes}
+      \W \end{s5notes}
+\W \begin{s5notes}
+  Talk about
+
+    \begin{itemize}
+      \item Parameters
+        \begin{itemize}
+          \item KIM_TO_EDS_FIELD_MAPPINGS
+          \item KIM_TO_EDS_VALUE_MAPPINGS
+          \item KIM_TO_EDS_UNMAPPED_FIELDS 
+        \end{itemize}
+    \end{itemize}
+
+\W \end{s5notes}
+    \W \end{s5slide}
+
+  \W \begin{s5slide}
+    \W \section{Questions}
+
+    \W \end {s5slide}
+  \W \end{s5presentation}
+\end{document}

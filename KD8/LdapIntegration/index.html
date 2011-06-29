@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- XML file produced from file: LdapIntegration.tex
+     using Hyperlatex v 2.9-in-waiting-rk (oct06) (c) Otfried Cheong
+     on Emacs 22.2.1, Wed Nov 18 13:00:29 2009 -->
+<head>
+<title>LDAP Integration</title>
+
+    <!-- metadata -->
+    <meta name="generator" content="S5" />
+    <meta name="version" content="S5 1.1" />
+    <meta name="company" content="Leosandbox " />
+    <!-- configuration parameters -->
+    <meta name="defaultView" content="slideshow" />
+    <meta name="controlVis" content="hidden" />
+    <!-- style sheet links -->
+    <link rel="stylesheet" href="ui/kd8/slides.css" type="text/css" media="projection" id="slideProj" />
+    <link rel="stylesheet" href="ui/kd8/outline.css" type="text/css" media="screen" id="outlineStyle" />
+    <link rel="stylesheet" href="ui/kd8/print.css" type="text/css" media="print" id="slidePrint" />
+    <link rel="stylesheet" href="ui/kd8/opera.css" type="text/css" media="projection" id="operaFix" />
+    <script src="ui/kd8/slides.js" type="text/javascript"></script>
+
+  
+</head>
+<body>
+
+  <div class="header">
+    <div class="header_l">
+      <div class="header_r">
+      &nbsp;
+      </div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="content_l">
+      <div class="content_r">
+        <img src="ui/kd8/blank.gif" id="filler" border="0"/>
+<div class="layout">
+  <div id="controls"><!-- DO NOT EDIT --></div>
+  <div id="currentSlide"><!-- DO NOT EDIT --></div>
+  <div id="header">
+    <img style="position: relative; top:30px; left: 18px;" id="logo" src="ui/kd8/logo.png" />
+  </div>
+  <div id="footer">
+    <div class="footer_l">
+      <div class="footer_r">
+        <h1/>
+        <h2>November 18, 2009</h2>
+      </div>
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+ </div>
+<div class="presentation">
+    
+<p><div class="slide">
+<h1>LDAP Integration</h1>
+<h2>For Kuali Financials</h2>
+<h3>David Elyea, Anthony Potts, and Leo Przybylski</h3>
+<h4>San Joaquin Delta College, rSmart, and University of Arizona</h4>
+</div><div class="slide">
+</p>
+
+<h1><a name="id1">Overview</a></h1><ul><li>University of Arizona LDAP Integration
+</li><li>Customizing Rice CAS for LDAP
+</li><li>San Joaquin Delta College LDAP Integration
+</li><li>Naval Post-Secondary School LDAP Integration 
+</li></ul>
+<div class="notes">
+<p>The objective is to understand implementation changes necessary to integrate LDAP with KFS and
+the stories from the institutions that have done it.
+</div>
+</div>
+<div class="slide">
+</p>
+
+<h1><a name="id2">UA LDAP Integration</a></h1><ul><li>Architectural Overview
+</li><li>KIM-to-EDS Mappings
+</li><li>Spring Configuration
+</li><li>KIM Integration/Rice Customizations
+</li></ul>
+<div class="notes">
+<p>There isn't all that much work that goes into integrating LDAP with KFS. There are a few classes
+that needed to be extended and even fewer interfaces that needed to be implemented. We plan to go
+over all of what UA needed to do including the architecture and technical changes.
+</p>
+<p>UA also had to overcome mapping its native user information to KIM.
+</p>
+<p>We weill review what Spring configuration was necessary to integrate LDAP.
+</p>
+<p>In addition to the recommended KIM implementation strategy, some changes conflicted with Rice 
+which required modifications of Rice itself.
+</p>
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id3">Architectural Overview</a></h1><ul><li>Enterprise Directory Service (EDS)
+<ul><li>UA Directory Service Provider
+</li><li>Used primarily for entity information (not authz)
+</li></ul>
+</li><li>Roles/Groups/Permissions/Responsibilities are managed in RDBMS
+</li><li>Mapping Caveats with KIM
+<ul><li>With System Parameters
+</li><li>Field names differ
+</li><li>principalId and entityId are the same
+</li></ul>
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id4">Mapping Examples</a></h1><ul><li>Employee Status
+<code>principal.active.Y=employeeStatus.A</code>
+</li><li>Entity
+<code>principal.principalId=uaid</code>
+<code>principal.principalName=uid</code>
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id5">Architectural Overview</a></h1><ul><li>Required libraries
+<ul><li><code>spring-ldap-1.3.0.RELEASE-all.jar</code>
+</li></ul>
+</li><li>Package structure
+<ul><li><code>edu.arizona.kim</code>
+</li><li><code>edu.arizona.kim.businessobject.entity.dto</code>
+</li><li><code>edu.arizona.kim.dataaccess</code>
+</li><li><code>edu.arizona.kim.dataaccess.impl</code>
+</li><li><code>edu.arizona.kim.service.impl</code>
+</li></ul>
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id6">Architectural Overview</a></h1><center>
+<a href="Diagrams/Class.png" id="external" rel="lightbox[gallery]"><img src="Diagrams/Class.png" id="external" border="0" width="800"/></a>
+</center>
+</div>
+<div class="slide">
+
+<h1><a name="id7">Spring Configuration</a></h1><ul><li><code>edu/arizona/kim/spring-kim.xml</code>
+</li><li>Setting up <code>LdapTemplate</code>
+</li><li>Dependency Injection with Spring-LDAP
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id8">KIM Customization</a></h1><ul><li><code>org.kuali.rice.kim.service.IdentityService</code>
+</li><li><code>org.kuali.rice.kim.service.impl</code>
+<code>UiDocumentServiceImpl</code>
+</li><li><code>SYSTEM_USER</code>
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id9">Custom Rice CAS for LDAP</a></h1><ul><li>Where to get it
+Download the cas source from 
+<code>http://www.ja-sig.org/downloads/cas/cas-server-3.3.1-release.tar.gz</code>
+</li><li>Required additional libraries
+<ul><li><code>cas-server-support-ldap</code>
+</li></ul>
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id10">Custom Rice CAS for LDAP</a></h1><ul><li>Path-structure
+<ul><li>META-INF  
+</li><li>WEB-INF
+</li><li>css 
+</li><li>images    
+</li><li>js 
+</li><li>themes
+</li></ul>
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id11">Custom Rice CAS for LDAP</a></h1><ul><li>Required changes to Spring Configuration
+<ul><li>WEB-INF/deployerConfigContext.xml
+</li></ul>
+</li><li>Repackaging and Deploying
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id12">SJDC LDAP Integration</a></h1><ul><li>Architectural Overview
+</li><li>Encountered Caveats with merging Rice 1.0.1
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id13">NPS LDAP Integration</a></h1><ul><li>Architectural Overview
+</li><li>Integration modifications
+</li></ul>
+<div class="notes">
+<p>Talk about
+</p>
+<ul><li>Architectural Overview
+</li><li>Integration modifications
+</li></ul>
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id14">Integration modifications</a></h1><ul><li>spring-kim.xml
+<ul><li>LDAP location
+</li><li>Defaults
+</li><li>Security information
+</li></ul>
+</li><li>EdsPrincipalDaoImpl
+<ul><li>principalId usage
+</li><li>Default phone number length
+</li><li>Hard coded employee type and base salary 
+</li></ul>
+</li></ul>
+<p><div class="notes">
+Talk about
+</p>
+<ul><li>spring-kim.xml
+<ul><li>LDAP location
+</li><li>Defaults
+</li><li>Security information
+</li></ul>
+</li><li>EdsPrincipalDaoImpl
+<ul><li>principalId usage
+</li><li>Default phone number length
+</li><li>Hard coded employee type and base salary 
+</li></ul>
+</li></ul>
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id15">Integration modifications</a></h1><ul><li>Parameters
+<ul><li>KIM_TO_EDS_FIELD_MAPPINGS
+</li><li>KIM_TO_EDS_VALUE_MAPPINGS
+</li><li>KIM_TO_EDS_UNMAPPED_FIELDS 
+</li></ul>
+</li></ul>
+<p><div class="notes">
+</div>
+<div class="notes">
+Talk about
+</p>
+<ul><li>Parameters
+<ul><li>KIM_TO_EDS_FIELD_MAPPINGS
+</li><li>KIM_TO_EDS_VALUE_MAPPINGS
+</li><li>KIM_TO_EDS_UNMAPPED_FIELDS 
+</li></ul>
+</li></ul>
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id16">Questions</a></h1>
+</div>
+</div>
+<hr />
+</body></html>

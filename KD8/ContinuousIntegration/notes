@@ -1,0 +1,193 @@
+Overview Notes
+
+Problems during Implementation Development
+Introduction to Continuous Integration (CI)
+University of Arizona CI Process
+Notifications
+Testing
+Virtualized Infrastructure (Amazon EC2)
+Kuali in the Cloud
+Questions and Comments
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+During implementation there are issues expected to be encountered. We will illustrate how
+CI mitigates these problems and make implementation bearable. One way to illustrate this is
+through the explanation of the UA CI Process. CI's complexity expands outside just automation
+and building. It can define a set of workflows for notifications and testing. It can also
+hook into Virtualized Infrastructure. We will explore the potential of Virtualized Infrastructure.
+Farooq will explain Kuali and Virtualization, and focus on the future of Virtualization with Kuali projects.
+-------------------------------
+Problems can be introduced from many source 
+(Kuali, UA, rSmart, etc...)
+Problems can be in any part of the development process 
+(ie., Packaging)
+Become aware of problems too late in the process
+
+Continuous Process
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Unexpected surprises:
+Multiple environments need to be tested to find the origination of a bug
+
+There are many points of failure that can occur during any build. An end-to-end process
+makes it difficult to find the problem areas. CI helps to address these problems by augmenting 
+the processes and possibly even running some in parallel.
+
+A problem can occur with packaging where the package is not created because an expected file does
+not exist. It may not be created because the build system has changed or because there was an error
+during source code generation (doesn't generate compile-time errors.)
+
+Examples of problems encountered:
+OR mapping in XML 
+
+There is a need to continuously monitor the state of your project in some way
+
+The goal is to find these problems before there is no turning back
+-------------------------------
+Build system automation
+Tests
+Packaging
+Building
+Deploying
+Notifications
+Versioning
+A practice of the agile development methodology
+Agile: the ability to change direction
+Early warning system
+The main users are developers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+What do you find yourself doing continually in your development process?
+
+Things done continually
+Tests
+Packaging
+Building
+Deploying
+Notifications
+Versioning
+
+Automation
+Orchestration
+
+Early warning system: adds speed to integration. Can't change direction if you don't know you're going in the wrong direction.
+
+What it's not? based on things people have misconceived about what CI is.
+A system administration dashboard
+ The main audience for this tool is developers
+not a monitoring tool
+----------------------------------
+Inception: Kuali KFS and UA KFS source code merge
+Build/Test
+Packaging
+Deployment: UA performs this manually 
+Conversion: Extract Transform Load of data from UA Legacy FRS 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Inception is the process UA uses to pull KFS source code from the Kuali Foundation SVN and merge it into its local repository.
+
+
+Build/Test is done daily to validate the UA customizations and increment build version.
+
+Packaging is the 
+
+Unexpected surprises:
+Multiple environments need to be tested to find the origination of a bug
+
+Go through each bullet and describe how this piece solves an aforementioned problem
+------------------------------------
+Twitter
+Test results
+Deployment updates
+Source code inception
+Email
+SVN Changes
+DB Diff Reports
+Test Failures
+Jira
+Add comment to Jira task for successful build
+IM
+RSS
+CI Web Interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Talk about different emails and reports from UA CI
+-------------------------------------
+Integrated Testing Tools
+JUnit / HtmlUnit
+Surefire Reports
+Code Coverage
+Selenium
+Performance Testing
+Testing Environment Management
+Needs to be sanitized
+Scalable, flexible, and low-maintenance
+
+Virtualized Infrastructure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Scalability is important for environment management because the testing environment is not always set in stone.
+
+Selenium has multi-platform, browser  support
+
+Opportunity to use virtualized infrastructure with Testing Environment Management
+
+More than a great opportunity. It's a game changer.
+--------------------------------------
+Amazon Web Services (AWS)
+S3 : Simple Storage Service
+EC2 : Elastic Compute Cloud
+AMI : Amazon Machine Images
+EBS : Elastic Block Storage 
+Snapshot very easily
+Perfect fit for test environments
+Flexible
+API : Script creation and destruction of VMs
+Root access to VMs, Security interface
+High Availability
+Scalable
+Illusion of unlimited resources
+Cost Benefit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+10mins
+Not talking about : 
+Rackspace, GoGrid, Private Cloud (Eucalyptus, vSphere) GoogleApps
+
+Amazon : When re-engineered there data-centers based on Visualization technologies (Xen).  And thought wait a minute we can sell this and so they did. And now it is changing the industry, just as Visualization changed it in the last 5 years. 
+ 
+Rich Wolski - Professor in the Computer Science at the University of California, Santa Barbara
+Best into to Cloud Computing
+http://video-jsoe.ucsd.edu/asx/Wolski.asx
+ 
+S3 : Persistent Storage
+Scalable, Fast, Cheap, Hight Availability
+Never lost any data 
+ 
+EC2 : Elastic Compute Cloud
+Rent VM's by the hour
+Web Interface
+Windows, Linux, Solaris...
+Instantiate from an Image 
+public/private
+Discreate sizes 1.7GB, 7.5GB, 15GB.. 64GB
+Do not survive a shutdown. 
+Do survive a reboot.
+Charged by the hour
+
+EBS : Elastic Block Storage 
+Acts like a regular block device on any. Need to create a filesystem and format it.
+ 
+ Disposable Infrastructure 
+--------------------------------------
+Hudson and Continuum in the Cloud
+Add CI Executor nodes when needed.
+Selenium
+Test Environments
+Create environments as needed. 
+Isolate each environment
+Clustered Testing infrastructure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Kuali in the Cloud
+Hudson and Continuum
+Started with Rice Hudson : small instance
+KC with Mall instance, just y cloning the Rice server
+Then we moved to a larger server as needed by KC unit tests
+Both Hudson and Continuum. 
+Automated Testing  
+--------------------------------------

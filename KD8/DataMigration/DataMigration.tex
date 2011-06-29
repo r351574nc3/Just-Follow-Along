@@ -1,0 +1,150 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski}
+\usepackage{graphicx}
+\input{../KD8.tex}
+\fulltitle{Data Migration}
+\W \subtitle{For Kuali Financials}
+
+\W \affiliation{University of Arizona}
+
+\newcommand{\Encapsulation}{\sf{\href{http://en.wikipedia.org/wiki/Information_hiding}{Encapsulation}}\rm{}}
+\newcommand{\Abstraction}{\sf{\href{http://en.wikipedia.org/wiki/Abstraction}{Abstraction}}\rm{}}
+\newcommand{\Inheritance}{\sf{\href{http://en.wikipedia.org/wiki/Inheritance_(computer_science)}{Inheritance}}\rm{}}
+\newcommand{\ObjectModel}{\sf{\href{http://en.wikipedia.org/wiki/Object_model}{Object Model}}\rm{}}
+\newcommand{\Modularity}{\sf{\href{http://en.wikipedia.org/wiki/Modularity_(programming)}{Modularity}}\rm{}}
+\newcommand{\Polymorphism}{\sf{\href{http://en.wikipedia.org/wiki/Type_polymorphism}{Polymorphism}}\rm{}}
+\newcommand{\MultiInheritance}{\sf{\href{http://en.wikipedia.org/wiki/Multiple_inheritance}{Multiple-Inheritance}}\rm{}}
+\newcommand{\Kuali}{\emph{\href{http://www.kuali.org}{Kuali}}\rm{}}
+\newcommand{\KualiFinancialSystem}{\emph{\href{http://www.kuali.org}{Kuali Financial System}}\rm{}}
+\newcommand{\KFS}{\emph{\href{http://www.kuali.org}{KFS}}}
+\newcommand{\MVC}{\emph{\href{http://en.wikipedia.org/wiki/Model-view-controller}{MVC}}}
+
+\begin{document}
+  \W \begin{s5presentation}
+  \maketitle
+
+  \W \begin{s5slide}
+    \W \section{Overview}
+    \begin{itemize}
+      \item Problems that occur with migrating legacy data
+      \item Problems that occur with migrating in development
+      \item Tools for migrating data
+        \begin{itemize}
+          \item Liquibase
+          \item Impex
+          \item PL/SQL
+          \item Java/Groovy
+        \end{itemize}
+      \item Patterns using the aforementioned tools
+    \end{itemize}
+  \W \end {s5slide}
+  
+  \W \begin{s5slide}
+    \W \section{UA Data Migration}
+
+    \xml{center}
+    \xml{a href="Diagrams/Diagram1.png" id="external" rel="lightbox[gallery]"}\xml{img src="Diagrams/Diagram1.png" id="external" border="0" width="800"/}\xml{/a}
+    \xml{/center}
+
+    \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \W \section{FRS to RDBMS}
+    \begin{itemize}
+      \item FRS runs on a mainframe server platform
+      \item Communication protocols are (FTP, SFTP, and Telnet for terminal communication)
+      \item Requires DBA to import data with SQL Loader
+    \end{itemize}
+  \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \W \section{RDBMS to RDBMS}
+    \begin{itemize}
+      \item Uses secondary schema to convert information
+      \item Mostly written with PL/SQL
+      \begin{itemize}
+        \item Requires DBA to set install packages and set grants
+        \item Automation requires difficult to test shell scripts
+      \end{itemize}
+    \end{itemize}
+  \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \section{Changes from the Kuali Foundation}
+    \begin{itemize}
+      \item kfs-cfg-dbs/rice-cfg-dbs intended for development (database reconstruction)
+      \item SQL updates are also for development (will destroy data)
+      \item KF database bootstrapping
+      \item When will database schema updates stop?
+      \item How do we avoid the pitfalls from these schema updates?
+      \end{itemize}
+    \W \end{s5slide}
+
+  \W \begin{s5slide}
+    \W \section{Versioning Database Schemas}
+    \begin{itemize}
+      \item Migration scripts are always coupled with the software version
+      \item SVN handles versioning for us with tags and revision #'s
+      \item Jira integrates with SVN and can distribute database changes as part
+        of a release
+      \item Most practices provide unidirectional versioning
+    \end{itemize}
+  \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \W \section{Liquibase}
+    \begin{itemize}
+      \item Handles database versioning internally
+      \item Capable of rolling back versions
+      \item Uses internal \verb|DATABASECHANGELOG| and
+        \verb|DATABASECHANGELOGLOCK| tables to manage
+        versions
+      \item Database agnostic and supports many RDBMS
+    \end{itemize}
+  \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \W \section{Liquibase}
+    \begin{itemize}
+      \item Described in XML, so parsing and translation is easy
+      \item Produces documention changes for each version
+    \end{itemize}
+  \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \W \section{Patterns for Liquibase}
+    \begin{itemize}
+      \item Store changes per version
+      \item Use the SVN revision number for changelog ids
+      \item One file per database object
+      \item Developers don't modify the database
+      \item RoR methodology in development
+      \item 2 scripts. One for updating, and for migrating
+    \end{itemize}
+  \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \W \section{PL/SQL to Migrate Data}
+    \begin{itemize}
+      \item Difficult to test
+      \item May require DBA intervention
+      \item Special knowledge of database infrastructure is required
+      \item Native to RDBMS
+      \item Can give large performance gains
+      \item Migration process is required to be segmented
+    \end{itemize}
+  \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \W \section{Java and Groovy for Migration}
+    \begin{itemize}
+      \item Easy to test
+      \item Can combine ETL in a process
+      \item Database agnostic
+      \item Data can be loaded natively with the application
+      \item Easily integrates with build processes
+    \end{itemize}
+  \W \end {s5slide}
+
+  \W \end{s5presentation}
+\end{document}

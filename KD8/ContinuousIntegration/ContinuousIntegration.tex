@@ -1,0 +1,104 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Farooq Sadiq and Leo Przybylski}
+\usepackage{graphicx}
+\input{../../S5.tex}
+\fulltitle{Continuous Integration}
+\W \subtitle{Testing, Packaging, Deployment, EC2, Twitter, Jira, and SVN BFFs}
+
+\W \affiliation{University of Arizona}
+
+\newcommand{\Encapsulation}{\sf{\href{http://en.wikipedia.org/wiki/Information_hiding}{Encapsulation}}\rm{}}
+\newcommand{\Abstraction}{\sf{\href{http://en.wikipedia.org/wiki/Abstraction}{Abstraction}}\rm{}}
+\newcommand{\Inheritance}{\sf{\href{http://en.wikipedia.org/wiki/Inheritance_(computer_science)}{Inheritance}}\rm{}}
+\newcommand{\ObjectModel}{\sf{\href{http://en.wikipedia.org/wiki/Object_model}{Object Model}}\rm{}}
+\newcommand{\Modularity}{\sf{\href{http://en.wikipedia.org/wiki/Modularity_(programming)}{Modularity}}\rm{}}
+\newcommand{\Polymorphism}{\sf{\href{http://en.wikipedia.org/wiki/Type_polymorphism}{Polymorphism}}\rm{}}
+\newcommand{\MultiInheritance}{\sf{\href{http://en.wikipedia.org/wiki/Multiple_inheritance}{Multiple-Inheritance}}\rm{}}
+\newcommand{\Kuali}{\emph{\href{http://www.kuali.org}{Kuali}}\rm{}}
+\newcommand{\KualiFinancialSystem}{\emph{\href{http://www.kuali.org}{Kuali Financial System}}\rm{}}
+\newcommand{\KFS}{\emph{\href{http://www.kuali.org}{KFS}}}
+\newcommand{\MVC}{\emph{\href{http://en.wikipedia.org/wiki/Model-view-controller}{MVC}}}
+
+\begin{document}
+  \W \begin{s5presentation}
+  \maketitle
+  \W \begin{s5slide}
+    \section{Overview}
+    \subsubsection{The need}
+    \begin{itemize}
+      \item Guiding Points
+      \item What Continuous Integration means to implementing schools
+      \item Advantages of Continuous Integration
+      \item Patterns of Continuous Integration with various development tools
+      \item How the Kuali Foundation uses Continuous Integration
+      \item The future of Continuous Integration at your institution
+    and the Kuali Foundation.
+    \end{itemize}
+  \W \end {s5slide}
+  \W \begin{s5slide}
+    \section{Guiding Points}
+      \subsubsection{Continuous Integration is not..}
+      \begin{itemize}
+      \end{itemize}
+      \subsubsection{Continuous Integration is..}
+      \begin{itemize}
+        \item A scheduler
+        \item Meant to manage environments
+        \item A system administration dashboard
+        \item Interactive
+        \item A methodology
+        \item Part of the development process
+        \item Intended to improve software during all phases of the process cycle
+      \end{itemize}
+    \W \begin{s5notes}
+    Before starting, there are some points about Continuous Integration that are relevant to 
+    this presentation.
+
+    Continuous Integration is not a tool or a scheduling system. You could probably accomplish
+    similar with a scheduling system, but the advantages of Continuous Integration are not in scheduling. 
+    It is a development methodology for iterative and incremental development processes; therefore,
+    the advantages of Continuous Integration come out of your development process. When you shape
+    your development process to include a system that ritualistically builds, tests, and packages your 
+    software product, you immediately see the advantages. 
+    \W \end{s5notes}    
+  \W \end {s5slide}
+
+  \W \begin{s5slide}
+    \section{Advantages}
+    \W \end{s5slide}
+
+  \W \begin{s5slide}
+    \section{Advantages}
+    \begin{itemize}
+      \item Isolated space for building
+      \item Well-established CI system selection extensible to...
+        \begin{itemize}
+          \item Conform to your institution's development processes
+          \item 
+        \end{itemize}
+      \item Validation through testing fully regressed
+      \item Integrates with Change Management
+    \end{itemize}
+    \W \begin{s5notes}
+      What makes CI any different from any other build process? Analyze a diagram that 
+      shows the flow of developing a software feature. It isn't as simple as just periodically 
+    building your software and testing it with automation. If one built a Continuous Integration tool for
+    his/her software project from scratch starting with just periodically compiling and testing, the following
+    might happen:
+    \W \end{s5notes}
+    \W \end{s5slide}
+  
+  \W \begin{s5slide}
+    \W \section{What Needs to be Done Continuously?}
+  \W \end {s5slide}
+  \W \begin{s5slide}
+    \W \section{What Needs to be Done Continuously?}
+  \W \end {s5slide}
+  \W \begin{s5slide}
+    \W \section{Each is thrown out with each run}
+  \W \end {s5slide}
+  \W \begin{s5slide}
+    \W \section{2 Parts}
+  \W \end {s5slide}
+  \W \end{s5presentation}
+\end{document}
