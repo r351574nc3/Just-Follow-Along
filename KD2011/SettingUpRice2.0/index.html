@@ -10,7 +10,23 @@
 		
 		<link rel="stylesheet" href="css/reset.css">
 		<link rel="stylesheet" href="css/main.css">
-	</head>
+<link href='http://alexgorbatchev.com/pub/sh/2.1.364/styles/shThemeDefault.css' rel='stylesheet' type='text/css'/>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shCore.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushCss.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushJava.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushJScript.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushPhp.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushSql.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushVb.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushPlain.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushXml.js' type='text/javascript'></script>
+<script language='javascript'>
+SyntaxHighlighter.defaults['toolbar'] = false;
+SyntaxHighlighter.config.bloggerMode = false;
+SyntaxHighlighter.config.clipboardSwf = "http://alexgorbatchev.com/pub/sh/2.1.364/scripts/clipboard.swf";
+SyntaxHighlighter.all();
+</script>
+</head>
 	
 	<body>
 		
@@ -106,12 +122,12 @@
           <section>
           <h2>Version Control</h2>
           <h3 class="inverted">Setup and Configuration</h3>
-          Setup an SVN repository and follow the vendor branch
+          <p class="inverted">Setup an SVN repository and follow the vendor branch
           methodology for setup. Vendor branch creates a separation of
           concerns between the local development projects and the
           vendor projects. The vendor projects are where vendor
           updates are applied and tested before merging into the
-          development projects.
+          development projects.</p>
           
           </section>
 
@@ -130,22 +146,39 @@
 
           <section>
           <h2>Vendor Branch Setup</h2>
-          <h3 class="inverted">Create Vendor are</h3>
+          <h3 class="inverted">Create Vendor Area</h3>
+          <div>
+          <pre class="brush: plain">
+          svn mkdir https://svnrepository/vendor/kf/
+          </pre>
+            </div>
           </section>
 
           <section>
           <h2>Vendor Branch Setup</h2>
           <h3 class="inverted">Export Rice</h3>
+            <pre class="brush: plain">
+            svn export https://test.kuali.org/svn/rice/trunk rice-trunk
+            </pre>
           </section>
 
           <section>
           <h2>Vendor Branch Setup</h2>
           <h3 class="inverted">Import Rice into vendor area</h3>
+            <pre class="brush: plain">
+            mkdir rice
+            mv rice-trunk rice/trunk
+            svn import rice https://svnrepository/vendor/kf/rice -m
+          "Inital import of rice project"
+            </pre>
           </section>
 
           <section>
           <h2>Vendor Branch Setup</h2>
           <h3 class="inverted">Export Rice from vendor area</h3>
+            <pre class="brush: plain">
+            svn export https://svnrepository/vendor/kf/rice/trunk rice-vendor-trunk
+            </pre>
           </section>
 
           <section>
@@ -233,27 +266,62 @@
           <section>
           <h2>Continuous Integration</h2>
           <h3 class="inverted">Overview</h3>
-          The idea is to provide more agility to your software project
+          <p class="inverted">The idea is to provide more agility to your software project
           by running continually. The Agile development process gives
           a iterative/incremental perspective onf software
           development. Continuous Integration facilitates this by
-          breaking your processes down by increment.
+          breaking your processes down by increment.</p>
           </section>
           <section>
           <h2>Continuous Integration</h2>
           <h3 class="inverted">Processes to Run Continuously</h3>
           <ul>
-            <li class="inverted"></li>
+            <li class="inverted">Build</li>
+            <li class="inverted">Unit and Integration Tests</li>
+            <li class="inverted">Packaging and Distribution</li>
+            <li class="inverted">Deployment</li>
           </ul>
           </section>
 
-                    <div style="position: absolute; top: 85%; left: 10%;">
+          <section>
+          <h2>Continuous Integration</h2>
+          <h3 class="inverted">Jenkins</h3>
+          <p class="inverted">This is the CI tool that the Kuali
+          Foundation is supporting and standardizing on.</p>
+          </section>
+          
+        <div style="position: absolute; top: 85%; left: 10%;">
             <img src="images/bar.png" style="border: none;" />
           </div>
           <div style="position: absolute; top: 95%; left: -30%;">
             <img src="images/kd2011-logo2.png" style="border: none;" />
           </div>
-</section>
+          </section>
+
+          <section>
+          <section>
+          <h2>Jenkins</h2>
+          </section>
+          <div style="position: absolute; top: 85%; left: 10%;">
+            <img src="images/bar.png" style="border: none;" />
+          </div>
+          <div style="position: absolute; top: 95%; left: -30%;">
+            <img src="images/kd2011-logo2.png" style="border: none;" />
+          </div>
+          </section>
+
+          <section>
+          <section>
+          <h2>Database Change Management</h2>
+          </section>
+          <div style="position: absolute; top: 85%; left: 10%;">
+            <img src="images/bar.png" style="border: none;" />
+          </div>
+          <div style="position: absolute; top: 95%; left: -30%;">
+            <img src="images/kd2011-logo2.png" style="border: none;" />
+          </div>
+          </section>
+          
 
        		
         <section>
