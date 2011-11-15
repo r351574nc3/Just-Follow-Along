@@ -1,0 +1,504 @@
+<!doctype html>  
+<html lang="en">
+	
+	<head>
+		<meta charset="utf-8">
+		
+		<title>Kuali Infrastructure Part 2</title>
+		
+		<link href='http://fonts.googleapis.com/css?family=Crimson+Text:regular,600,bold' rel='stylesheet' type='text/css'>
+		
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/main.css">
+<link href='http://alexgorbatchev.com/pub/sh/2.1.364/styles/shThemeDefault.css' rel='stylesheet' type='text/css'/>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shCore.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushCss.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushJava.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushJScript.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushPhp.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushSql.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushVb.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushPlain.js' type='text/javascript'></script>
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushXml.js' type='text/javascript'></script>
+<script language='javascript'>
+SyntaxHighlighter.defaults['toolbar'] = false;
+SyntaxHighlighter.config.bloggerMode = false;
+SyntaxHighlighter.config.clipboardSwf = "http://alexgorbatchev.com/pub/sh/2.1.364/scripts/clipboard.swf";
+SyntaxHighlighter.all();
+</script>
+</head>
+	
+	<body>
+		
+		<!-- Any section element inside of this container is displayed as a slide -->
+		<div id="main">
+			
+			<section>
+				<h1>Getting<br/>Started</h2>
+				<h3 class="inverted">With Kuali Rice 2.0</h3>
+				<script>
+					// Delicously hacky. Look away.
+					var message = navigator.userAgent.match( /(iPhone|iPad|iPod|Android)/i ) ? 'Tap to navigate' : 'Navigate via keyboard';
+					document.write( '<p style="color: rgba(0,0,0,0.1); text-shadow: none;">('+message+')</p>' );
+          </script>
+          <div style="background-image: images/kd2011-logo.png; position: absolute; top: 0%; left: -20%;">
+            <img src="images/kd2011-logo.png" style="border: none;" />
+          </div>
+
+          <div style="position: absolute; top: 50%; left: 10%;">
+            <img src="images/bar.png" style="border: none;" />
+          </div>
+          </section>
+
+          <section>
+          <section>
+          <h2>Perspective</h2>
+          <h3 class="inverted">What are Developer Use Cases for Rice 2.0?</h3><br/>
+          <ul>
+            <li class="inverted">Migrate from Rice 1.0</li>
+            <li class="inverted">New Rice 2.0 Application</li>
+            <li class="inverted">Migrate from other Legacy applications</li>
+            <li class="inverted">Maintain a custom Rice distribution</li>
+          </ul>
+          </section>
+
+          <section>
+          <h2>Maintain a Custom Rice Distribution</h2>
+          <h3 class="inverted">What you need</h3>
+          <ul>
+            <li class="inverted">Version Control</li>
+            <li class="inverted">Build Process</li>
+            <li class="inverted">Change Management Protocols</li>
+            <li class="inverted">Continuous Integration</li>
+            <li class="inverted">Kuali Foundation update proving ground</li>
+            <li class="inverted">Try to model from what the Kuali Foundation uses for the best support</li>
+          </ul>
+          </section>
+          
+        <div style="position: absolute; top: 85%; left: 10%;">
+          <img src="images/bar.png" style="border: none;" />
+        </div>
+        <div style="position: absolute; top: 95%; left: -30%;">
+          <img src="images/kd2011-logo2.png" style="border: none;" />
+        </div>
+        
+        </section>
+			
+			<section>
+          <h2>Configuration and Change Management</h2>
+          <p>
+          </p>
+          <ul>
+            <li class="inverted">Conventions and Principles</li>
+            <li class="inverted">Best Practices</li>
+          </ul>
+          <div style="position: absolute; top: 85%; left: 10%;">
+            <img src="images/bar.png" style="border: none;" />
+          </div>
+          <div style="background-image: images/kd2011-logo2.png; position: absolute; top: 95%; left: -30%;">
+            <img src="images/kd2011-logo2.png" style="border: none;" />
+          </div>
+
+			</section>
+          <section>
+          <section>
+          <h2>Version Control</h2>
+          <ul>
+            <li class="inverted">Setup and Configuration</li>
+            <li class="inverted">Capturing updates</li>
+          </ul>
+          </section>
+
+          <section>
+          <h2>Version Control</h2>
+          <h3 class="inverted">Setup and Configuration</h3>
+          <p class="inverted">Setup an SVN repository and follow the vendor branch
+          methodology for setup. Vendor branch creates a separation of
+          concerns between the local development projects and the
+          vendor projects. The vendor projects are where vendor
+          updates are applied and tested before merging into the
+          development projects.</p>
+          
+          </section>
+
+          <section>
+          <h2>Vendor Branch</h2>
+          <h3 class="inverted">Setup</h3>
+          <ol style="text-align: left;">
+            <li class="inverted">Create Vendor area</li>
+            <li class="inverted">Export Rice</li>
+            <li class="inverted">Import Rice into vendor area</li>
+            <li class="inverted">Export Rice from vendor area</li>
+            <li class="inverted">Import Rice local project</li>
+          </ol>
+          </section>
+
+          <section>
+          <h2>Vendor Branch Setup</h2>
+          <h3 class="inverted">Create Vendor Area</h3>
+          <pre class="brush: plain">
+          svn mkdir https://svnrepository/vendor/kf/
+          </pre>
+            <p class="inverted">Should end up with...</p>
+          <pre class="brush: plain">vendor
+\-> kf
+          </pre>
+          </section>
+
+          <section>
+          <h2>Vendor Branch Setup</h2>
+          <h3 class="inverted">Export Rice</h3>
+            <pre class="brush: plain">
+            svn export https://test.kuali.org/svn/rice/trunk rice-trunk
+            </pre>
+          </section>
+
+          <section>
+          <h2>Vendor Branch Setup</h2>
+          <h3 class="inverted">Import Rice into vendor area</h3>
+            <pre class="brush: plain">mkdir rice
+mv rice-trunk rice/trunk
+svn import rice https://svnrepository/vendor/kf/rice -m "Inital import of rice project"
+            </pre>
+          </section>
+          <section>
+          <h2>Vendor Branch Setup</h2>
+          <h3 class="inverted">Import Rice into vendor area</h3>
+            <p class="inverted">Should end up with...</p>
+          <pre class="brush: plain">vendor
+\-> kf
+      \->rice
+            \->trunk                 
+          </pre>
+          </section>
+
+          <section>
+          <h2>Vendor Branch Setup</h2>
+          <h3 class="inverted">Export Rice from vendor area</h3>
+<pre class="brush: plain">svn export https://svnrepository/vendor/kf/rice/trunk rice-vendor-trunk
+            </pre>
+          </section>
+
+          <section>
+          <h2>Vendor Branch Setup</h2>
+          <h3 class="inverted">Prepare Rice for maven overlay</h3>
+          </section>
+
+          <section>
+          <h2>Vendor Branch Setup</h2>
+          <h3 class="inverted">Import Rice into the custom Rice project repository</h3>
+          </section>
+
+          <section>
+          <h2>Version Control</h2>
+          <h3 class="inverted">Capturing software updates</h3>
+          <ul>
+            <li class="inverted">Merging changes from the Kuali Foundation</li>
+            <li class="inverted">Patch updates</li>
+          </ul>
+          </section>
+
+          <section>
+          <h2>Capturing Software Updates</h2>
+          <h3 class="inverted">Merging changes from the Kuali
+          Foundation</h3>
+          
+          </section>
+
+          <section>
+          <h2>Capturing Software Updates</h2>
+          <h3 class="inverted">Patch updates</h3>
+          <p class="inverted">Sometimes you want to be picky about your changes, but this
+          can cause problems later when you decide to merge. Handle
+          with care.</p>
+          </section>
+
+        <div style="position: absolute; top: 85%; left: 10%;">
+            <img src="images/bar.png" style="border: none;" />
+          </div>
+          <div style="background-image: images/kd2011-logo2.png; position: absolute; top: 95%; left: -30%;">
+            <img src="images/kd2011-logo2.png" style="border: none;" />
+          </div>
+          </section>
+
+          <section>
+          <section>
+          <h2>Migrate from other Legacy applications</h2>
+          <h3 class="inverted">or a New Rice Application</h3>
+          <p class="inverted">In both of these cases, the same setup applies</p>
+          
+          </section>
+
+          <section>
+          <h2>Setup</h2>
+          <ul>
+            <li class="inverted">Prepare rice project for
+          maven overlay</li>
+            <li class="inverted">Example assumes a project built from createproject.groovy</li>
+          </ul>
+          </section>
+
+          
+          <section>
+          <h2>Prepare rice project for maven overlay</h2>
+          <pre class="brush: xml">
+  &lt;name&gt;Custom App&lt;/name&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;parent&gt;
+    &lt;groupId&gt;org.kuali.rice&lt;/groupId&gt;
+    &lt;artifactId&gt;rice&lt;/artifactId&gt;
+    &lt;version&gt;2.0.0-b2-SNAPSHOT&lt;/version&gt;
+  &lt;/parent&gt;
+  &lt;artifactId&gt;customapp&lt;/artifactId&gt;
+  &lt;packaging&gt;war&lt;/packaging&gt;
+          </section>
+
+                    <section>
+          <h2>Continued..</h2>
+          <pre class="brush: xml">
+      &Lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+          &lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;
+          </section>
+                    <section>
+          <h2>Continued..</h2>
+          <pre class="brush: xml">
+        &lt;configuration&gt;
+          &lt;overlays&gt;
+            &lt;overlay&gt;
+              &lt;groupId&gt;${project.groupId}&lt;/groupId&gt;
+              &lt;artifactId&gt;rice-web&lt;/artifactId&gt;
+              &lt;includes&gt;
+                &lt;include&gt;${war.overlay.pattern.1}&lt;/include&gt;
+              &lt;/includes&gt;
+              &lt;filtered&gt;true&lt;/filtered&gt;
+            &lt;/overlay&gt;
+          </pre>
+          </section>
+          <section>
+          <h2>Continued...</h2>
+          <pre class="brush: xml">
+            &lt;overlay&gt;
+              &lt;groupId&gt;${project.groupId}&lt;/groupId&gt;
+              &lt;artifactId&gt;rice-web&lt;/artifactId&gt;
+              &lt;excludes&gt;
+                &lt;exclude&gt;${war.overlay.pattern.1}&lt;/exclude&gt;
+                &lt;exclude&gt;${war.overlay.exclude.2}&lt;/exclude&gt;
+              &lt;/excludes&gt;
+            &lt;/overlay&gt;
+          &lt;/overlays&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+          </pre>
+          </section>
+
+          <section>
+          <h2>Continued...</h2>
+          <h3 class="inverted">Setup properties for war overlay exclusions</h3>
+          <pre class="inverted">
+  &lt;properties&gt;
+    &lt;war.overlay.pattern.1&gt;WEB-INF/web.xml&lt;/war.overlay.pattern.1&gt;
+    &lt;war.overlay.exclude.2&gt;DO_NOT_MATCH_ANYTHING_PATTERN&lt;/war.overlay.exclude.2&gt;
+  &lt;/properties&gt;
+          </pre>
+          </section>
+
+          <section>
+          <h2>Continued...</h2>
+          <h3 class="inverted">Add the rice-web.war dependency</h3>
+          <pre class="inverted">
+    &lt;dependency&gt;
+      &lt;groupId&gt;${project.groupId}&lt;/groupId&gt;
+      &lt;artifactId&gt;rice-web&lt;/artifactId&gt;
+      &lt;version&gt;${project.version}&lt;/version&gt;
+      &lt;type&gt;war&lt;/type&gt;
+    &lt;/dependency&gt;
+        </pre>
+          </section>
+
+
+          <div style="position: absolute; top: 85%; left: 10%;">
+            <img src="images/bar.png" style="border: none;" />
+          </div>
+          <div style="background-image: images/kd2011-logo2.png; position: absolute; top: 95%; left: -30%;">
+            <img src="images/kd2011-logo2.png" style="border: none;" />
+          </div>
+          </section>
+
+          
+			<!-- Example of nested vertical slides -->
+			<section>
+				<section>
+					<h2>Conventions and Principles</h2>
+                    <p class="inverted">More specifically: Kuali Rice 2.0</p>
+				</section>
+          </ul>
+				</section>
+				<section>
+					<h2>Convention Over Configuration</h2>
+                    <p class="inverted">A software development paradigm insists only unconventional aspects of software needs to be configured. Convention is aggressively established and followed.</p>
+				</section>
+
+				<section>
+					<h2>Convention Over Configuration</h2>
+                    <h3 class="inverted">Example</h3>
+                    <p class="inverted"><b>Naming Conventions</b>: By naming classes and packages by convention, it is easier for developers to find the source code they are looking for. Without these conventions, the search would be much more tedious.</p>
+				</section>
+				<section>
+					<h2>Convention Over Configuration</h2>
+                    <h3 class="inverted">Example</h3>
+                    <p class="inverted"><b>Maven project structure:</b> Due to the numerous conventions attached to a maven project, developers are able to crosstrain easier. Developers acrossed maven projects are more familiar with the project structure and able to learn quicker.</p>
+				</section>
+          <section>
+          <h2>Changes are Incremental</h2>
+          <uL>
+            <li class="inverted">With each code change, there are other elements that may be coupled</li>
+            <li class="inverted">Spring configuration</li>
+            <li class="inverted">OJB mapping</li>
+            <li class="inverted">Java source</li>
+            <li class="inverted">Database change</li>
+            <li class="inverted">Changes should be distributed and tested together</li>
+            <li class="inverted">Sounds obvious</li>
+            <li class="inverted">Not always practiced with this in mind</li>
+            <li class="inverted">Focusing on changes are faster than on the entire application, and can provide a more agile view. This will help when setting up more intuitive Continuous Integration</li>
+</ul>
+				</section>
+          <section>
+          <h2>Changes are Incremental</h2>
+            <h3 class="inverted">More</h3>
+          <uL>
+            <li class="inverted">Changes should be distributed and tested together</li>
+            <li class="inverted">Sounds obvious</li>
+            <li class="inverted">Not always practiced with this in mind</li>
+            <li class="inverted">Focusing on changes are faster than on the entire application, and can provide a more agile view. This will help when setting up more intuitive Continuous Integration</li>
+            </ul>
+				</section>
+          <div style="position: absolute; top: 85%; left: 10%;">
+            <img src="images/bar.png" style="border: none;" />
+          </div>
+          <div style="position: absolute; top: 95%; left: -30%;">
+            <img src="images/kd2011-logo2.png" style="border: none;" />
+          </div>
+
+          </section>
+
+          <section>
+          <section>
+          <h2>Continuous Integration</h2>
+          <h3 class="inverted">Overview</h3>
+          <p class="inverted">The idea is to provide more agility to your software project
+          by running continually. The Agile development process gives
+          a iterative/incremental perspective onf software
+          development. Continuous Integration facilitates this by
+          breaking your processes down by increment.</p>
+          </section>
+          <section>
+          <h2>Continuous Integration</h2>
+          <h3 class="inverted">Processes to Run Continuously</h3>
+          <ul>
+            <li class="inverted">Build</li>
+            <li class="inverted">Unit and Integration Tests</li>
+            <li class="inverted">Packaging and Distribution</li>
+            <li class="inverted">Deployment</li>
+          </ul>
+          </section>
+
+          <section>
+          <h2>Continuous Integration</h2>
+          <h3 class="inverted">Jenkins</h3>
+          <p class="inverted">This is the CI tool that the Kuali
+          Foundation is supporting and standardizing on.</p>
+          </section>
+          
+        <div style="position: absolute; top: 85%; left: 10%;">
+            <img src="images/bar.png" style="border: none;" />
+          </div>
+          <div style="position: absolute; top: 95%; left: -30%;">
+            <img src="images/kd2011-logo2.png" style="border: none;" />
+          </div>
+          </section>
+
+          <section>
+          <section>
+          <h2>Jenkins</h2>
+          <ul>
+            <li class="inverted">Utilizes slaves, so setup a dedicated master</li>
+            <li class="inverted">Intend on concurrent builds</li>
+            <li class="inverted">Concurrently validate with unit tests, integration tests, and smoke testing</li>
+            <li class="inverted">If you are customizing your own rice
+          distribution, plan on concurrently validating each version
+          with your rice projects.</li>
+            </ul>
+            </section>
+            <section>
+          <h2>Jenkins</h2>
+          <h3 class="inverted">More</h3>
+          <ul>
+            <li class="inverted">Reports provide views on</li>
+            <li class="inverted">DDL validation</li>
+            <li class="inverted">Generated source validation</li>
+            <li class="inverted">Testing/Code coverage</li>
+            <li class="inverted">Documentation</li>
+          </section>
+          <div style="position: absolute; top: 85%; left: 10%;">
+            <img src="images/bar.png" style="border: none;" />
+          </div>
+          <div style="position: absolute; top: 95%; left: -30%;">
+            <img src="images/kd2011-logo2.png" style="border: none;" />
+          </div>
+          </section>
+
+          <section>
+          <section>
+          <h2>Database Change Management</h2>
+          <ul>
+            <li class="inverted">Conventions are your friend</li>
+            <li class="inverted">Support test data</li>
+            <li class="inverted">Support institutional specific changes</li>
+            <li class="inverted">Build conventions around change metadata</li>
+            <li class="inverted">Revision information</li>
+            <li class="inverted">Issue tracking information</li>
+            <li class="inverted">Continuous Integration</li>
+            <li class="inverted">Testing</li>
+            <li class="inverted">Support versioning and change rollback</li>
+          </ul>
+          </section>
+          <section>
+          <h2>Database Change Management</h2>
+          <h3 class="inverted">Liquibase</h3>
+          <ul>
+            <li class="inverted">A change management tool that allows one to view database changes incrementally and apply them incrementally</li>
+            <li class="inverted">Offers flexibility of extension
+            <ul>
+              <li class="inverted">Custom KIM refactorings</li>
+              <li class="inverted">Custom KNS refactorings</li>
+              <li class="inverted">Database agnostic updates</li>
+              <li class="inverted">Migrate changes directly from one
+          database to another (even across platforms)</li>
+          </ul>
+          </li>
+          
+          <li class="inverted">Couple database changes to source code changes</li>
+            </ul>
+          </section>
+          <div style="position: absolute; top: 85%; left: 10%;">
+            <img src="images/bar.png" style="border: none;" />
+          </div>
+          <div style="position: absolute; top: 95%; left: -30%;">
+            <img src="images/kd2011-logo2.png" style="border: none;" />
+          </div>
+          </section>
+          
+
+       		
+        <section>
+        <h2>The End</h2>
+        <h3 class="inverted">Thank you all</h3>
+        <p class="inverted">http://www.github.com/r351574nc3<p>
+        </section>
+              </div>
+        
+		<script src="js/slideshow.js"></script>
+		
+	</body>
+</html>
