@@ -93,6 +93,7 @@ h1, h2, h3, h4 {
 	line-height: 0.9em;
 	letter-spacing: 0.02em;
 	text-transform: uppercase;
+    text-align: center;
 	color: #222;
 	text-shadow: 0px 0px 5px #fff, 0px 0px 5px #bbb;
 }
@@ -123,9 +124,7 @@ h4.inverted,p.inverted,li.inverted {
 	top: 50%;
 	margin-left: -400px;
 	margin-top: -320px;
-	
-	text-align: center;
-	
+		
 	-webkit-perspective: 600px;
  	-webkit-perspective-origin: 50% 25%;
 }
@@ -202,7 +201,12 @@ ol {
 }
 
 li, p {
+    text-align: center;
 	margin-bottom: 10px;
+}
+
+code {
+    text-align: left;
 }
 
 a:not(.image) {

@@ -124,24 +124,25 @@ SyntaxHighlighter.all();
           <section>
           <h2>Vendor Branch</h2>
           <h3 class="inverted">Setup</h3>
-          <ul>
+          <ol style="text-align: left;">
             <li class="inverted">Create Vendor area</li>
             <li class="inverted">Export Rice</li>
             <li class="inverted">Import Rice into vendor area</li>
             <li class="inverted">Export Rice from vendor area</li>
-            <li class="inverted">Prepare rice project for maven overlay</li>
             <li class="inverted">Import Rice local project</li>
-          </ul>
+          </ol>
           </section>
 
           <section>
           <h2>Vendor Branch Setup</h2>
           <h3 class="inverted">Create Vendor Area</h3>
-          <div>
           <pre class="brush: plain">
           svn mkdir https://svnrepository/vendor/kf/
           </pre>
-            </div>
+            <p class="inverted">Should end up with...</p>
+          <pre class="brush: plain">vendor
+\-> kf
+          </pre>
           </section>
 
           <section>
@@ -155,19 +156,26 @@ SyntaxHighlighter.all();
           <section>
           <h2>Vendor Branch Setup</h2>
           <h3 class="inverted">Import Rice into vendor area</h3>
-            <pre class="brush: plain">
-mkdir rice
+            <pre class="brush: plain">mkdir rice
 mv rice-trunk rice/trunk
-svn import rice https://svnrepository/vendor/kf/rice -m
-          "Inital import of rice project"
+svn import rice https://svnrepository/vendor/kf/rice -m "Inital import of rice project"
             </pre>
+          </section>
+          <section>
+          <h2>Vendor Branch Setup</h2>
+          <h3 class="inverted">Import Rice into vendor area</h3>
+            <p class="inverted">Should end up with...</p>
+          <pre class="brush: plain">vendor
+\-> kf
+      \->rice
+            \->trunk                 
+          </pre>
           </section>
 
           <section>
           <h2>Vendor Branch Setup</h2>
           <h3 class="inverted">Export Rice from vendor area</h3>
-            <pre class="brush: plain">
-            svn export https://svnrepository/vendor/kf/rice/trunk rice-vendor-trunk
+<pre class="brush: plain">svn export https://svnrepository/vendor/kf/rice/trunk rice-vendor-trunk
             </pre>
           </section>
 
@@ -214,10 +222,101 @@ svn import rice https://svnrepository/vendor/kf/rice -m
           </section>
 
           <section>
+          <section>
           <h2>Migrate from other Legacy applications</h2>
-          <h3 class="inverted">ooooor a New Rice Application</h3>
-          <p class="inverted"></p>
+          <h3 class="inverted">or a New Rice Application</h3>
+          <p class="inverted">In both of these cases, the same setup applies</p>
           
+          </section>
+
+          <section>
+          <h2>Setup</h2>
+          <ul>
+            <li class="inverted">Prepare rice project for
+          maven overlay</li>
+            <li class="inverted">Example assumes a project built from createproject.groovy</li>
+          </ul>
+          </section>
+
+          
+          <section>
+          <h2>Prepare rice project for maven overlay</h2>
+          <pre class="brush: xml">
+  &lt;name&gt;Custom App&lt;/name&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;parent&gt;
+    &lt;groupId&gt;org.kuali.rice&lt;/groupId&gt;
+    &lt;artifactId&gt;rice&lt;/artifactId&gt;
+    &lt;version&gt;2.0.0-b2-SNAPSHOT&lt;/version&gt;
+  &lt;/parent&gt;
+  &lt;artifactId&gt;customapp&lt;/artifactId&gt;
+  &lt;packaging&gt;war&lt;/packaging&gt;
+          </section>
+
+                    <section>
+          <h2>Continued..</h2>
+          <pre class="brush: xml">
+      &Lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+          &lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;
+          </section>
+                    <section>
+          <h2>Continued..</h2>
+          <pre class="brush: xml">
+        &lt;configuration&gt;
+          &lt;overlays&gt;
+            &lt;overlay&gt;
+              &lt;groupId&gt;${project.groupId}&lt;/groupId&gt;
+              &lt;artifactId&gt;rice-web&lt;/artifactId&gt;
+              &lt;includes&gt;
+                &lt;include&gt;${war.overlay.pattern.1}&lt;/include&gt;
+              &lt;/includes&gt;
+              &lt;filtered&gt;true&lt;/filtered&gt;
+            &lt;/overlay&gt;
+          </pre>
+          </section>
+          <section>
+          <h2>Continued...</h2>
+          <pre class="brush: xml">
+            &lt;overlay&gt;
+              &lt;groupId&gt;${project.groupId}&lt;/groupId&gt;
+              &lt;artifactId&gt;rice-web&lt;/artifactId&gt;
+              &lt;excludes&gt;
+                &lt;exclude&gt;${war.overlay.pattern.1}&lt;/exclude&gt;
+                &lt;exclude&gt;${war.overlay.exclude.2}&lt;/exclude&gt;
+              &lt;/excludes&gt;
+            &lt;/overlay&gt;
+          &lt;/overlays&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+          </pre>
+          </section>
+
+          <section>
+          <h2>Continued...</h2>
+          <h3 class="inverted">Setup properties for war overlay exclusions</h3>
+          <pre class="inverted">
+  &lt;properties&gt;
+    &lt;war.overlay.pattern.1&gt;WEB-INF/web.xml&lt;/war.overlay.pattern.1&gt;
+    &lt;war.overlay.exclude.2&gt;DO_NOT_MATCH_ANYTHING_PATTERN&lt;/war.overlay.exclude.2&gt;
+  &lt;/properties&gt;
+          </pre>
+          </section>
+
+          <section>
+          <h2>Continued...</h2>
+          <h3 class="inverted">Add the rice-web.war dependency</h3>
+          <pre class="inverted">
+    &lt;dependency&gt;
+      &lt;groupId&gt;${project.groupId}&lt;/groupId&gt;
+      &lt;artifactId&gt;rice-web&lt;/artifactId&gt;
+      &lt;version&gt;${project.version}&lt;/version&gt;
+      &lt;type&gt;war&lt;/type&gt;
+    &lt;/dependency&gt;
+        </pre>
+          </section>
+
+
           <div style="position: absolute; top: 85%; left: 10%;">
             <img src="images/bar.png" style="border: none;" />
           </div>
@@ -225,18 +324,15 @@ svn import rice https://svnrepository/vendor/kf/rice -m
             <img src="images/kd2011-logo2.png" style="border: none;" />
           </div>
           </section>
-			
+
+          
 			<!-- Example of nested vertical slides -->
 			<section>
 				<section>
 					<h2>Conventions and Principles</h2>
                     <p class="inverted">More specifically: Kuali Rice 2.0</p>
 				</section>
-				<section>
-					<h2>Project Structure</h2>
-				</section>
-				<section>
-					<h2>Naming Conventions</h2>
+          </ul>
 				</section>
 				<section>
 					<h2>Convention Over Configuration</h2>
@@ -253,8 +349,29 @@ svn import rice https://svnrepository/vendor/kf/rice -m
                     <h3 class="inverted">Example</h3>
                     <p class="inverted"><b>Maven project structure:</b> Due to the numerous conventions attached to a maven project, developers are able to crosstrain easier. Developers acrossed maven projects are more familiar with the project structure and able to learn quicker.</p>
 				</section>
-               <section>
-					<h2>Changes are Incremental</h2>
+          <section>
+          <h2>Changes are Incremental</h2>
+          <uL>
+            <li class="inverted">With each code change, there are other elements that may be coupled</li>
+            <li class="inverted">Spring configuration</li>
+            <li class="inverted">OJB mapping</li>
+            <li class="inverted">Java source</li>
+            <li class="inverted">Database change</li>
+            <li class="inverted">Changes should be distributed and tested together</li>
+            <li class="inverted">Sounds obvious</li>
+            <li class="inverted">Not always practiced with this in mind</li>
+            <li class="inverted">Focusing on changes are faster than on the entire application, and can provide a more agile view. This will help when setting up more intuitive Continuous Integration</li>
+</ul>
+				</section>
+          <section>
+          <h2>Changes are Incremental</h2>
+            <h3 class="inverted">More</h3>
+          <uL>
+            <li class="inverted">Changes should be distributed and tested together</li>
+            <li class="inverted">Sounds obvious</li>
+            <li class="inverted">Not always practiced with this in mind</li>
+            <li class="inverted">Focusing on changes are faster than on the entire application, and can provide a more agile view. This will help when setting up more intuitive Continuous Integration</li>
+            </ul>
 				</section>
           <div style="position: absolute; top: 85%; left: 10%;">
             <img src="images/bar.png" style="border: none;" />
@@ -304,6 +421,24 @@ svn import rice https://svnrepository/vendor/kf/rice -m
           <section>
           <section>
           <h2>Jenkins</h2>
+          <ul>
+            <li class="inverted">Utilizes slaves, so setup a dedicated master</li>
+            <li class="inverted">Intend on concurrent builds</li>
+            <li class="inverted">Concurrently validate with unit tests, integration tests, and smoke testing</li>
+            <li class="inverted">If you are customizing your own rice
+          distribution, plan on concurrently validating each version
+          with your rice projects.</li>
+            </ul>
+            </section>
+            <section>
+          <h2>Jenkins</h2>
+          <h3 class="inverted">More</h3>
+          <ul>
+            <li class="inverted">Reports provide views on</li>
+            <li class="inverted">DDL validation</li>
+            <li class="inverted">Generated source validation</li>
+            <li class="inverted">Testing/Code coverage</li>
+            <li class="inverted">Documentation</li>
           </section>
           <div style="position: absolute; top: 85%; left: 10%;">
             <img src="images/bar.png" style="border: none;" />
@@ -316,6 +451,35 @@ svn import rice https://svnrepository/vendor/kf/rice -m
           <section>
           <section>
           <h2>Database Change Management</h2>
+          <ul>
+            <li class="inverted">Conventions are your friend</li>
+            <li class="inverted">Support test data</li>
+            <li class="inverted">Support institutional specific changes</li>
+            <li class="inverted">Build conventions around change metadata</li>
+            <li class="inverted">Revision information</li>
+            <li class="inverted">Issue tracking information</li>
+            <li class="inverted">Continuous Integration</li>
+            <li class="inverted">Testing</li>
+            <li class="inverted">Support versioning and change rollback</li>
+          </ul>
+          </section>
+          <section>
+          <h2>Database Change Management</h2>
+          <h3 class="inverted">Liquibase</h3>
+          <ul>
+            <li class="inverted">A change management tool that allows one to view database changes incrementally and apply them incrementally</li>
+            <li class="inverted">Offers flexibility of extension
+            <ul>
+              <li class="inverted">Custom KIM refactorings</li>
+              <li class="inverted">Custom KNS refactorings</li>
+              <li class="inverted">Database agnostic updates</li>
+              <li class="inverted">Migrate changes directly from one
+          database to another (even across platforms)</li>
+          </ul>
+          </li>
+          
+          <li class="inverted">Couple database changes to source code changes</li>
+            </ul>
           </section>
           <div style="position: absolute; top: 85%; left: 10%;">
             <img src="images/bar.png" style="border: none;" />
@@ -330,7 +494,7 @@ svn import rice https://svnrepository/vendor/kf/rice -m
         <section>
         <h2>The End</h2>
         <h3 class="inverted">Thank you all</h3>
-        http://www.github.com/r351574nc3
+        <p class="inverted">http://www.github.com/r351574nc3<p>
         </section>
               </div>
         
