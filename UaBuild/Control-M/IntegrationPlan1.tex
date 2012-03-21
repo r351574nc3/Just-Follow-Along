@@ -1,0 +1,63 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{Control-M Integration Plan}
+
+\begin{document}
+\tableofcontents
+\maketitle
+
+\section{Overview}
+
+Control-M can handle scheduling for remote services that reside on KFS. Control-M manages job registration,
+metadata, and scheduling internally via the agent. It will invoke jobs on KFS remotely via web services call 
+to the Kuali Rice ESB. A web service on the Rice ESB can integrate with KFS Quartz jobs defined in Spring. This way
+scheduling is deferred to Control-M while the jobs themselves are developed and implemented for Quartz using the 
+Quartz API and Spring IOC.
+
+\section{Control-M Web Services}
+
+Control-M BPI module has presets for communicating with various J2EE appliction servers. It also has 
+a generic Web Services interface where input/output parameters can be specified for a web service call.
+
+
+\subsection{Control-M Callbacks}
+If necessary, the Rice ESB registered web service can make callbacks to the Control-M BPI Control Module via
+\verb|EMXmlInvoker| of the Control-M EM API.
+
+\section{Kuali Enterprise Service Bus}
+The Kuali Rice ESB can be used to expose services to external applications via web services. A service
+published on the Rice ESB can be given access to KFS Quartz jobs registered internally within Spring.
+
+\section{Integration Tasks}
+\subsection{At Control-M BPI Control Module}
+Define web services parameters for job processing:
+\begin{itemize}
+\item Specify the account (an account is a logical name that encapsulates a repository of WSDLs) 
+\item Specify the business, service, and operation to invoke the full hierarchy (all information is populated automatically without manual typing or configuration)
+\item Specify input/output parameters (dynamically displays a list of all input and output parameters available for the selected operation)
+\end{itemize}
+
+Since Quartz no longer handles scheduling for batch jobs, each job will have to be added to the agent with BPI Control Module. Web services
+will be required to be configured for each.
+
+\subsection{On Rice ESB}
+\begin{itemize}
+  \item Create WSDL for a web service Control-M will communicate with on the Rice ESB. Input/Output
+    parameters can be configured in the Control BPI Control Module, so it isn't necessary to create a layer to handle input/output
+    parameters.
+  \item Develop an exposed web service registered on the Rice ESB
+    \begin{itemize}
+      \item Registers Quartz jobs defined in KFS through Spring IOC
+      \item Exposed for remote call from the Control-M BPI Control Module
+      \item Accepts parameters and responds with output information
+      \item Reports success or failure
+      \item Generates log data
+    \end{itemize}
+\end{itemize}
+
+\end{document}

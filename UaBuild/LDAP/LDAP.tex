@@ -1,0 +1,1030 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{LDAP Integration Technical Specification}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\lstset{basicstyle=\small,
+  breaklines=true,
+  includerangemarker=false}
+\section{Technical Description}
+Integrate KIM with UA NetId LDAP systems for authentication. When users authenticate into KFS, KIM will authenticate via LDAP with UA \emph{EDS} 
+while roles and permissions will be kept internal to the KIM database.
+
+\subsection{Jira Tasks}
+\begin{itemize}
+  \item KITT-271
+  \item KITT-272
+  \item KITT-474
+  \item KITT-558
+  \item KITT-713
+\end{itemize}
+
+
+\section{Details}
+
+\subsection{Spring LDAP}
+\emph{Spring LDAP} is an adapter layer between Spring and LDAP datasources. 
+
+The following description is taken from the \emph{Spring LDAP} website:
+\begin{quote}
+Spring LDAP is a Java library for simplifying LDAP operations, based on the pattern of Spring's JdbcTemplate. The framework relieves the user of common chores, such as looking up and closing contexts, looping through results, encoding/decoding values and filters, and more.
+
+The LdapTemplate class encapsulates all the plumbing work involved in traditional LDAP programming, such as creating a DirContext, looping through NamingEnumerations, handling exceptions and cleaning up resources. This leaves the programmer to handle the important stuff - where to find data (DNs and Filters) and what do do with it (map to and from domain objects, bind, modify, unbind, etc.), in the same way that JdbcTemplate relieves the programmer of all but the actual SQL and how the data maps to the domain model.
+
+In addition to this, Spring LDAP provides transaction support, a pooling library, exception translation from NamingExceptions to a mirrored unchecked Exception hierarchy, as well as several utilities for working with filters, LDAP paths and Attributes.
+
+Spring LDAP requires J2SE 1.4 or higher to run, and works with Spring Framework 2.0.x as well as 2.5.x. J2SE 1.4 or higher is required for building the release binaries from sources. Release 1.2.1 also requires an installation of JavaCC 4.0 when building from source. That is not necessary for release 1.3.x, since it uses Maven2, which handles all such dependencies behind the scenes.
+\end{quote}
+
+To use it:
+\begin{lstlisting}[caption=spring-datasource.xml]
+<beans>
+    ...
+    ...
+    <bean id="contextSource"
+        class="org.springframework.ldap.support.LdapContextSource">
+        <property name="url" value="ldaps://eds.arizona.edu:636" />
+        <property name="base" value="ou=People,dc=eds,dc=arizona,dc=edu" />
+        <property name="userName" value="uid=<userid>,ou=App Users,dc=eds,dc=arizona,dc=edu" />
+        <property name="password" value="secret" />
+        <property name="pool" value="true"/>
+    </bean>
+    <bean id="ldapTemplate" class="org.springframework.ldap.LdapTemplate">
+        <constructor-arg ref="contextSource" />
+    </bean>
+    <bean id="ldapContact"
+        class="edu.arizona.kim.dao.LdapContactDao">
+        <property name="ldapTemplate" ref="ldapTemplate" />
+    </bean>
+</beans>
+
+\emph{Note that ldaps:// protocol is used.}
+
+\end{lstlisting}
+
+\subsection{KIM}
+\emph{KIM} interfaces need to be implemented within \emph{KFS} that communicate over LDAP with \emph{EDS}. \emph{KIM}
+will delegate to \emph{EDS} over LDAPs with \emph{Spring LDAP} by implementing the following service interfaces.
+
+\subsubsection{IdentityService}
+Below is an description of which methods need to be overwritten to supply \emph{KIM} with access to Person data from \emph{EDS}
+\begin{description}
+  \item [getPrincipal]
+\begin{lstlisting}
+/** Get a KimPrincipal object based on the principalName. */
+KimPrincipalInfo getPrincipal(String principalId);
+\end{lstlisting}
+
+\item[getPrincipalByPrincipalName]
+\begin{lstlisting}
+KimPrincipalInfo getPrincipalByPrincipalName(String principalName);
+\end{lstlisting}
+
+\item[lookupEntitys]
+\begin{lstlisting}
+/** Find entity objects based on the given criteria. */
+List<KimEntity> lookupEntitys(Map<String,String> searchCriteria);
+\end{lstlisting}
+
+\item[getEntityDefaultInfo]
+\begin{lstlisting}
+KimEntityDefaultInfo getEntityDefaultInfo( String entityId );
+\end{lstlisting}
+
+\item[getEntityDefaultInfoByPrincipalId]
+\begin{lstlisting}
+KimEntityDefaultInfo getEntityDefaultInfoByPrincipalId( String principalId );
+\end{lstlisting}
+
+\item[getEntityDefaultInfoByPrincipalName]
+\begin{lstlisting}
+KimEntityDefaultInfo getEntityDefaultInfoByPrincipalName( String principalName );
+\end{lstlisting}
+
+\item[lookupEntityDefaultInfo]
+\begin{lstlisting}
+List<? extends KimEntityDefaultInfo> lookupEntityDefaultInfo( Map<String,String> searchCriteria, boolean unbounded );
+\end{lstlisting}
+
+\item[getMatchingEntityCount]
+\begin{lstlisting}
+int getMatchingEntityCount( Map<String,String> searchCriteria );
+\end{lstlisting}
+
+\item[getEntityPrivacyPreferences]
+\begin{lstlisting}
+KimEntityPrivacyPreferencesInfo getEntityPrivacyPreferences( String entityId );
+\end{lstlisting}
+
+\item[getDefaultNamesForPrincipalIds]
+\begin{lstlisting}
+Map<String, KimEntityNamePrincipalNameInfo> getDefaultNamesForPrincipalIds(List<String> principalIds);
+\end{lstlisting}
+
+\item[getDefaultNamesForEntityIds]
+\begin{lstlisting}
+Map<String, KimEntityNameInfo> getDefaultNamesForEntityIds(List<String> entityIds);
+\end{lstlisting}
+\end{description}
+
+\subsubsection{UiDocumentServiceImpl}
+The \verb|IdentityManagementPersonDocument| is still used to save modify role, group, and delegation assignments
+even though all entity information is coming through EDS. This splits principal and entity information, but
+the \verb|UiDocumentServiceImpl| makes it possible to accomplish this. The ``Modify Entity'' permission was
+removed from all roles because we no longer want entities to be managed through KFS.
+
+Originally, the \verb|UiDocumentServiceImpl|
+uses \verb|Impl| domain objects couple to a database implementation, so it needs to be modified not to use uncoupled
+\verb|Info| objects. Below is how \verb|UiDocumentServiceImpl| is modified to do that.
+
+\begin{description}
+\item[loadEntityToPersonDoc] is used to populate the \verb|IdentityManagementPersonDocument| when the
+page loads from ``edit'' or ``create new''. Even though entity information is not being stored in the database,
+it still needs to be present on persons.
+
+\item[saveEntityPerson] is used to store the information and actually update the person. It needed to modified to 
+take into consider the check for the ``Modify Entity'' permission. Normally, even if the permission isn't present,
+the document will try to save entity information. By checking for this permission, the desired behavior takes
+place which is entities will not be saved. Unlike \verb|loadEntityToPersonDoc|, \verb|Impl| domain objects are 
+desirable here. The domain object that is modified is the \verb|KimPrincipalImpl| which updates the \verb|KRIM_PRNCPL_T|
+table and the necessary role, group, and delegation tables.
+
+\end{description}
+
+
+\subsection{UA NetId}
+
+\emph{netid} is the UA federated directory and contacts LDAP server. LDAP protocols are secured and tunneled over SSL.
+This section is just here as an example. NetId is just used by webauth. It actually won't be used for integration
+with KIM. EDS will be used instead.
+
+\begin{lstlisting}[caption=An example of search netid.arizona.edu for students and employees using Java.]
+/*
+ * Demonstrates how to perform a simple, authenticated bind to an LDAP
+ * server over SSL, using JNDI
+ */
+import javax.naming.*;
+import javax.naming.directory.*;
+import java.util.Hashtable;
+
+/**
+ * usage: java LdapExample <username> <password>
+ *
+ **/
+ class LdapExample {
+   public static void main(String[] args) throws Exception {
+     if (args.length != 2) {
+       throw new Exception(âUsage: LdapExample <username> <password>â);
+     }
+     try {
+       // Set up the environment for creating the initial context
+       Hashtable env = new Hashtable();
+       env.put(Context.INITIAL_CONTEXT_FACTORY,
+       "com.sun.jndi.ldap.LdapCtxFactory");
+       env.put(Context.PROVIDER_URL,
+       âldap://netid.arizona.edu:636/ou=Accounts,ou=NetID,ou=CCIT,o=University%20of%20Arizona,
+       c=US");
+       env.put(Context.SECURITY_AUTHENTICATION, "simple");
+       env.put(Context.SECURITY_PRINCIPAL,
+       âuid=â + args[0] +
+       â,ou=Accounts,ou=NetID,ou=CCIT,o=University of Arizona,c=USâ);
+       env.put(Context.SECURITY_CREDENTIALS, args[1]);
+       env.put(Context.SECURITY_PROTOCOL, "ssl");
+       // Create initial context
+       DirContext ctx = new InitialDirContext(env);
+
+       /*
+        * Initial context has been established and bind performedâ¦
+        */
+       // Specify the ids of the attributes to return
+       String[] attrIDs = {âdbkeyâ, "activeStudentâ", "âactiveEmployee"};
+       // Get the attributes requested for specified entry
+       Attributes attrs = ctx.getAttributes("uid=" + args[0], attrIDs);
+
+       /*
+        * The attributes for the entry are contained in the Attributes object âattrsâ.
+        * Iterate over all attributes and print them out.
+        */
+        if (attrs == null) {
+          System.out.println("No attributes");
+        } else {
+          /* Print each attribute */
+          for (NamingEnumeration ae = attrs.getAll(); ae.hasMore();) {
+            Attribute attr = (Attribute)ae.next();
+            System.out.println("attribute: " + attr.getID());
+            /* print each value */
+            for (NamingEnumeration e = attr.getAll();
+            e.hasMore();
+            System.out.println("\tvalue: " + e.next())) ;
+          }
+        }
+     }
+     // Close the JNDI context when we're done
+     ctx.close();
+   } catch (Exception ex) {
+     ex.printStackTrace();
+   }
+}
+}
+\end{lstlisting}
+
+
+\subsection{EDS} 
+\emph{EDS} is UA's \emph{Enterprise Directory Service}. Communicating with \emph{EDS} 
+is done over LDAP protocol. \emph{EDS} will be used in lieu of netid. Follow the link given
+below for attributes that are retrievable through \emph{EDS}
+
+\verb|http://iia.arizona.edu/eds_attributes| as a references for EDS attributes.
+
+Below is a mapping of content that can be retrieved from EDS:
+
+{\tiny
+\begin{tabular}{|p{2.5cm}|p{4.5cm}|p{0.7cm}|p{1cm}|l|l|}
+\hline
+\textbf{Attribute Name}& \textbf{Description} & \textbf{Multi-Valued} 
+& \textbf{Required} & \textbf{ObjectClass} & \textbf{OID} \\
+\hline
+cn 	& full name (first name middle initial 
+last name), from SIS when the person's 
+primary affiliation is student, PSOS 
+when primary affiliation is employee, 
+or DSV (NetID) when primary affiliation 
+is affiliate & & & person & 2.5.4.3 \\ 
+\hline
+sn 	& last name, from SIS when the person's 
+primary affiliation is student, or from PSOS when primary affiliation is employee 
+& & & person & 2.5.4.4 \\
+\hline
+givenName & first name and middle initial, from SIS when the person's primary affiliation 
+is student, PSOS when primary affiliation is employee, or DSV (NetID) when primary 
+affiliation is affiliate & & & intetOrgPerson & 	2.5.4.42\\
+\hline
+eduPersonAffiliation & \textbf{Note: Please see the "Inclusion Rules" section for 
+information on populations included in the EDS.}
+Possible values are student, admit, employee, faculty, staff, affiliate and member. The values are determined by a set of rules/heuristics applied to student, employee and departmental-sponsored visitor data, as represented in UIS. EMPLM\_TYPE in the ZPSOS\_EMPLOYEES table is consulted and used for employees: EMPLM\_TYPE codes of (G, S, W) result in "student" and "employee" values being added to the list of affiliations; (A, C, L, X) codes result in a "staff" value; (E, F) codes require further logic(based on the "PCT" columns in X\_FTE\_ASSIGN\_DISTINCT) to determine if an employee is faculty, staff (the "staff" designation includes all non-faculty--e.g., appointed professionals and administrators), or both. "Staff" and "faculty" affiliations are instances of "employee", thus "employee" will always be included along with these affiliations. Admitted students who have not yet matriculated will have the "admit" affiliation value. Students will have the "student" affiliation value, and departmental-sponsored visitors (DSVs) will have "affiliate". "Member" is added if one or more affiliation values (with the exception of "admit") exist. & y & & eduPerson & 1.3.6.1.4.1.5923.1.1.1.1\\
+\hline
+\end{tabular}
+
+\begin{tabular}{|p{3cm}|p{4cm}|p{0.7cm}|p{1cm}|l|l|}
+\hline
+\textbf{Attribute Name}& \textbf{Description} & \textbf{Multi-Valued} 
+& \textbf{Required} & \textbf{ObjectClass} & \textbf{OID} \\
+\hline
+eduPersonPrimaryAffiliation & \textbf{Note: Please see the "Inclusion Rules" section for information on populations included in the EDS.}
+
+Possible values are student, admit, employee, faculty, staff, affiliate and member. The 
+determination of "primary affiliation" is based on a set of heuristics closely related to 
+those used in determining the set of affiliations represented in eduPersonAffiliation. In 
+the trivial case of a single value for eduPersonAffiliation, that same value will be used 
+for eduPersonPrimaryAffiliation. When a person is both a student and an employee, 
+ZPSOS\_EMPLOYEES.EMPLM\_TYPE is consulted; if the employee type is non-student, i.e. not in 
+(G, S, W), the employee classification ("staff" or "faculty") will be the primary affiliation, 
+otherwise "student" will be the primary affiliation. For employees who have both "staff" 
+and e-set, heuristics based on \% FTE of various positions from which the employee is funded 
+and the UA OrgMap are used to determine whether "faculty" takes precedence; "staff" includes 
+all non-faculty employment affiliations, including administrators. & & & eduPerson & 1.3.6.1.4.1.5923.1.1.1.5 \\
+\hline
+eduPersonNickName & person's nickname (currently not populated) & y & & eduPerson & 1.3.6.1.4.1.5923.1.1.1.2\\
+\hline
+uid & person's UA NetID username & & & inetOrgPerson & 0.9.2342.19200300.100.1.1 \\
+\hline
+uaid & uniquely identifies each UA person. It is currently created in UIS using logic that
+ matches person records from SIS and PSOS and assigns a unique ID to every UA member. &	y & & arizonaEduPerson 	& 1.3.6.1.4.1.5643.10.0.1\\
+\hline
+mail & UA email address; if a person is both an employee and a student, the employee
+ email address from PSOS is listed in which case the value of this attribute will be the 
+same as employeeEmail); otherwise the email address listed in the source system reflecting 
+primary affiliation is used & & & arizonaEduPerson & 	0.9.2342.19200300.100.1.3 \\
+\hline
+dateOfBirth & date of birth in format YYYYMMDD; from SIS when the person is a student 
+only, or from PSOS when a person is an employee or both an employee and a student & & & arizonaEduPerson & 1.3.6.1.4.1.5643.10.0.49 \\
+\hline
+employeeBldgName & name of the building that corresponds to an employee's primary department & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.13\\
+\hline
+employeeBldgNum & number of the building that corresponds to an employee's primary department & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.14\\
+\hline
+employeeEmail & official work email address, as listed in PSOS. This may not be an "@email.arizona.edu" address, but will end in a ".arizona.edu" domain name & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.19\\
+\hline
+employeeId & 9-digit number, currently created by PSOS, that uniquely identifies a UA employee & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.2.0.4\\
+\hline
+employeeIncumbentPosition & a colon (:) separated list with an employee's title, Position Control Number (PCN) from PSOS (\#\#\#\#\#\#), start date, and end-date for their position (YYYYMMDD) & y & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.53 \\
+\hline
+\end{tabular}
+
+\begin{tabular}{|p{3cm}|p{4cm}|p{0.7cm}|p{1cm}|l|l|}
+\hline
+\textbf{Attribute Name}& \textbf{Description} & \textbf{Multi-Valued} 
+& \textbf{Required} & \textbf{ObjectClass} & \textbf{OID} \\
+\hline
+employeeInfoReleaseCode & "Y" for employees who have elected to publish their UA email address in the campus directory, "N" for people who have chosen not to publish their email address. This value defaults to "Y" for employees who have not explicitly set a preference & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.7\\
+\hline
+employeeIsFerpaTrained & "Y" for employees who have had FERPA training, and "N" for people who have not & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.42\\
+\hline
+employeePhone & UA phone number of an employee in the format \#\#\#\#\#\#\#\#\#\# & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.17\\
+\hline
+employeePoBox & Post Office Box number of an employee's work-related mailing address & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.12\\
+\hline
+employeePositionFunding & Colon (:) separated list containing the PSOS position control number 
+(PCN) and the funding department number. For each position an employee occupies (see 
+employeeIncumbentPosition) there will be at least one corresponding value in this attribute if 
+the position is funded; non-funded positions will not appear in the value set of this attribute.
+  Positions funded by multiple departments will have multiple values in this attribute & y& & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.54 \\
+\hline
+employeePrimaryDept & Dept \# of employee's primary department (also known as home department); 
+refers to the department where an employee's paycheck is sent & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.8\\
+\hline
+employeePrimaryDeptName & Textual description corresponding to employeePrimaryDept & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.52\\
+\hline
+employeeRoomNum & room number associated with an employee's primary office & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.15\\
+\hline
+employeeRosterDept & Dept \# of department to which an employee submits their timesheet & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.10\\
+\hline
+employeeStatus & PSOS status code for employees; "A"\=active, "B"\=retired/back-to-work, 
+"D"\=deceased, "F"\=member of affiliated agency, "H"\=hold (pre-hire), "L"\=leave of absence w/o pay,
+ "M"\=away on fellowship, "N"\=non-salaried "P"\=leave with pay, "R"\=retired, "T"\=terminated, 
+"U"\=unemployed due to layoff & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.4 \\
+\hline
+employeeStatusDate & date when an employee's current status began, in the format YYYYMMDD & & & arizonaEduEmployee & 1.3.6.1.4.1.5643.10.0.5 \\
+\hline
+employeeType & one letter code from PSOS that identifies the type of an employment. "A" = Ancillary Staff, "C" = Classified Staff, "E" = 
+Appointed - Academic Year, "F" = Appointed, Fiscal Year, "G" = Grad Asst/Assoc, "L" = Federal Appt, "S" = Student, "W" = Work Study, "X" = Flex Staff & & & 2.16.840.1.113730.3.1.4 \\
+\hline
+studentAcademicProgram & can be multi-valued because students can be enrolled in multiple 
+programs concurrently. Each value contains a colon (:) delimited list of the program's 
+associated Term Code (format from SIS - YY$\left[1-4\right]$), Degree (abbreviation), 
+College (see codes below), Major (abbreviation) and Option (abbreviation). This attribute 
+corresponds to programs in which a student is enrolled in the current semesters. (For 
+details on how Terms are determined to be current, past and future, see the note below) & y & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.35 \\
+\hline
+\end{tabular}
+
+\begin{tabular}{|p{3cm}|p{4cm}|p{0.7cm}|p{1cm}|l|l|}
+\hline
+\textbf{Attribute Name}& \textbf{Description} & \textbf{Multi-Valued} 
+& \textbf{Required} & \textbf{ObjectClass} & \textbf{OID} \\
+\hline
+studentAcademicProgramFuture & can be multi-valued because students can be enrolled in multiple 
+programs concurrently. Each value contains a colon (:) delimited list of the program's 
+associated Term Code (format from SIS - YY$\left[1-4\right]$), Degree (abbreviation), 
+College (see codes below), Major (abbreviation) and Option (abbreviation). This attribute 
+corresponds to programs in which a student is enrolled in the future semesters. (For details 
+on how Terms are determined to be current, past and future, see the note below) & y & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.44\\ 
+\hline
+studentAcademicProgramPast & can be multi-valued because students can be enrolled in multiple 
+programs concurrently. Each value contains a colon (:) delimited list of the program's 
+associated Term Code (format from SIS - YY$\left[1-4\right]$), Degree (abbreviation), College 
+(see codes below), Major (abbreviation) and Option (abbreviation). This attribute corresponds 
+to programs in which a student is enrolled in the past semesters. (For details on how Terms are 
+determined to be current, past and future, see the note below) & y & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.43\\
+\hline
+studentTermStatus & contains a colon (:) delimited list student status attributes -- Term 
+(format from SIS - YY$\left[1-4\right]$), Career (G=Graduate,U=Undergraduate,P=Professional), 
+Class Code (see Class Code table below), Full or Part Time ("F"=full time, "P"=part time, 
+"N"=zero enrolled hours) and Residency ("UM"=unclassified, "RM"=resident, "NM"=non-resident, 
+"PM"=pending, "WM"=western graduate exchange, "XX"=not classified if <7 units) for current 
+semesters. (For details on how Terms are determined to be current, past and future, see the 
+note below) & y & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.37 \\
+\hline
+studentTermStatusFuture & contains a colon (:) delimited list student status attributes -- 
+Term (format from SIS - YY$\left[1-4\right]$), Career (G=Graduate,U=Undergraduate,
+P=Professional), Class Code (see Class Code table below), Full or Part Time ("F"=full time, 
+"P"=part time, "N"=zero enrolled hours) and Residency ("UM"=unclassified, "RM"=resident, 
+"NM"=non-resident, "PM"=pending, "WM"=western graduate exchange, "XX"=not classified if <7 
+units) for future semesters. (For details on how Terms are determined to be current, past and 
+future, see the note below) & y & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.48\\
+\hline
+\end{tabular}
+
+\begin{tabular}{|p{3cm}|p{4cm}|p{0.7cm}|p{1cm}|l|l|}
+\hline
+\textbf{Attribute Name}& \textbf{Description} & \textbf{Multi-Valued} 
+& \textbf{Required} & \textbf{ObjectClass} & \textbf{OID} \\
+\hline
+studentTermStatusPast & contains a colon (:) delimited list student status attributes 
+-- Term (format from SIS - YY$\left[1-4\right]$), Career (G=Graduate,U=Undergraduate,
+P=Professional), Class Code (see Class Code table below), Full or Part Time ("F"=full time, 
+"P"=part time, "N"=zero enrolled hours) and Residency ("UM"=unclassified, "RM"=resident, 
+"NM"=non-resident, "PM"=pending, "WM"=western graduate exchange, "XX"=not classified if <7 
+units) for past semesters. (For details on how Terms are determined to be current, past and 
+future, see the note below) & y & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.47\\
+\hline
+studentEmail & UA email address, which concatenates the NetID with "@email.arizona.edu" (or "@u.arizona.edu") & & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.32\\
+\hline
+studentId & "S" + 8 digits, or 9-digit number, that uniquely identifies a UA student & & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.39\\
+studentInfoReleaseCode & one-letter code that students can update to restrict who can 
+view address, phone and email and attendence information. "B" indicates blank, which 
+means there are no restrictions. "D" recognizes that a student attends or attended UA, 
+but releases no other information. "L" indicates that no address, phone or email information 
+is released. "M indicates that no address or phone information is released. "N" indicates an 
+outright restriction on the person (no information at all is released). "X" indicates that a 
+student is deceased. "A" indicates that no address information is released. "P" indicates that 
+the permanent address information is not released. & & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.31 \\
+\hline
+studentMinor & can be multi-valued because students can have multiple minors concurrently. 
+Each value contains a colon (:) delimited list of the program's associated Term Code (format 
+from SIS - YY$\left[1-4\right]$), Degree (abbreviation), College (abbreviation, may not be 
+accurate), Minor (abbreviation). This attribute coresponds to minors for the current 
+semesters. (For details on how Terms are determined to be current, past and future, see 
+the note below) & y & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.36\\
+\hline
+studentMinorFuture & can be multi-valued because students can have multiple minors 
+concurrently. Each value contains a colon (:) delimited list of the program's associated 
+Term Code (format from SIS - YY$\left[1-4\right]$), Degree (abbreviation), College 
+(abbreviation, may not be accurate), Minor (abbreviation). This attribute coresponds to 
+minors for the future semesters. (For details on how Terms are determined to be current, 
+past and future, see the note below) & y & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.46 \\
+\hline
+studentMinorPast & can be multi-valued because students can have multiple minors concurrently. 
+Each value contains a colon (:) delimited list of the program's associated Term Code 
+(format from SIS - YY$\left[1-4\right]$), Degree (abbreviation), College (abbreviation,
+ may not be accurate), Minor (abbreviation). This attribute coresponds to minors for the 
+past semesters. (For details on how Terms are determined to be current, past and future, 
+see the note below) & y & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.45\\
+\hline
+studentAPDesc & can be multi-valued because students can be enrolled in multiple programs 
+concurrently. text description of a student's academic program (Type of Student - Degree - 
+Major - Term, e.g. "Doctoral Student - Doctor of Philosophy - Spanish - 2008 Fall") & y & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.41\\
+\hline
+studentAdmitTerm & If student is admitted, but has not yet registered for an orientation 
+session nor enrolled for classes, this attribute will be present and will reflect the term 
+code (format from SIS - YY$\left[1-4\right]$) for which the student has been admitted & & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.50\\
+\hline
+studentOrientationTerm & If student is admitted, and has registered for an orientation 
+session, but not yet enrolled for classes, this attribute will be present and will reflect 
+the term code (format from SIS - YY$\left[1-4\right]$) for which the student is registered 
+for an orientation session & & & arizonaEduStudent & 1.3.6.1.4.1.5643.10.0.51\\
+\hline
+\end{tabular}
+
+\textbf{Inclusion Rules:}
+
+Students
+admitted for a future term
+- OR -
+registered for a future term orientation session
+- OR -
+enrolled in a current, past (no more than 1 academic year in the past from current term) or future term
+
+Employees
+incumbent in a budgeted position
+- OR -
+has been incumbent in a budgeted position with an end date less than 100 days in the past
+
+Departmental Sponsored Visitors
+currently sponsored, non-expired, DSVs
+					
+\emph{Note: Terms are considered to be "current" if their SIS term status is "R" (registering), and for two weeks after the SIS term status changes from "R" (registering) to "G" (grading). This means that multiple terms may be considered "current" at the same time. This directory contains about one year's worth of information, including the current semester(s), and up to three past and future semesters.}
+					
+
+\begin{tabular}{|p{7cm}|p{7cm}|}
+\hline
+\textbf{College Abbreviations}& \textbf{Class Codes} \\
+\hline
+$\left[ AL \right]$ Agriculture \& Life Sciences & $\left[ UNC \right]$ Special Undergrad - Unclass\\
+\hline
+$\left[ AF \right]$ Family \& Consumer Sciences & \emph{Student registering for undergraduate credit who may or may not hold a 4-year college degree and is not presently applying these credits towards a degree. }\\
+\hline
+$\left[ A0 \right]$ Fine Arts & $\left[ FR \right]$ Freshman 				\\
+\hline
+$\left[ A3 \right]$ Honors 	& $\left[ SO \right]$ Sophomore 				\\
+\hline
+$\left[ A4 \right]$ Humanities &	$\left[ JR \right]$ Junior 				\\
+\hline
+$\left[ A6 \right]$ Science &	$\left[ SR \right]$ Senior 				\\
+\hline
+$\left[ A8 \right]$ Social \& Behav Sci &	$\left[ 1ST \right]$ First Year \\				
+\hline
+$\left[ A9 \right]$ University College 	& $\left[ 2ND \right]$ Second Year 		\\		
+\hline
+$\left[ CA \right]$ Architecture \& Landscape Architecture &	$\left[ 3RD \right]$ Third Year \\				
+\hline
+$\left[ ED \right]$ Education &	$\left[ 4TH \right]$ Fourth Year 				\\
+\hline
+$\left[ EG \right]$ Engineering & $\left[ 5TH \right]$ Fifth Year 				\\
+\hline
+$\left[ MG \right]$ Eller College of Management & $\left[ SPP \right]$ Special Professional - Unclass 			\\	
+\hline
+$\left[ NU \right]$ Nursing & Unclassified status to be used for Law, Medicine and Pharmacy. 				\\
+\hline
+$\left[ OS \right]$ College of Optical Sciences & $\left[ GM \right]$ Masters Student 				\\
+\hline
+$\left[ PH \right]$ Pharmacy & $\left[ GMP \right]$ Masters Student, Provisional 				\\
+\hline
+$\left[ PZ \right]$ Mel\&Enid Zuckerman AZ Col Public Health & $\left[ GC \right]$ Graduate Certificate \\				
+\hline
+$\left[ RG \right]$ Graduate College & $\left[ GND \right]$ Graduate, Non-Degree 				\\
+\hline
+$\left[ RM \right]$ Medicine & Student enrolled in the Graduate College and not presently admitted to a degree program. \\				
+\hline
+$\left[ SC \right]$ Correspondence & $\left[ GP \right]$ Graduate Professional 				\\
+\hline
+$\left[ SG \right]$ Guadalajara & $\left[ GD \right]$ Doctoral Student 				\\
+\hline
+$\left[ US \right]$ University of Arizona South & $\left[ GDP \right]$ Doctoral Student, Provisional \\				
+\hline
+$\left[ XL \right]$ James E. Rogers College of Law & $\left[ GEX \right]$ Graduate Exchange Student 			\\	
+\hline
+$\left[ AG \right]$ Agriculture & $\left[ GIS \right]$ Graduate Foreign Intntl Specl 				\\
+\hline
+$\left[ AI \right]$ Family \& Cons & $\left[ SPG \right]$ Special Graduate - Unclass 				\\
+\hline
+$\left[ AR \right]$ Architecture & \emph{Student holding a 4-Year or Graduate degree registering for credit and not presentlyapplying it toward another degree.} \\
+\hline
+$\left[ AS \right]$ Arts \& Sciences & $\left[ SS \right]$ Specialist Student 				\\
+\hline
+$\left[ AX \right]$ CAPLA & $\left[ SSP \right]$ Specialist Student, Prov. 				\\
+\hline
+$\left[ BN \right]$ Business \& Public Admin & $\left[ EFR \right]$ Enrolling Freshman 	\\			
+\hline
+$\left[ HP \right]$ Health Professions & $\left[ SR5 \right]$ Senior 5th Year 				\\
+\hline
+$\left[ PL \right]$ Public Health & $\left[ SB \right]$ Second Bachelors 				\\
+\hline
+$\left[ RL \right]$ Law & $\left[ LW \right]$ Law 				\\
+\hline
+$\left[ TG \right]$ General & $\left[ GR1 \right]$ Graduate 1 		\\		
+\hline
+$\left[ TI \right]$ Interdepartmental & $\left[ GR2 \right]$ Graduate 2 	\\			
+\hline
+$\left[ XX \right]$ Administrative College & $\left[ GR3 \right]$ Graduate 3 	\\			
+\hline
+$\left[ AC \right]$ Arizona International College & $\left[ GR4 \right]$ Graduate 4 	\\			
+\hline
+$\left[ A2 \right]$ A \& S - General & $\left[ MD1 \right]$ Medical 1 				\\
+\hline
+$\left[ BX \right]$ Eller College of Bus \& Public Admin & $\left[ MD2 \right]$ Medical 2 \\				
+\hline
+$\left[ EA \right]$ Earth Science & $\left[ MD3 \right]$ Medical 3 				\\
+\hline
+$\left[ EN \right]$ Engineering \& Mines & $\left[ MD4 \right]$ Medical 4 			\\	
+\hline
+$\left[ FA \right]$ Fine Arts & $\left[ NU1 \right]$ Nursing 1 				\\
+\hline
+$\left[ HR \right]$ Hlth Related Profess & $\left[ NU2 \right]$ Nursing 2 		\\		
+\hline
+$\left[ LA \right]$ Liberal Arts & $\left[ NU3 \right]$ Nursing 3 				\\
+\hline
+$\left[ MN \right]$ Mines & $\left[ NU4 \right]$ Nursing 4 				\\
+\hline
+$\left[ QA \right]$ Continuing Education & $\left[ NU5 \right]$ Nursing 5\\ 				
+\hline
+$\left[ QI \right]$ No Credit & $\left[ NU6 \right]$ Nursing 6 				\\
+\hline$\left[ SE \right]$ Extension 	& $\left[ PD1 \right]$ Pharmd 1 \\
+&	$\left[ PD2 \right]$ Pharmd 2 \\
+&	$\left[ PD3 \right]$ Pharmd 3 	\\			
+&	$\left[ PD4 \right]$ Pharmd 4 				\\
+&	$\left[ PH6 \right]$ Pharmacy Doctoral\\ 				
+&	$\left[ SPU \right]$ Special Undergrad - Unclass 	
+	Used by Financial Aid Office. See description for "UNC".\\ 				
+&	$\left[ TC \right]$ Teacher Certification 			\\	
+&	$\left[ CSA \right]$ Consortium Agreements 				\\
+&	$\left[ HCA \right]$ Host Consortium Agreement 				
+	Used by Financial Aid Office. 				\\
+\hline
+\end{tabular}
+}
+
+The table below maps KIM Class Attributes to EDS Attributes
+
+\begin{tabular}{|l|l|l|}
+\hline
+KIM Class & Attribute Name & EDS Attribute Name \\
+\hline
+\verb|KimPrincipalInfo|& principalId & uaid \\
+\hline
+\verb|KimPrincipalInfo|& entityId & uaid \\
+\hline
+\verb|KimPrincipalInfo|& principalName & uid \\
+\hline
+\verb|KimEntityDefaultInfo|&affiliations & eduPersonAffiliation \\
+\hline
+\verb|KimEntityDefaultInfo|&defaultAffiliation & eduPersonPrimaryAffiliation \\
+\verb|KimEntityNameInfo| & lastName & sn \\
+\hline
+\verb|KimEntityNameInfo| & firstName & givenName \\
+\hline
+\verb|KimEntityEmployementInformationInfo| & employeeId & employeeId \\
+\hline
+\verb|KimEntityEmployementInformationInfo| & & employeeEmail \\
+\hline
+\verb|KimEntityEmployementInformationInfo| & & employeePhone \\
+\hline
+\verb|KimEntityEmployementInformationInfo| & & employeePoBox \\
+\hline
+\verb|KimEntityEmployementInformationInfo| & & employeePrimaryDept \\
+\hline
+\verb|KimEntityEmployementInformationInfo| & & employeePrimaryDeptName \\
+\hline
+\verb|KimEntityEmployementInformationInfo| & & employeeType \\
+\hline
+\verb|KimEntityEmployementInformationInfo| & & employeeStatus \\
+\hline
+\end{tabular}
+
+
+\subsubsection{Connecting to EDS}
+\begin{itemize}
+\item Hostname: \textbf{eds.arizona.edu}
+\item Port \#: 636 (Note: directory may only be accessed via the LDAPS protocol; TLS is not supported)
+\item Application authentication DN base: \textbf{ou=App Users,dc=eds,dc=arizona,dc=edu}
+\item Authentication attribute: uid (the DN used to authenticate will be of the form \textbf{uid=<appuser>,ou=App Users,dc=eds,dc=arizona,dc=edu})
+\item Search base: \textbf{ou=People,dc=eds,dc=arizona,dc=edu}
+\end{itemize}
+
+\section{Development Steps}
+
+\subsection*{1. Register an EDS Account}
+
+\subsection{Setup Spring LDAP}
+
+\subsubsection{Modifications to the edu/arizona/kfs/sys/spring-sys.xml File}
+
+The following was added to connect \emph{Spring LDAP} to \emph{EDS}
+
+\begin{lstlisting}
+<bean    id="contextSource"
+      class="org.springframework.ldap.core.support.LdapContextSource">
+    <property name="url" value="ldaps://eds.arizona.edu:636" />
+    <property name="base" value="ou=People,dc=eds,dc=arizona,dc=edu" />
+    <property name="authenticationSource" ref="authenticationSource" />
+</bean>
+
+<bean    id="authenticationSource"
+      class="org.springframework.ldap.authentication.DefaultValuesAuthenticationSourceDecorator">
+    <property name="target" ref="springSecurityAuthenticationSource" />
+    <property name="defaultUser" value="uid=user,ou=App Users,dc=eds,dc=arizona,dc=edu" />
+    <property name="defaultPassword" value="[secret]" />
+</bean>
+
+<bean    id="springSecurityAuthenticationSource"
+      class="org.springframework.security.ldap.SpringSecurityAuthenticationSource" />
+
+<bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
+    <constructor-arg ref="contextSource" />
+</bean>
+\end{lstlisting}
+
+The \emph{Kuali Rice} \verb|ParameterService| is used to store the map between \emph{KIM} and \emph{EDS} attributes. Still,
+many attribute names are stored in a constants class populated through Spring. See below
+\begin{lstlisting}
+<bean id="azKimConstants" class="edu.arizona.kim.Constants">
+  <property name="uaidEdsProperty"          value="uaid" />
+  <property name="uidEdsProperty"           value="uid" />
+  <property name="snEdsProperty"            value="sn" />
+  <property name="givenNameEdsProperty"     value="givenName" />
+  <property name="entityIdKimProperty"      value="entityId" />
+  <property name="employeeMailEdsProperty"  value="employeeMail" />
+  <property name="employeePhoneEdsProperty" value="employeePhone" />
+  <property name="defaultCountryCode"       value="1" />
+  <property name="mappingParameterName"     value="KIM_TO_EDS_FIELD_MAPPINGS" />
+  <property name="unmappedParameterName"    value="KIM_TO_EDS_UNMAPPED_FIELDS" />
+  <property name="parameterNamespaceCode"   value="KFS-SYS" />
+  <property name="parameterDetailTypeCode"  value="Config" />
+</bean>
+\end{lstlisting}
+
+The constants class as well as the \emph{Spring LDAP} integration and \emph{Kuali Rice} \verb|ParameterService| are 
+injected into the \verb|EdsPrincipalDaoImpl| instance.
+\begin{lstlisting}
+<bean id="edsPrincipalDao" class="edu.arizona.kim.dataaccess.impl.EdsPrincipalDaoImpl">
+  <property name="ldapTemplate"     ref="ldapTemplate" />
+  <property name="parameterService" ref="parameterService" />
+  <property name="kimConstants"     ref="azKimConstants" />
+
+</bean>\end{lstlisting}
+
+The \verb|EdsPrincipalDaoImpl| is an implementation of \verb|PrincipalDao| which is delegated by the 
+\verb|EdsIdentityServiceImpl|. The \verb|EdsPrincipalDaoImpl| connects to \emph{EDS} and maps the principal
+and entity information into \emph{KIM} domain objects.
+
+\subsection*{2. Implement/Override Methods in IdentityService}
+
+\subsection*{3. Create PrincipalDao for searching for Principal/Entity information from EDS.}
+\subsubsection{Retrieving EDS Information as KIM Domain Objects}
+\emph{Spring LDAP} offers a \verb|ContextMapper| interface for these kinds of mappings; therefore, all of the
+mappings are in pure java. This is how \verb|KimPrincipal| is mapped from \emph{EDS}.
+
+\begin{lstlisting}
+contextMappers.put(KimPrincipalInfo.class, new AbstractContextMapper() {
+    public Object doMapFromContext(DirContextOperations context) {
+        final KimPrincipalInfo person = new KimPrincipalInfo();
+        person.setPrincipalId(context.getStringAttribute(getKimConstants().getUaidEdsProperty()));
+        person.setEntityId(context.getStringAttribute(getKimConstants().getUaidEdsProperty()));
+        person.setPrincipalName(context.getStringAttribute(getKimConstants().getUidEdsProperty()));
+        return person;
+    }
+});
+\end{lstlisting}
+
+\verb|contextMappers| is an instance map created for holding \verb|ContextMapper| instances. Each DTO type
+has a mapper associated with it for retrieving the desired information from \emph{EDS}. Notice the use of
+\verb|getKimConstants()|. This is how constant property names are used in the mapping. Also, notice that here the 
+\verb|ParameterService| is not used. The \verb|ParameterService| is only used for mapping \emph{KIM} criteria
+in lookup scenarios. When retrieving information from \emph{EDS}, the \verb|ParameterService| is entirely
+useless. The \verb|ContextMapper| is used instead. It gives more flexibility when mapping attributes
+of a specific class. Below is how the \verb|ContextMapper| is actually used.
+
+\begin{lstlisting}
+public <T> List<T> search(Class<T> type, Map<String, Object> criteria) {
+    AndFilter filter = new AndFilter();
+    
+    for (Map.Entry<String, Object> entry : criteria.entrySet()) {
+        if (entry.getValue() instanceof Iterable) {
+            OrFilter orFilter = new OrFilter();
+            for (String value : (Iterable<String>) entry.getValue()) {
+                orFilter.or(new EqualsFilter(entry.getKey(), value));
+            }
+            filter.and(orFilter);
+        }
+        else {
+            filter.and(new EqualsFilter(entry.getKey(), (String) entry.getValue()));
+        }
+    }
+    return getLdapTemplate().search(DistinguishedName.EMPTY_PATH, filter.encode(), contextMappers.get(type));
+}
+\end{lstlisting}
+
+\emph{Spring LDAP} gives a very flexible API for querying Directory-Based systems. The \verb|search()| method
+takes advantage of several classes from the API in order to create a fairly generic query of \emph{EDS}. On the 
+last line, the \verb|LdapTemplate| is used with a verb|ContextMapper| retrieved from the \verb|contextMappers|
+map. It is retrieved by passing through the desired type; therefore, in the case of searching for a \verb|KimPrincipal|
+we would use something like this:
+
+\begin{lstlisting}
+public KimPrincipalInfo getPrincipal(String principalId) {
+    Map<String, Object> criteria = new HashMap();
+    criteria.put(getKimConstants().getUaidEdsProperty(), principalId);
+    List<KimPrincipalInfo> results = search(KimPrincipalInfo.class, criteria);
+
+    if (results.size() > 0) {
+        return results.get(0);
+    }
+    
+    return null;
+}
+\end{lstlisting}
+Again, there isn't any need for the \verb|ParameterService| yet because we know exactly what we want from 
+\emph{EDS}.
+
+\subsubsection{Using Mapping KIM Attributes to EDS Attributes for Lookups}
+\emph{KIM} has an API method called \verb|lookupEntityDefaultInfo| which is used by Kuali Lookups for 
+querying information. The call will provide a map of information in terms of \emph{KIM} attributes. This
+means that the map or search criteria is pretty meaningless to \emph{EDS} or any Directory-based service
+for that matter. The \emph{KIM} attributes need to be mapped to \emph{EDS} attributes in order for the
+query to be made. For this, the \verb|ParameterService| is used.
+
+\begin{lstlisting}
+public List<? extends KimEntityDefaultInfo> lookupEntityDefaultInfo(Map<String,String> searchCriteria, boolean unbounded) {
+    List<KimEntityDefaultInfo> results = new ArrayList();
+    Map<String, Object> criteria = new HashMap();
+        
+    for (Map.Entry<String, String> criteriaEntry : searchCriteria.entrySet()) {
+        info(String.format("Searching with criteria %s = %s", criteriaEntry.getKey(), criteriaEntry.getValue()));
+      
+        if (isMapped(criteriaEntry.getKey())) {
+            criteria.put(getEdsAttribute(criteriaEntry.getKey()), criteriaEntry.getValue());
+        }
+    }
+        
+    return search(KimEntityDefaultInfo.class, criteria);
+}
+
+private Matcher getKimAttributeMatcher(String kimAttribute) {
+    Parameter mappedParam = getParameterService()
+    .retrieveParameter(getKimConstants().getParameterNamespaceCode(),
+    getKimConstants().getParameterDetailTypeCode(),
+    getKimConstants().getMappedParameterName());
+
+    String regexStr = kimAttribute + "=([^=;]*).*";
+    return Pattern.compile(regexStr).matcher(mappedParam.getParameterValue());
+}
+
+private boolean isMapped(String kimAttribute) {
+    return getKimAttributeMatcher(kimAttribute).matches();
+}
+
+private String getEdsAttribute(String kimAttribute) {
+    Matcher matcher = getKimAttributeMatcher(kimAttribute);
+    matcher.matches();
+    return matcher.group(1);
+}
+\end{lstlisting}
+
+By using regular expressions and storing parameters in the database for retrieval by the \verb|ParameterService|, the
+task of mapping \emph{KIM} attributes to \emph{EDS} attributes is pretty trivial.
+\end{document}
+
+\subsection{Implement Entity Prototype}
+Create a Entity prototype for fast object building and setting defaults with Spring.
+
+\begin{lstlisting}
+    <bean id="entityPrototype" class="edu.arizona.kim.businessobject.entity.dto.KimEntityInfo" scope="prototype">
+    ... 
+    ...
+    </bean>
+\end{lstlisting}
+
+Configure the prototype with default values.
+
+This causes problems because KIM \verb|KimEntityEntityTypeInfo| and \verb|KimEntityInfo|
+classes have setters/getters with different types. This prevents Spring from setting attributes.
+The classes need to be overridden in \verb|edu.arizona.kim.businessobject.entity.dto|
+
+\begin{lstlisting}
+public class KimEntityInfo extends org.kuali.rice.kim.bo.entity.dto.KimEntityInfo {
+
+	/**
+	 * @param defaultAffiliation the defaultAffiliation to set
+	 */
+	public void setDefaultAffiliation(KimEntityAffiliation defaultAffiliation) {
+        super.setDefaultAffiliation((KimEntityAffiliationInfo) defaultAffiliation);
+	}
+
+	/**
+	 * @param defaultName the defaultName to set
+	 */
+	public void setDefaultName(KimEntityName defaultName) {
+        super.setDefaultName((KimEntityNameInfo) defaultName);
+	}
+
+    public void setPrimaryEmployment(KimEntityEmploymentInformation primaryEmployment) {
+        super.setPrimaryEmployment((KimEntityEmploymentInformationInfo) primaryEmployment);
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}
+public class KimEntityEntityTypeInfo extends org.kuali.rice.kim.bo.entity.dto.KimEntityEntityTypeInfo {
+	private static final long serialVersionUID = -6585360231364528118L;
+
+	public void setDefaultAddress(KimEbntityAddress defaultAddress) {
+		super.setDefaultAddress((KimEntityAddressInfo) defaultAddress);
+	}
+	public void setDefaultPhoneNumber(KimEntityPhone defaultPhoneNumber) {
+		super.setDefaultPhoneNumber((KimEntityPhoneInfo) defaultPhoneNumber);
+	}
+	public void setDefaultEmailAddress(KimEntityEmail defaultEmailAddress) {
+		super.setDefaultEmailAddress((KimEntityEmailInfo) defaultEmailAddress);
+	}
+}
+\end{lstlisting}
+
+
+\subsection{Customize Rice/KFS to Relieve Hardcoded \verb|SYSTEM_USER|}
+
+Rice and KFS use a \verb|SYSTEM_USER| constant to for things like submitting 
+documents and running batch jobs. Unfortunately, with LDAP Integration, users 
+are not defined within Rice or KFS. Therefore, we have to create a system parameter
+to map to a user within our LDAP system.
+
+The following was added to \verb|PostProcessorServiceImpl|, \verb|KualiWorkflowInfoImpl|,
+\verb|PessimisticLockServiceImpl|, and \verb|DocumentServiceImpl|
+
+
+\begin{lstlisting}
+    private String getSystemUserName() {
+        return getParameterService().retrieveParameter(KNSConstants.KNS_NAMESPACE, 
+                                                       KNSConstants.DetailTypes.ALL_DETAIL_TYPE, 
+                                                       getParameterNames().getSystemUserName()).getParameterValue();
+    }
+
+    public synchronized void setParameterNames(ParameterNames parameterNames) {
+        this.parameterNames = parameterNames;
+    }
+
+    public synchronized ParameterNames getParameterNames() {
+        if (this.parameterNames == null) {
+            this.parameterNames = (ParameterNames) KNSServiceLocator.getService("knsParameterNames");
+        }
+        return this.parameterNames;
+    }    
+
+    public synchronized void setParameterService(ParameterService parameterService) {
+        this.parameterService = parameterService;
+    }
+
+    public synchronized ParameterService getParameterService() {
+        if (this.parameterService == null) {
+            this.parameterService = (ParameterService) KNSServiceLocator.getParameterService();
+        }
+        return this.parameterService;
+    }    
+\end{lstlisting}
+
+Replace all instances of \verb|KNSConstants.SYSTEM_USER| and \verb|KFSConstants.SYSTEM_USER|
+with \verb|getSystemUserName()|
+
+\subsection{Principal or Entity Not in EDS}
+The University of Arizona encountered rare scenarios where principals and entities do not appear in
+EDS and are not locatable through the \verb|IdentityService|. This can be a problem in some cases. For example, if a principal is added to a role 'KFS Users', and that principal is removed from EDS, then a 
+\verb|NullPointerException| can occur. The \verb|NullPointerException| occurs because the user cannot 
+be found, and so the IdentityService returns a \verb|null|.
+
+\subsubsection{'kr' and 'kfs' Users}
+One case where the principal is not found in EDS is the 'kr' and 'kfs' users. These are system users;
+therefore, they do not exist in EDS.
+
+The 'kr' and 'kfs' users hardcoded as constants within the application. These are users vital to the 
+application running. They are used from workflow to batch processing, and if they do not exist, the 
+application fails to function properly. This is the case for EDS because they are system users and system
+users are not stored in EDS.
+
+\subsubsection{Fallback on Reference Implementation IdentityService}
+Kuali distributes a reference KIM implementation of the \verb|IdentityService|. We use this functionality to fallback
+on in the case where a principal cannot be found in EDS. What does is gives priority to EDS for primary entity retrieval.
+When the user does not appear in EDS, the RDBMS where the Kuali reference implementation is designed to look 
+is searched. The RDBMS is where the 'kr' and 'kfs' users are located, so this solves the problem of the
+system users.
+
+\subsubsection{Implement the DummyUser Pattern}
+What then of the all the other possible cases where a user is not located in EDS. At the current time,
+we cannot address principals and entities not being in EDS, but we can help rice to fail gracefully in this case.
+The way we do that is by using the DummyUser pattern. The DummyUser replaces any null returned from 
+\verb|IdentityService| and is an inactive user. By virtue of being inactive, it is unusable, unsearchable, and 
+uneditable. This means any workflow involving this user will not work, but we do prevent \verb|NullPointerException|
+cases.
+
+The user exists within the source code and is a singleton in the application. That is, there is only
+one DummyUser in the entire application that appears wherever a \verb|null| might.
+
+\begin{lstlisting}
+private static KimPrincipalInfo dummyUser;
+private static KimEntityInfo dummyUserEntity;
+    
+static {
+    dummyUserEntity = new KimEntityInfo();
+    dummyUserEntity.setActive(false);
+    dummyUserEntity.setEntityId("dummyUserId");
+    KimEntityNameInfo nameInfo = new KimEntityNameInfo();
+    nameInfo.setActive(false);
+    nameInfo.setFirstName("Non-existent");
+    nameInfo.setLastName("User");
+    dummyUserEntity.setNames(new ArrayList<KimEntityNameInfo>());
+    dummyUserEntity.getNames().add(nameInfo);
+    dummyUser = new KimPrincipalInfo();
+    dummyUser.setActive(false);
+    dummyUser.setPrincipalId("dummyUserId");
+    dummyUser.setEntityId("dummyUserId");
+    dummyUser.setPrincipalName("missingUser");
+    dummyUserEntity.setPrincipals(new ArrayList<KimPrincipalInfo>());
+    dummyUserEntity.getPrincipals().add(dummyUser);
+}
+\end{lstlisting}
+
+
+Since this only effects when the principal is queried directly, we only have
+delegate to the super class with a few methods.
+
+\begin{lstlisting}
+/** Get a KimPrincipal object based on it's unique principal ID */
+public KimPrincipalInfo getPrincipal(String principalId) {
+    KimPrincipalInfo edsInfo = getPrincipalDao().getPrincipal(principalId);
+    if (edsInfo != null) {
+        return edsInfo;
+    } else {
+        edsInfo = super.getPrincipal(principalId);
+        if (edsInfo != null) {
+            return edsInfo;
+        } else {
+            return dummyUser;
+        }
+    }
+}
+	
+/** Get a KimPrincipal object based on the principalName. */
+public KimPrincipalInfo getPrincipalByPrincipalName(String principalName) {
+    KimPrincipalInfo edsInfo = getPrincipalDao().getPrincipalByName(principalName);
+    if (edsInfo != null) {
+        return edsInfo;
+    } else {
+        return super.getPrincipalByPrincipalName(principalName);
+    }
+}
+
+/** Find entity objects based on the given criteria. */
+public KimEntityDefaultInfo getEntityDefaultInfo(String entityId) {
+    KimEntityDefaultInfo edsInfo = getPrincipalDao().getEntityDefaultInfo(entityId);
+    if (edsInfo != null) {
+       return edsInfo;
+    } else {
+       return super.getEntityDefaultInfo(entityId);
+    }
+}
+
+public KimEntityDefaultInfo getEntityDefaultInfoByPrincipalName(String principalName) {
+    KimEntityDefaultInfo edsInfo = getPrincipalDao().getEntityDefaultInfoByPrincipalName(principalName);
+    if (edsInfo != null) {
+        return edsInfo;
+    } else {
+        return super.getEntityDefaultInfoByPrincipalName(principalName);
+    }
+}
+\end{lstlisting}

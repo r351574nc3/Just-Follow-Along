@@ -1,0 +1,61 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{Remaining LDAP Integration Work}
+
+\begin{document}
+\maketitle
+
+\lstset{basicstyle=\small,
+  breaklines=true,
+  includerangemarker=false}
+
+\section{Overview}
+Some other work than development is required to integrate LDAP into KFS environments.
+
+\section{Integration Points}
+\subsection{Conversion}
+\subsubsection{Requirements}
+
+Data required to be converted is
+\begin{itemize}
+  \item between UAID and principalId (all data that is using false principal ids needs to be replaced with real uaids).
+  \item removal of constraints between entities and principals.
+  \item removeal of entities.
+\end{itemize}
+
+\subsubsection{Work Done}
+Keiko has put together some scripts to do map between UAID and principalId in conversion.
+
+\subsubsection{Remaining Work}
+\begin{itemize}
+  \item Scripts need to be run in a sandboxed environment like STG for verification
+  \item ids for principals not found in the \verb|ZZ_NETID| table need to be retrieved. 
+\end{itemize}
+
+
+\subsection{EDS}
+The work required here is to be done by the Integration Team. 
+
+\subsubsection{Requirements}
+
+Requires EDS to
+\begin{itemize}
+\item support multiple affiliations
+\item map campus code to affiliation
+\item map separate employeeId to an affiliation
+\item map separate department to an affiliation
+\end{itemize}
+
+\subsubsection{Work Done}
+Leo added some default values within KFS to account for required fields. 
+
+\subsubsection{Remaining Work}
+Nothing on this has been done yet with the offical data in EDS. It still needs to be started. 
+Leo contacted Duffy Gillman on the request process for this and is awaiting feedback.
+
+\end{document}

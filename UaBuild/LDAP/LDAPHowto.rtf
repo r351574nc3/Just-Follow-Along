@@ -1,0 +1,421 @@
+{\rtf1\ansi\uc1\deff13\deflang1024
+{\fonttbl{\f0\fnil\fcharset0 Zapf Chancery;}
+{\f1\fnil\fcharset204 Zapf Chancery;}
+{\f2\fnil\fcharset204 Times;}
+{\f3\fnil\fcharset204 Helvetica;}
+{\f4\fnil\fcharset204 Helvetica;}
+{\f5\fnil\fcharset204 Courier;}
+{\f6\fnil\fcharset2 Symbol;}
+{\f7\fnil\fcharset0 MT Extra;}
+{\f8\fnil\fcharset238 Zapf Chancery;}
+{\f9\fnil\fcharset238 Times;}
+{\f10\fnil\fcharset238 Helvetica;}
+{\f11\fnil\fcharset238 Helvetica;}
+{\f12\fnil\fcharset238 Courier;}
+{\f13\fnil\fcharset0 Times;}
+{\f14\fnil\fcharset0 Helvetica;}
+{\f15\fnil\fcharset0 Helvetica;}
+{\f16\fnil\fcharset0 Courier;}
+}
+{\colortbl;
+\red0\green0\blue0;
+\red0\green0\blue255;
+\red0\green255\blue255;
+\red0\green255\blue0;
+\red255\green0\blue255;
+\red255\green0\blue0;
+\red255\green255\blue0;
+\red255\green255\blue255;
+\red0\green0\blue128;
+\red0\green128\blue128;
+\red0\green128\blue0;
+\red128\green0\blue128;
+\red128\green0\blue0;
+\red128\green128\blue0;
+\red128\green128\blue128;
+\red192\green192\blue192;
+}
+{\stylesheet
+{\s0\fs20\snext0 Normal;}
+{\s2\ql\sb240\sa60\keepn\f13\b\fs40 \sbasedon0\snext0 heading 1;}
+{\s2\ql\sb240\sa60\keepn\f13\b\fs40\li0 \sbasedon0\snext0 heading 1;}
+{\s1\ql\sb240\sa60\keepn\f13\b\fs40\li0 \sbasedon0\snext0 heading 1;}
+{\s6\ql\sb240\sa60\keepn\f13\b\fs24\li2048 \sbasedon0\snext0 heading 5;}
+{\s3\ql\sb240\sa60\keepn\f13\b\fs32\li512 \sbasedon0\snext0 heading 2;}
+{\s7\ql\sb240\sa60\keepn\f13\b\fs24\li2560 \sbasedon0\snext0 heading 6;}
+{\s4\ql\sb240\sa60\keepn\f13\b\fs32\li1024 \sbasedon0\snext0 heading 3;}
+{\s5\ql\sb240\sa60\keepn\f13\b\fs24\li1536 \sbasedon0\snext0 heading 4;}
+{\s6\ql\sb240\sa60\keepn\f13\b\fs24 \sbasedon0\snext0 heading 5;}
+{\s1\qc\sb240\sa60\keepn\f13\b\fs40 \sbasedon0\snext0 part;}
+{\s3\ql\sb240\sa60\keepn\f13\b\fs32 \sbasedon0\snext0 heading 2;}
+{\s7\ql\sb240\sa60\keepn\f13\b\fs24 \sbasedon0\snext0 heading 6;}
+{\s4\ql\sb240\sa60\keepn\f13\b\fs32 \sbasedon0\snext0 heading 3;}
+{\s5\ql\sb240\sa60\keepn\f13\b\fs24 \sbasedon0\snext0 heading 4;}
+}
+{\info
+{\title Original file was LDAPHowto.tex}
+{\doccomm Created using latex2rtf 1.9.19 (released Nov 20 2007) on Mon Jan 24 16:10:29 2011
+}
+}
+{\footer\pard\plain\f13\fs24\qc\chpgn\par}
+\paperw12280\paperh15900\margl2680\margr2700\margt2540\margb1760\pgnstart0\widowctrl\qj\ftnbj\f13\aftnnar
+{
+\par\pard\qc {\fs30 \pard\qc\sl240\slmult1 \fi360 LDAP Integration Howto}
+\par\pard\qc {\fs24 Leo Przybylski \par
+{\f16 \pard\qc\sl240\slmult1 \fi0 leo@rsmart.com}}
+\par\pard\qc {\fs24 }
+\par\pard\qc {\fs24 }
+\par\pard\qc {\fs24 }\par
+\pard\qj\sl240\slmult1 \fi0 {\s1\ql\sb240\sa60\keepn\f13\b\fs40\li0 Contents\par
+}{\field{\*\fldinst TOC \\o "1-3" }{\fldrslt }}
+\page{}\pard\qj\sl240\slmult1 \sb300 \fi0 {\s3\ql\sb240\sa60\keepn\f13\b\fs32 1  Steps for Implementing with KFS\par
+}\pard\qj\sl240\slmult1 \sb60 \fi0 These are the following steps to installing and configuring LDAP Integration for KFS. \par
+\pard\qj\sl240\slmult1 \sb120 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 1. Add rice-kim-ldap.jar to CLASSPATH\par
+}\pard\qj\sl240\slmult1 \sb60 \fi0 The easiest way to do this is to add the {\b0\i0\scaps0\f16 rice-kim-ldap.jar} to {\b0\i0\scaps0\f16 work/web-root/WEB-INF/lib/}. This will add the necessary Spring configuration and class files to your classpath. \par
+\pard\qj\sl240\slmult1 \sb120 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 2. Configure Spring with Directory Server Credentials\par
+}\pard\qj\sl240\slmult1 \sb180 \fi0 {\s5\ql\sb240\sa60\keepn\f13\b\fs24 Create/Modify a spring-kim.xml\par
+}{\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 1.\tab Create a {\b0\i0\scaps0\f16 spring-kim.xml} file in your classpath \par
+\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 2.\tab Make it look like this {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 [caption=spring-kim.xml]
+\par     <bean id="contextSource"
+\par         class="org.springframework.ldap.core.support.LdapContextSource">
+\par         <property name="url" value="$\{rice.ldap.url\}" />
+\par         <property name="base" value="$\{rice.ldap.base\}" />
+\par         <property name="authenticationSource" ref="authenticationSource" />
+\par     </bean>
+\par 
+\par     <bean id="authenticationSource"
+\par       class="org.springframework.ldap.authentication.DefaultValuesAuthenticationSourceDecorator">
+\par       <property name="target" ref="springSecurityAuthenticationSource" />
+\par       <property name="defaultUser" value="$\{rice.ldap.username\}" />
+\par       <property name="defaultPassword" value="$\{rice.ldap.password\}" />
+\par     </bean>
+\par     \par
+}\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 3.\tab Configure your {\b0\i0\scaps0\f16 spring-kim.xml} so that it points to your institution\rquote s directory server and base DN. \par
+\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 4.\tab Add {\b0\i0\scaps0\f16 spring-kim.xml} to institutional spring files in your {\b0\i0\scaps0\f16 kfs-build.properties}. Below is an example. {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 [caption=kfs-build.properties]
+\par     institution.spring.source.files=,com/rsmart/kim/spring-kim.xml
+\par   \par
+}}\pard\qj\sl240\slmult1 \sb220 \fi0 {\s5\ql\sb240\sa60\keepn\f13\b\fs24 Configure Credentials\par
+}{\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 1.\tab Add the following to the {\b0\i0\scaps0\f16 build/external/security.properties} {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 [caption=build/external/security.properties]
+\par rice.ldap.username=$\{rice.ldap.username\}
+\par rice.ldap.password=$\{rice.ldap.password\}
+\par rice.ldap.url=$\{rice.ldap.url\}
+\par rice.ldap.base=$\{rice.ldap.base\}
+\par \par
+}\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 2.\tab Add lines to your kfs-build.properties {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 [caption=kfs-build.properties]
+\par rice.ldap.username=your ldap user
+\par rice.ldap.password=your ldap password
+\par rice.ldap.url=your ldap url
+\par rice.ldap.base=your ldap base dn
+\par \par
+}}\pard\qj\sl240\slmult1 \sb340 \fi0 {\s3\ql\sb240\sa60\keepn\f13\b\fs32 2  Steps for Integration into Rice\par
+}\pard\qj\sl240\slmult1 \sb180 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 1. Checkout rice source code\par
+}\pard\qj\sl240\slmult1 \sb60 \fi0 The URL to checkout from is {\b0\i0\scaps0\f16 https://test.kuali.org/svn/rice/branches/rice-release-1-0-3-br}\par
+\pard\qj\sl240\slmult1 \sb120 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 2. Checkout Ldap Customization\par
+}\pard\qj\sl240\slmult1 \sb60 \fi0 The URL to checkout from is {\b0\i0\scaps0\f16 https://svn.rsmart.com/svn/kuali/contribution/community/ldap_customization/branches/rice-release-1-0-3-br} into your rice path as {\b0\i0\scaps0\f16 ldap}. The resulting structure would be {\b0\i0\scaps0\f16 rice-release-1-0-3-br/ldap}\par
+\pard\qj\sl240\slmult1 \sb120 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 3. Add ldap module to rice pom.xml\par
+}{\pard\qj\sl240\slmult1 \sb60 \fi0 \pard\ql\b0\i0\scaps0\f16 
+\par <modules>
+\par         <module>api</module>
+\par         <module>impl</module>
+\par         <module>ldap</module>
+\par         <module>web</module>
+\par         <module>sampleapp</module>
+\par         <module>ksb</module>
+\par         <module>kcb</module>
+\par         <module>kns</module>
+\par         <module>kim</module>
+\par         <module>kew</module>
+\par         <module>ken</module>
+\par </modules>
+\par \par
+}\pard\qj\sl240\slmult1 \sb180 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 3. Add LDAP as a dependency to web\par
+}\pard\qj\sl240\slmult1 \sb60 \fi0 Edit the {\b0\i0\scaps0\f16 rice-release-1-0-3-br/pom.xml} and add the following: {\par
+\pard\qj\sl240\slmult1 \fi0 \pard\ql\b0\i0\scaps0\f16 
+\par <dependencies>
+\par         <dependency>
+\par                 <groupId>$\{project.groupId\}</groupId>
+\par                 <artifactId>rice-impl</artifactId>
+\par                 <version>$\{project.version\}</version>
+\par         </dependency>
+\par         <dependency>
+\par                 <groupId>$\{project.groupId\}</groupId>
+\par                 <artifactId>rice-sampleapp</artifactId>
+\par                 <version>$\{project.version\}</version>
+\par         </dependency>
+\par         <dependency>
+\par                 <groupId>$\{project.groupId\}</groupId>
+\par                 <artifactId>rice-ldap</artifactId>
+\par                 <version>$\{project.version\}</version>
+\par         </dependency>
+\par ...
+\par </dependencies>
+\par \par
+}\pard\qj\sl240\slmult1 \sb180 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 2. Configure Spring with Directory Server Credentials\par
+}\pard\qj\sl240\slmult1 \sb180 \fi0 {\s5\ql\sb240\sa60\keepn\f13\b\fs24 Modify a rice-config.xml\par
+}{\pard\qj\sl240\slmult1 \sb60 \fi0 \pard\ql\b0\i0\scaps0\f16 
+\par   <param name="rice.ldap.username">uid=ldap,ou=App Users,dc=ldap,dc=rsmart,dc=com</param>
+\par   <param name="rice.ldap.password">6h5aXHLGCysQf3N4S9zYnuOtTijDVFZk</param>
+\par   <param name="rice.ldap.url">ldaps://ldap.rsmart.com:636</param>
+\par   <param name="rice.ldap.base">ou=People,dc=ldap,dc=rsmart,dc=com</param>
+\par 
+\par   <param name="rice.additionalSpringFiles">org/kuali/rice/kim/config/KIMLdapSpringBeans.xml</param>
+\par \par
+}\pard\qj\sl240\slmult1 \sb60 \fi360 The following line is what enables the LDAP integration. Comment it out to disable integration. {\par
+\pard\qj\sl240\slmult1 \fi0 \pard\ql\b0\i0\scaps0\f16 
+\par   <param name="rice.additionalSpringFiles">org/kuali/rice/kim/config/KIMLdapSpringBeans.xml</param>
+\par \par
+}\pard\qj\sl240\slmult1 \sb300 \fi0 {\s3\ql\sb240\sa60\keepn\f13\b\fs32 3  Disabling/Enabling LDAP Integration\par
+}\pard\qj\sl240\slmult1 \sb60 \fi0 In order to disable the integration with LDAP, the method differs between KFS and Rice. Below are descriptions on the different methods.\par
+\pard\qj\sl240\slmult1 \sb120 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 3.1  KFS\par
+}\pard\qj\sl240\slmult1 \sb60 \fi0 You can remove the jar from the classpath.\par
+\pard\qj\sl240\slmult1 \sb120 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 3.2  Rice\par
+}\pard\qj\sl240\slmult1 \sb60 \fi0 Remove the KIMLdapSpringBeans.xml at build time.\par
+\pard\qj\sl240\slmult1 \sb240 \fi0 {\s3\ql\sb240\sa60\keepn\f13\b\fs32 4  Technical Details\par
+}\pard\qj\sl240\slmult1 \sb180 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 4.1  Spring LDAP\par
+}{\i \pard\qj\sl240\slmult1 \sb60 \fi0 Spring LDAP} is an adapter layer between Spring and LDAP datasources. \par
+\pard\qj\sl240\slmult1 \fi360 The following description is taken from the {\i Spring LDAP} website: {\par
+\pard\qj\sl240\slmult1 \sb60 \li512\ri512\fi0  Spring LDAP is a Java library for simplifying LDAP operations, based on the pattern of Spring\rquote s JdbcTemplate. The framework relieves the user of common chores, such as looking up and closing contexts, looping through results, encoding/decoding values and filters, and more.\par
+\pard\qj\sl240\slmult1 \li512\ri512\fi0 The LdapTemplate class encapsulates all the plumbing work involved in traditional LDAP programming, such as creating a DirContext, looping through NamingEnumerations, handling exceptions and cleaning up resources. This leaves the programmer to handle the important stuff - where to find data (DNs and Filters) and what do do with it (map to and from domain objects, bind, modify, unbind, etc.), in the same way that JdbcTemplate relieves the programmer of all but the actual SQL and how the data maps to the domain model.\par
+\pard\qj\sl240\slmult1 \li512\ri512\fi0 In addition to this, Spring LDAP provides transaction support, a pooling library, exception translation from NamingExceptions to a mirrored unchecked Exception hierarchy, as well as several utilities for working with filters, LDAP paths and Attributes.\par
+\pard\qj\sl240\slmult1 \li512\ri512\fi0 Spring LDAP requires J2SE 1.4 or higher to run, and works with Spring Framework 2.0.x as well as 2.5.x. J2SE 1.4 or higher is required for building the release binaries from sources. Release 1.2.1 also requires an installation of JavaCC 4.0 when building from source. That is not necessary for release 1.3.x, since it uses Maven2, which handles all such dependencies behind the scenes. \par
+}\pard\qj\sl240\slmult1 \sb60 \fi360 To use it: {\par
+\pard\qj\sl240\slmult1 \fi0 \pard\ql\b0\i0\scaps0\f16 [caption=spring-datasource.xml]
+\par <beans>
+\par     ...
+\par     ...
+\par     <bean id="contextSource"
+\par         class="org.springframework.ldap.support.LdapContextSource">
+\par         <property name="url" value="ldaps://ldap.rsmart.com:636" />
+\par         <property name="base" value="ou=People,dc=com,dc=rsmart,dc=com" />
+\par         <property name="userName" value="uid=<userid>,ou=App Users,dc=com,dc=rsmart,dc=com" />
+\par         <property name="password" value="secret" />
+\par         <property name="pool" value="true"/>
+\par     </bean>
+\par     <bean id="ldapTemplate" class="org.springframework.ldap.LdapTemplate">
+\par         <constructor-arg ref="contextSource" />
+\par     </bean>
+\par     <bean id="ldapPrincipalDao"
+\par         class="com.rsmart.kim.dao.LdapPrincipalDao">
+\par         <property name="ldapTemplate" ref="ldapTemplate" />
+\par     </bean>
+\par </beans>
+\par 
+\par \\emph\{Note that ldaps:// protocol is used.\}
+\par 
+\par \par
+}\pard\qj\sl240\slmult1 \sb180 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 4.2  KIM\par
+}{\i \pard\qj\sl240\slmult1 \sb60 \fi0 KIM} interfaces need to be implemented within {\i KFS} that communicate over LDAP. {\i KIM} will delegate over LDAPs with {\i Spring LDAP} by implementing the following service interfaces.\par
+\pard\qj\sl240\slmult1 \sb120 \fi0 {\s5\ql\sb240\sa60\keepn\f13\b\fs24 4.2.1  IdentityService\par
+}\pard\qj\sl240\slmult1 \sb60 \fi0 Below is an description of which methods need to be overwritten to supply {\i KIM} with access to Person data from {\par
+\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b getPrincipal} {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 
+\par /** Get a KimPrincipal object based on the principalName. */
+\par KimPrincipalInfo getPrincipal(String principalId);
+\par \par
+}\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b getPrincipalByPrincipalName} {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 
+\par KimPrincipalInfo getPrincipalByPrincipalName(String principalName);
+\par \par
+}\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b lookupEntitys} {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 
+\par /** Find entity objects based on the given criteria. */
+\par List<KimEntity> lookupEntitys(Map<String,String> searchCriteria);
+\par \par
+}\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b getEntityDefaultInfo} {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 
+\par KimEntityDefaultInfo getEntityDefaultInfo( String entityId );
+\par \par
+}\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b getEntityDefaultInfoByPrincipalId} {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 
+\par KimEntityDefaultInfo getEntityDefaultInfoByPrincipalId( String principalId );
+\par \par
+}\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b getEntityDefaultInfoByPrincipalName} {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 
+\par KimEntityDefaultInfo getEntityDefaultInfoByPrincipalName( String principalName );
+\par \par
+}\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b lookupEntityDefaultInfo} {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 
+\par List<? extends KimEntityDefaultInfo> lookupEntityDefaultInfo( Map<String,String> searchCriteria, boolean unbounded );
+\par \par
+}\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b getMatchingEntityCount} {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 
+\par int getMatchingEntityCount( Map<String,String> searchCriteria );
+\par \par
+}\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b getEntityPrivacyPreferences} {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 
+\par KimEntityPrivacyPreferencesInfo getEntityPrivacyPreferences( String entityId );
+\par \par
+}\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b getDefaultNamesForPrincipalIds} {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 
+\par Map<String, KimEntityNamePrincipalNameInfo> getDefaultNamesForPrincipalIds(List<String> principalIds);
+\par \par
+}\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b getDefaultNamesForEntityIds} {\par
+\pard\qj\sl240\slmult1 \li600\fi0 \pard\ql\b0\i0\scaps0\f16 
+\par Map<String, KimEntityNameInfo> getDefaultNamesForEntityIds(List<String> entityIds);
+\par \par
+}}\pard\qj\sl240\slmult1 \sb220 \fi0 {\s5\ql\sb240\sa60\keepn\f13\b\fs24 4.2.2  UiDocumentServiceImpl\par
+}\pard\qj\sl240\slmult1 \sb60 \fi0 The {\b0\i0\scaps0\f16 IdentityManagementPersonDocument} is still used to save modify role, group, and delegation assignments even though all entity information is coming through LDAP. This splits principal and entity information, but the {\b0\i0\scaps0\f16 UiDocumentServiceImpl} makes it possible to accomplish this. The \ldblquote Modify Entity\rdblquote  permission was removed from all roles because we no longer want entities to be managed through KFS.\par
+\pard\qj\sl240\slmult1 \fi360 Originally, the {\b0\i0\scaps0\f16 UiDocumentServiceImpl} uses {\b0\i0\scaps0\f16 Impl} domain objects couple to a database implementation, so it needs to be modified not to use uncoupled {\b0\i0\scaps0\f16 Info} objects. Below is how {\b0\i0\scaps0\f16 UiDocumentServiceImpl} is modified to do that.\par
+{\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b loadEntityToPersonDoc} is used to populate the {\b0\i0\scaps0\f16 IdentityManagementPersonDocument} when the page loads from \ldblquote edit\rdblquote  or \ldblquote create new\rdblquote . Even though entity information is not being stored in the database, it still needs to be present on persons.\par
+\pard\qj\sl240\slmult1 \sb50 \li600\fi-300 {\b saveEntityPerson} is used to store the information and actually update the person. It needed to modified to take into consider the check for the \ldblquote Modify Entity\rdblquote  permission. Normally, even if the permission isn\rquote t present, the document will try to save entity information. By checking for this permission, the desired behavior takes place which is entities will not be saved. Unlike {\b0\i0\scaps0\f16 loadEntityToPersonDoc}, {\b0\i0\scaps0\f16 Impl} domain objects are desirable here. The domain object that is modified is the {\b0\i0\scaps0\f16 KimPrincipalImpl} which updates the {\b0\i0\scaps0\f16 KRIM_PRNCPL_T} table and the necessary role, group, and delegation tables.\par
+}\pard\qj\sl240\slmult1 \sb340 \fi0 {\s3\ql\sb240\sa60\keepn\f13\b\fs32 5  Development Steps\par
+}\pard\qj\sl240\slmult1 \sb180 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 5.1  Setup Spring LDAP\par
+}\pard\qj\sl240\slmult1 \sb180 \fi0 {\s5\ql\sb240\sa60\keepn\f13\b\fs24 5.1.1  Modifications to spring-kim.xml File\par
+}\pard\qj\sl240\slmult1 \sb60 \fi0 The following was added to connect {\i Spring LDAP}\par
+{\pard\qj\sl240\slmult1 \fi0 \pard\ql\b0\i0\scaps0\f16 
+\par <bean    id="contextSource"
+\par       class="org.springframework.ldap.core.support.LdapContextSource">
+\par     <property name="url" value="ldaps://ldap.rsmart.com:636" />
+\par     <property name="base" value="ou=People,dc=ldap,dc=rsmart,dc=com" />
+\par     <property name="authenticationSource" ref="authenticationSource" />
+\par </bean>
+\par 
+\par <bean    id="authenticationSource"
+\par       class="org.springframework.ldap.authentication.DefaultValuesAuthenticationSourceDecorator">
+\par     <property name="target" ref="springSecurityAuthenticationSource" />
+\par     <property name="defaultUser" value="uid=user,ou=App Users,dc=ldap,dc=rsmart,dc=com" />
+\par     <property name="defaultPassword" value="[secret]" />
+\par </bean>
+\par 
+\par <bean    id="springSecurityAuthenticationSource"
+\par       class="org.springframework.security.ldap.SpringSecurityAuthenticationSource" />
+\par 
+\par <bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
+\par     <constructor-arg ref="contextSource" />
+\par </bean>
+\par \par
+}\pard\qj\sl240\slmult1 \sb60 \fi360 The {\i Kuali Rice} {\b0\i0\scaps0\f16 ParameterService} is used to store the map between {\i KIM} and {\i LDAP} attributes. Still, many attribute names are stored in a constants class populated through Spring. See below {\par
+\pard\qj\sl240\slmult1 \fi0 \pard\ql\b0\i0\scaps0\f16 
+\par <bean id="kimConstants" class="org.kuali.rice.kim.util.ConstantsImpl">
+\par   <!--
+\par   <property name="kimLdapIdProperty"         value="uaid" />
+\par   <property name="kimLdapNameProperty"       value="uid" />
+\par   -->
+\par   <property name="snLdapProperty"            value="sn" />
+\par   <property name="givenNameLdapProperty"     value="givenName" />
+\par   <property name="entityIdKimProperty"       value="entityId" />
+\par   <property name="employeeMailLdapProperty"  value="mail" />
+\par   <property name="employeePhoneLdapProperty" value="employeePhone" />
+\par   <property name="defaultCountryCode"        value="1" />
+\par   <property name="mappedParameterName"       value="KIM_TO_LDAP_FIELD_MAPPINGS" />
+\par   <property name="mappedValuesName"          value="KIM_TO_LDAP_VALUE_MAPPINGS" />
+\par   <property name="unmappedParameterName"     value="KIM_TO_LDAP_UNMAPPED_FIELDS" />
+\par   <property name="parameterNamespaceCode"    value="KR-SYS" />
+\par   <property name="parameterDetailTypeCode"   value="Config" />
+\par   <property name="personEntityTypeCode"      value="PERSON" />
+\par   <property name="employeeIdProperty"        value="emplId" />
+\par   <property name="departmentLdapProperty"    value="employeePrimaryDept" />  
+\par   <property name="employeeTypeProperty"      value="employeeType" />
+\par   <property name="employeeStatusProperty"    value="employeeStatus" />
+\par   <property name="defaultCampusCode"         value="MC" />
+\par   <property name="defaultChartCode"          value="UA" />
+\par   <property name="taxExternalIdTypeCode"     value="TAX" />
+\par   <property name="externalIdProperty"        value="externalIdentifiers.externalId" />
+\par   <property name="externalIdTypeProperty"    value="externalIdentifiers.externalIdentifierTypeCode" />
+\par   <property name="affiliationMappings"       value="staff=STAFF,faculty=FCLTY,employee=STAFF,student=STDNT,affilate=AFLT"/>
+\par   <property name="employeeAffiliationCodes"  value="STAFF,FCLTY" />
+\par </bean>
+\par \par
+}\pard\qj\sl240\slmult1 \sb60 \fi360 The constants class as well as the {\i Spring LDAP} integration and {\i Kuali Rice} {\b0\i0\scaps0\f16 ParameterService} are injected into the {\b0\i0\scaps0\f16 LdapPrincipalDaoImpl} instance. {\par
+\pard\qj\sl240\slmult1 \fi0 \pard\ql\b0\i0\scaps0\f16 
+\par <bean id="ldapPrincipalDao" class="org.kuali.rice.kim.dao.impl.LdapPrincipalDaoImpl">
+\par   <property name="ldapTemplate"     ref="ldapTemplate" />
+\par   <property name="parameterService" ref="parameterService" />
+\par   <property name="kimConstants"     ref="kimConstants" />
+\par 
+\par </bean>\par
+}\pard\qj\sl240\slmult1 \sb60 \fi360 The {\b0\i0\scaps0\f16 LdapPrincipalDaoImpl} is an implementation of {\b0\i0\scaps0\f16 PrincipalDao} which is delegated by the {\b0\i0\scaps0\f16 LdapIdentityServiceImpl}. The {\b0\i0\scaps0\f16 LdapPrincipalDaoImpl} connects to {\i LDAP} and maps the principal and entity information into {\i KIM} domain objects.\par
+\pard\qj\sl240\slmult1 \sb120 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 2. Implement/Override Methods in IdentityService\par
+}\pard\qj\sl240\slmult1 \sb180 \fi0 {\s4\ql\sb240\sa60\keepn\f13\b\fs32 3. Create PrincipalDao for searching for Principal/Entity information from LDAP.\par
+}\pard\qj\sl240\slmult1 \sb180 \fi0 {\s5\ql\sb240\sa60\keepn\f13\b\fs24 5.1.2  Retrieving LDAP Information as KIM Domain Objects\par
+}{\i \pard\qj\sl240\slmult1 \sb60 \fi0 Spring LDAP} offers a {\b0\i0\scaps0\f16 ContextMapper} interface for these kinds of mappings; therefore, all of the mappings are in pure java. This is how {\b0\i0\scaps0\f16 KimPrincipal} is mapped from {\i LDAP}.\par
+{\pard\qj\sl240\slmult1 \fi0 \pard\ql\b0\i0\scaps0\f16 
+\par contextMappers.put(KimPrincipalInfo.class, new AbstractContextMapper() \{
+\par     public Object doMapFromContext(DirContextOperations context) \{
+\par         final KimPrincipalInfo person = new KimPrincipalInfo();
+\par         person.setPrincipalId(context.getStringAttribute(getKimConstants().getUaidLdapProperty()));
+\par         person.setEntityId(context.getStringAttribute(getKimConstants().getUaidLdapProperty()));
+\par         person.setPrincipalName(context.getStringAttribute(getKimConstants().getUidLdapProperty()));
+\par         return person;
+\par     \}
+\par \});
+\par \par
+}\pard\qj\sl240\slmult1 \sb60 \fi360 {\b0\i0\scaps0\f16 contextMappers} is an instance map created for holding {\b0\i0\scaps0\f16 ContextMapper} instances. Each DTO type has a mapper associated with it for retrieving the desired information from {\i LDAP}. Notice the use of {\b0\i0\scaps0\f16 getKimConstants()}. This is how constant property names are used in the mapping. Also, notice that here the {\b0\i0\scaps0\f16 ParameterService} is not used. The {\b0\i0\scaps0\f16 ParameterService} is only used for mapping {\i KIM} criteria in lookup scenarios. When retrieving information from {\i LDAP}, the {\b0\i0\scaps0\f16 ParameterService} is entirely useless. The {\b0\i0\scaps0\f16 ContextMapper} is used instead. It gives more flexibility when mapping attributes of a specific class. Below is how the {\b0\i0\scaps0\f16 ContextMapper} is actually used.\par
+{\pard\qj\sl240\slmult1 \fi0 \pard\ql\b0\i0\scaps0\f16 
+\par public <T> List<T> search(Class<T> type, Map<String, Object> criteria) \{
+\par     AndFilter filter = new AndFilter();
+\par     
+\par     for (Map.Entry<String, Object> entry : criteria.entrySet()) \{
+\par         if (entry.getValue() instanceof Iterable) \{
+\par             OrFilter orFilter = new OrFilter();
+\par             for (String value : (Iterable<String>) entry.getValue()) \{
+\par                 orFilter.or(new EqualsFilter(entry.getKey(), value));
+\par             \}
+\par             filter.and(orFilter);
+\par         \}
+\par         else \{
+\par             filter.and(new EqualsFilter(entry.getKey(), (String) entry.getValue()));
+\par         \}
+\par     \}
+\par     return getLdapTemplate().search(DistinguishedName.EMPTY_PATH, filter.encode(), contextMappers.get(type));
+\par \}
+\par \par
+}{\i \pard\qj\sl240\slmult1 \sb60 \fi360 Spring LDAP} gives a very flexible API for querying Directory-Based systems. The {\b0\i0\scaps0\f16 search()} method takes advantage of several classes from the API in order to create a fairly generic query of {\i LDAP}. On the last line, the {\b0\i0\scaps0\f16 LdapTemplate} is used with a verb\emdash ContextMapper\emdash  retrieved from the {\b0\i0\scaps0\f16 contextMappers} map. It is retrieved by passing through the desired type; therefore, in the case of searching for a {\b0\i0\scaps0\f16 KimPrincipal} we would use something like this:\par
+{\pard\qj\sl240\slmult1 \fi0 \pard\ql\b0\i0\scaps0\f16 
+\par public KimPrincipalInfo getPrincipal(String principalId) \{
+\par     Map<String, Object> criteria = new HashMap();
+\par     criteria.put(getKimConstants().getKimLdapProperty(), principalId);
+\par     List<KimPrincipalInfo> results = search(KimPrincipalInfo.class, criteria);
+\par 
+\par     if (results.size() > 0) \{
+\par         return results.get(0);
+\par     \}
+\par     
+\par     return null;
+\par \}
+\par \par
+}\pard\qj\sl240\slmult1 \sb60 \fi0 Again, there isn\rquote t any need for the {\b0\i0\scaps0\f16 ParameterService} yet because we know exactly what we want from {\i LDAP}.\par
+\pard\qj\sl240\slmult1 \sb120 \fi0 {\s5\ql\sb240\sa60\keepn\f13\b\fs24 5.1.3  Using Mapping KIM Attributes to LDAP Attributes for Lookups\par
+}{\i \pard\qj\sl240\slmult1 \sb60 \fi0 KIM} has an API method called {\b0\i0\scaps0\f16 lookupEntityDefaultInfo} which is used by Kuali Lookups for querying information. The call will provide a map of information in terms of {\i KIM} attributes. This means that the map or search criteria is pretty meaningless to {\i LDAP} or any Directory-based service for that matter. The {\i KIM} attributes need to be mapped to {\i LDAP} attributes in order for the query to be made. For this, the {\b0\i0\scaps0\f16 ParameterService} is used.\par
+{\pard\qj\sl240\slmult1 \fi0 \pard\ql\b0\i0\scaps0\f16 
+\par public List<? extends KimEntityDefaultInfo> lookupEntityDefaultInfo(Map<String,String> searchCriteria, boolean unbounded) \{
+\par     List<KimEntityDefaultInfo> results = new ArrayList();
+\par     Map<String, Object> criteria = new HashMap();
+\par         
+\par     for (Map.Entry<String, String> criteriaEntry : searchCriteria.entrySet()) \{
+\par         info(String.format("Searching with criteria %s = %s", criteriaEntry.getKey(), criteriaEntry.getValue()));
+\par       
+\par         if (isMapped(criteriaEntry.getKey())) \{
+\par             criteria.put(getLdapAttribute(criteriaEntry.getKey()), criteriaEntry.getValue());
+\par         \}
+\par     \}
+\par         
+\par     return search(KimEntityDefaultInfo.class, criteria);
+\par \}
+\par 
+\par private Matcher getKimAttributeMatcher(String kimAttribute) \{
+\par     Parameter mappedParam = getParameterService()
+\par     .retrieveParameter(getKimConstants().getParameterNamespaceCode(),
+\par     getKimConstants().getParameterDetailTypeCode(),
+\par     getKimConstants().getMappedParameterName());
+\par 
+\par     String regexStr = kimAttribute + "=([^=;]*).*";
+\par     return Pattern.compile(regexStr).matcher(mappedParam.getParameterValue());
+\par \}
+\par 
+\par private boolean isMapped(String kimAttribute) \{
+\par     return getKimAttributeMatcher(kimAttribute).matches();
+\par \}
+\par 
+\par private String getLdapAttribute(String kimAttribute) \{
+\par     Matcher matcher = getKimAttributeMatcher(kimAttribute);
+\par     matcher.matches();
+\par     return matcher.group(1);
+\par \}
+\par \par
+}\pard\qj\sl240\slmult1 \sb60 \fi360 By using regular expressions and storing parameters in the database for retrieval by the {\b0\i0\scaps0\f16 ParameterService}, the task of mapping {\i KIM} attributes to {\i LDAP} attributes is pretty trivial. }\par
+}

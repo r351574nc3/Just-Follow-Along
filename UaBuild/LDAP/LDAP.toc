@@ -1,0 +1,15 @@
+\contentsline {section}{\numberline {1}Technical Description}{1}
+\contentsline {subsection}{\numberline {1.1}Jira Tasks}{2}
+\contentsline {section}{\numberline {2}Details}{2}
+\contentsline {subsection}{\numberline {2.1}Spring LDAP}{2}
+\contentsline {subsection}{\numberline {2.2}KIM}{4}
+\contentsline {subsubsection}{\numberline {2.2.1}IdentityService}{4}
+\contentsline {subsubsection}{\numberline {2.2.2}UiDocumentServiceImpl}{5}
+\contentsline {subsection}{\numberline {2.3}UA NetId}{6}
+\contentsline {subsection}{\numberline {2.4}EDS}{8}
+\contentsline {subsubsection}{\numberline {2.4.1}Connecting to EDS}{15}
+\contentsline {section}{\numberline {3}Development Steps}{15}
+\contentsline {subsection}{\numberline {3.1}Setup Spring LDAP}{15}
+\contentsline {subsubsection}{\numberline {3.1.1}Modifications to the edu/arizona/kfs/sys/spring-sys.xml File}{15}
+\contentsline {subsubsection}{\numberline {3.1.2}Retrieving EDS Information as KIM Domain Objects}{18}
+\contentsline {subsubsection}{\numberline {3.1.3}Using Mapping KIM Attributes to EDS Attributes for Lookups}{20}

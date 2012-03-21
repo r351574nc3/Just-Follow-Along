@@ -1,0 +1,32 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{Meeting Minutes}
+
+\begin{document}
+\section{Questions}
+\begin{itemize}
+  \item What do we do about KFS Entity System Entity?
+  \item What other services need to be implemented besides IdentityService and EntityService?
+  \item What services are SJDC implementing?
+\end{itemize}
+
+\begin{itemize}
+  \item EntityService needs to be implemented to get Entity information. EntityService gone.
+  \item Need to populate DefaultName
+  \item EntityTypeInfo needs to state that they are ``Person''
+  \item Set ``Person'' entity types as singletons too
+  \item For System Entities, use a singleton in the system
+  \item Don't use EntityService
+  \item KimGroupDaoOjb KimRoleDaoOjb will break role and group lookups because they are tied to tables in the
+    system.
+  \item lookup methods in the IdentityService depend on mappings from the. Maybe copy code from the PersonService to
+    handle the lookup ids.
+  \item be sure to document workarounds.
+\end{itemize}
+
+\end{document}

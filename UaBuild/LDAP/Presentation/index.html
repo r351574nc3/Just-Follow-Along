@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- XML file produced from file: Presentation.tex
+     using Hyperlatex v 2.9-in-waiting-rk (oct06) (c) Otfried Cheong
+     on Emacs 22.2.1, Mon Apr 19 12:07:52 2010 -->
+<head>
+<title>Agile Enterprise Java Development Tools</title>
+
+    <!-- metadata -->
+    <meta name="generator" content="S5" />
+    <meta name="version" content="S5 1.1" />
+    <meta name="company" content="Leosandbox " />
+    <!-- configuration parameters -->
+    <meta name="defaultView" content="slideshow" />
+    <meta name="controlVis" content="hidden" />
+    <!-- style sheet links -->
+    <link rel="stylesheet" href="ui/ua/slides.css" type="text/css" media="projection" id="slideProj" />
+    <link rel="stylesheet" href="ui/ua/outline.css" type="text/css" media="screen" id="outlineStyle" />
+    <link rel="stylesheet" href="ui/ua/print.css" type="text/css" media="print" id="slidePrint" />
+    <link rel="stylesheet" href="ui/ua/opera.css" type="text/css" media="projection" id="operaFix" />
+    <script src="ui/ua/slides.js" type="text/javascript"></script>
+
+  
+</head>
+<body>
+
+  <div class="header">
+    <div class="header_l">
+      <div class="header_r">
+      &nbsp;
+      </div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="content_l">
+      <div class="content_r">
+        <img src="ui/ua/blank.gif" id="filler" border="0"/>
+<div class="layout">
+  <div id="controls"><!-- DO NOT EDIT --></div>
+  <div id="currentSlide"><!-- DO NOT EDIT --></div>
+  <div id="header">
+    <img style="position: relative; top:30px; left: 18px;" id="logo" src="ui/ua/logo.png" />
+  </div>
+  <div id="footer">
+    <div class="footer_l">
+      <div class="footer_r">
+        <h1/>
+        <h2>April 19, 2010</h2>
+      </div>
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+ </div>
+<div class="presentation">
+    
+<p><div class="slide">
+<h1>Agile Enterprise Java Development Tools</h1>
+<h2>For Higher Education</h2>
+<h3>Leo Przybylski</h3>
+<h4>University of Arizona</h4>
+</div><div class="slide">
+</p>
+
+<h1><a name="id1">Overview</a></h1><ul><li>Why are tools so great?
+</li><li>The Right Tool for the Job
+</li><li>Mosaic/KFS Implementation: A Use Case
+<ul><li>Continuous Integration
+</li><li>Source Code Inception
+</li><li>Issue Tracking
+</li><li>Version Control
+</li><li>ETL of Legacy Data
+</li><li>Developing New Tools
+</li></ul>
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id2">Why are Tools So Great?</a></h1><ul><li>Enterprise Java Application implementation is not always a walk in the park.
+</li><li>Used when your materials don't match your powertools
+</li><li>Not always interactive (welcome automation)
+</li><li>Improve efficiency and productivity
+</li><li>Tools can/should make your project more agile
+</li></ul>
+<div class="notes">
+<p>There is no turn-key solution for Enterprise Java Applications. There is always
+something that goes wrong during setup/configuration. Does anyone like woodworking?
+Not carpentry. I like to make furniture. Call it a passion. Some like robots. I like
+robots too, but I like woodworking more.
+</p>
+<p>In woodworking, you have powertools. They make your life a lot easier. Enterprise 
+Applications have their powertools tool. Peoplesoft,  for example, has tons. Sometimes,
+they're not enough. For example, in woodworking, you can make a jig for certain tools
+for special cuts. The same goes for enterprise java applications. Sometimes your materials
+don't fit your powertools. A jig is all that's necessary to get the most out of your powertool.
+</p>
+<p>Do anecdote about MS QA
+</div>
+</div>
+<div class="slide">
+</p>
+
+<h1><a name="id3">The Right Tool for the Job</a></h1><ul><li>Development
+</li><li>Testing
+</li><li>Database
+</li><li>Configuration Management
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id4">Development</a></h1><ul><li>CheckStyle (<a href="http://checkstyle.sourceforge.net">checkstyle.sourceforge.net</a>)
+</li><li>Find Bugs (<a href="http://findbugs.sourceforge.net">findbugs.sourceforge.net</a>)
+</li><li>Mylyn (<a href="wiki.eclipse.org/index.php/Mylyn_FAQ">wiki.eclipse.org/index.php/Mylyn_FAQ</a>)
+</li><li>Liquibase (<a href="http://liquibase.org">liquibase.org</a>)
+</li><li>Hudson CI (<a href="http://hudson-ci.org">hudson-ci.org</a>)
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id5">Mylyn</a></h1><ul><li>Eclipse plugin
+</li><li>Integrates IDE with Issue tracking
+</li><li>Separates work based on issue
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id6">Checkstyle</a></h1><ul><li>Integrates with Hudson CI
+</li><li>Checks code against style guidelines
+</li><li>Looks for redundant code
+</li><li>Extensible
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id7">Findbugs</a></h1><ul><li>Integrates with Hudson CI
+</li><li>Cross references code to find weaknesses in java
+</li><li>Looks for redundant/common code
+</li><li>Looks for smells to refactor
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id8">Testing</a></h1><ul><li>Groovy/JRuby(<a href="http://groovy.codehaus.org">groovy.codehaus.org</a>/<a href="http://jruby.org">jruby.org</a>)
+</li><li>Hudson CI (<a href="http://hudson-ci.org">hudson-ci.org</a>)
+</li><li>Cobertura (<a href="http://cobertura.sourceforge.net">cobertura.sourceforge.net</a>)
+</li><li>Selenium <a href="http://seleniumhq.org">seleniumhq.org</a>
+</li><li>Amazon EC2 <a href="http://aws.amazon.com/ec2">aws.amazon.com/ec2</a>
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id9">Groovy/JRuby</a></h1><ul><li>Can be used to bootstrap sandbox environments for testing
+</li><li>AntBuilder!!
+</li><li>Scriptable access to the application
+</li><li>SQL is very difficult to test. Groovy can be used to execute/validate SQL
+quickly and easily
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id10">Cobertura</a></h1><ul><li>Code Coverage for tests
+</li><li>Builds confidence in tests
+</li><li>Open source
+</li><li>Integrates with Hudson CI
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id11">Selenium</a></h1><ul><li>For usability testing
+</li><li>Developers don't have to establish tests. BSA's or DME's can establish them.
+</li><li>Intuitive browser plugins to develop tests with
+</li><li>Cross browser testing capable
+</li><li>Clusterable to run several tests at once
+</li><li>Integrates with puppet an Hudson CI
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id12">Amazon EC2</a></h1><ul><li>Non reliant on Sysadmin or DBA
+</li><li>Can get a system quickly configured just the way you like
+</li><li>Toss it away when you're done
+</li><li>Don't need it to stay up. Just long enough to do tests.
+</li><li>Can be remotely configured with puppet or chef
+</li><li>Can be remotely triggered through Hudson CI to kick off tests
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id13">Database</a></h1><ul><li>Liquibase
+</li><li>Groovy/JRuby
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id14">Liquibase</a></h1><ul><li>Stores version within database instead of in a file
+</li><li>Can be used to rollback changes or push updates on schema and data
+changes by version
+</li><li>Supports anything under the sun
+</li><li>Actively maintained
+</li><li>Handles database versioning internally
+</li><li>Capable of rolling back versions
+</li><li>Uses internal <code>DATABASECHANGELOG</code> and
+<code>DATABASECHANGELOGLOCK</code> tables to manage
+versions
+</li><li>Described in XML, so parsing and translation is easy
+</li><li>Produces documention changes for each version
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id15">Configuration Management</a></h1><ul><li>Packaging
+</li><li>Liquibase
+</li><li>Groovy
+</li><li>Puppet or Chef
+</li><li>Sandboxes
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id16">Puppet and Chef</a></h1><ul><li>tools that can be used to manage configuration of an entire machine
+</li><li>sometimes referred to as sysadmin tools 
+</li><li>can maintain packages on a machine pertaining to software configuration
+</li><li>can be used in a cluster configuration to distribute changes to different 
+environments
+</li><li>scriptable management and monitoriing
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id17">Developing Tools</a></h1><ul><li>Invest in personal tools
+</li><li>Don't ever throw away a tool
+</li><li>Periodic problem solving discussion in development
+</li><li>Small quickly developed tools lead to larger maintained tools
+</li><li>Weigh maintenance cost
+</li><li>Use a sandbox before pushing tools on developers to establish
+parameters for training
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id18">Mosaic/KFS Implementation: A Use Case</a></h1><ul><li>Continuous Integration
+</li><li>Configuration Management
+</li><li>Data Migration
+</li><li>Development 
+</li><li>Tool Integration
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id19">Mosaic/KFS Implementation: A Use Case</a></h1><center>
+<a href="Diagrams/Diagram1.png" id="external" rel="lightbox[gallery]"><img src="Diagrams/ContinuousIntegration2_Activity.png" id="external" border="0" width="800"/></a>
+</center>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id20">Continuous Integration</a></h1><ul><li>Use Hudson CI to notify of build failures
+</li><li>RPM Packages built in CI
+</li><li>Use CI to handle build priorities to prevent failed builds
+from being packaged
+</li><li>CI manages integration and unit testing through the sandbox
+</li><li>Uses Amazon EC2 with selenium grid to verify usability testing in sandbox
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id21">Configuration Management</a></h1><ul><li>Currently using Hudson CI and ant tools to build rpm packages
+</li><li>Sandbox uses puppet to manage configuration changes 
+</li><li>Sandbox uses puppet to create packages and distribute them
+</li><li>Sandbox uses puppet to stay up to date
+</li><li>Use liquibase to push database version updates to environments
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id22">Data Migration</a></h1><ul><li>Problems that occur with migrating legacy data
+</li><li>Problems that occur with migrating in development
+</li><li>Tools for migrating data
+<ul><li>Liquibase
+</li><li>PL/SQL
+</li><li>Java/Groovy
+</li></ul>
+</li><li>Patterns using the aforementioned tools
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id23">UA Data Migration</a></h1>
+<center>
+<a href="Diagrams/Diagram1.png" id="external" rel="lightbox[gallery]"><img src="Diagrams/Diagram1.png" id="external" border="0" width="800"/></a>
+</center>
+</div>
+<div class="slide">
+
+<h1><a name="id24">FRS to RDBMS</a></h1><ul><li>FRS runs on a mainframe server platform
+</li><li>Communication protocols are (FTP, SFTP, and Telnet for terminal communication)
+</li><li>Requires DBA to import data with SQL Loader
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id25">RDBMS to RDBMS</a></h1><ul><li>Uses secondary schema to convert information
+</li><li>Mostly written with PL/SQL
+<ul><li>Requires DBA to set install packages and set grants
+</li><li>Automation requires difficult to test shell scripts
+</li></ul>
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id26">Versioning Database Schemas</a></h1><ul><li>Migration scripts are always coupled with the software version
+</li><li>SVN handles versioning for us with tags and revision &#35;'s
+</li><li>Jira integrates with SVN and can distribute database changes as part
+of a release
+</li><li>Most practices provide unidirectional versioning
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id27">Patterns for Liquibase</a></h1><ul><li>Store changes per version
+</li><li>Use the SVN revision number for changelog ids
+</li><li>One file per database object
+</li><li>Developers don't modify the database
+</li><li>RoR methodology in development
+</li><li>2 scripts. One for updating, and for migrating
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id28">PL/SQL to Migrate Data</a></h1><ul><li>Difficult to test
+</li><li>May require DBA intervention
+</li><li>Special knowledge of database infrastructure is required
+</li><li>Native to RDBMS
+</li><li>Can give large performance gains
+</li><li>Migration process is required to be segmented
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id29">Java and Groovy for Migration</a></h1><ul><li>Easy to test
+</li><li>Can combine ETL in a process
+</li><li>Database agnostic
+</li><li>Data can be loaded natively with the application
+</li><li>Easily integrates with build processes
+</li></ul>
+</div>
+<div class="slide">
+
+<h1><a name="id30">Development and Testing</a></h1><ul><li>Developers use liquibase to test database update changes
+</li><li>Use groovy to verify ETL tests
+</li><li>Cobertura is used to check code coverage
+</li><li>Checkstyle in use in sandbox
+</li><li>Findbugs in use in sandbox
+</li></ul>
+<div class="notes">
+</div>
+</div>
+<div class="slide">
+
+<h1><a name="id31">Tool Integration</a></h1><ul><li>Configuration management change notifications sent through twitter and confluence update
+</li><li>Jira Issue tracking used to manage releases
+</li><li>Continuous Integration updates sent through email and twitter
+</li></ul>
+<div class="notes">
+</div>
+</div>
+</div>
+<hr />
+</body></html>

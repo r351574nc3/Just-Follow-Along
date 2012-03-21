@@ -1,0 +1,11 @@
+Rarely, is it the case that an enterprise java application can be
+implemented as a turn-key solution. Some difficulties with
+implementing enterprise applications in Java are development processes
+for maintenance, ETL of legacy data, and software configuration
+management. Tools are a large part of implementation. The University
+of Arizona Mosaic KFS implementation used tools to smooth out its
+implementation and help solve technical challenges in implementing an
+enterprise java solution. This is a technical session that explores
+the approaches to vetting and developing tools as well as the
+technologies that went into University of Arizona's tools for the
+Mosaic KFS implementation.

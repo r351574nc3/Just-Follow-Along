@@ -1,0 +1,69 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{Control-M Integration Plan}
+
+\begin{document}
+\tableofcontents
+\maketitle
+
+\section{WSDL}
+\begin{itemize}
+  \item What is the KSB Url?
+  \item Does KSB support UDDI?
+  \item Can a WSDL file be made?
+\end{itemize}
+
+\section{Scheduler Actions}
+\begin{tabular}{|l|l|}
+  Name & Parameter \\
+  \hline
+  
+      updateStatus & JobDetail jobDetail, String jobStatus \\
+  \hline
+
+      runJob& String jobName, String requestorEmailAddress \\
+  \hline
+
+      runJob& String jobName, int startStep, int stopStep, Date startTime, String requestorEmailAddress \\
+  \hline
+
+      runJob& String groupName, String jobName, int startStep, int stopStep, Date jobStartTime, String requestorEmailAddress\\
+   \hline
+
+      runStep& String groupName, String jobName, String stepName, Date startTime, String requestorEmailAddress \\
+  \hline
+
+     isJobRunning& String jobName \\
+  \hline
+
+     getStatus& JobDetail jobDetail \\
+  \hline
+
+     getJobs & \\
+  \hline
+
+     getJob& String groupName, String jobName \\
+  \hline
+
+     getJobs & String groupName \\
+  \hline
+
+     getRunningJobs & \\
+  \hline
+       
+       
+       interruptJob& String jobName \\
+  \hline
+
+     getNextStartTime & BatchJobStatus job \\
+  \hline
+
+     getNextStartTime& String groupName, String jobName \\
+  \hline
+\end{tabular}
+\end{document}

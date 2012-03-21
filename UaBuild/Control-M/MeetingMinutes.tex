@@ -1,0 +1,49 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{przybyls@arizona.edu}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{Control-M Meeting Minutes}
+
+\begin{document}
+\maketitle
+\section{Notes}
+\begin{itemize}
+\item Does there need to be an agent on each appserver for peoplesoft? 
+
+\item No. It's dependent on your environment.
+
+\item Only one Control-M Server with also a Test environment.
+
+\item Clinton expressed a need for another environment for non-production tasks.
+
+\item Peoplesoft control module is on the appserver.
+
+\item Where does the control module go?
+
+\item It can go anywhere. We don't have a place for the control module yet.
+
+\item Good idea to have multiple agents for redundancy.
+
+\item One agent per server.
+
+\item Each agent will serve peoplesoft and kuali environments.
+
+\item Put agents on windows.
+c
+\item BPI is a control module that can invoke java servers or EJB or web services. Deposit message in JMS Queue. May need Spring JMS.
+
+\item Keep steps and jobs registered in Spring/Quartz, but have Control-M invoke them. All jobs become unscheduled.
+
+\item Need to get Clinton a list of jobs to setup an agent within Control-M. Which job names? Only jobs from KFS, or also 
+  non-production jobs? When are these needed?
+
+\item All jobs are available to see, but a form can be setup to filter non-production jobs from certain users.
+
+\end{itemize}
+
+\section{Action Items}
+
+\end{document}

@@ -1,0 +1,639 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski \\
+\texttt{leo@rsmart.com}}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\title{LDAP Integration Howto}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\lstset{basicstyle=\small,
+  breaklines=true,
+  includerangemarker=false}
+\abstract{In order to integrate a directory server over LDAP with KIM using Spring, 
+there are preparations and steps to be handled. This document explains\begin{itemize}
+\item Steps for Implementation
+\item Steps for Integration into Rice
+\item Spring Configuration
+\item Properties setup
+\item DTO Reimplementations
+\item Spring Service Overrides
+\end{itemize}
+}
+
+\section{Steps for Implementing with KFS}
+These are the following steps to installing and configuring LDAP Integration for KFS.
+\subsection*{1. Add rice-kim-ldap.jar to CLASSPATH}
+The easiest way to do this is to add the \verb|rice-kim-ldap.jar| to \verb|work/web-root/WEB-INF/lib/|. This 
+will add the necessary Spring configuration and class files to your classpath.
+\subsection*{2. Configure Spring with Directory Server Credentials}
+\subsubsection*{Create/Modify a spring-kim.xml}
+\begin{enumerate}
+  \item Create a \verb|spring-kim.xml| file in your classpath
+  \item Make it look like this
+    \begin{lstlisting}[caption=spring-kim.xml]
+    <bean id="contextSource"
+        class="org.springframework.ldap.core.support.LdapContextSource">
+        <property name="url" value="${rice.ldap.url}" />
+        <property name="base" value="${rice.ldap.base}" />
+        <property name="authenticationSource" ref="authenticationSource" />
+    </bean>
+
+    <bean id="authenticationSource"
+      class="org.springframework.ldap.authentication.DefaultValuesAuthenticationSourceDecorator">
+      <property name="target" ref="springSecurityAuthenticationSource" />
+      <property name="defaultUser" value="${rice.ldap.username}" />
+      <property name="defaultPassword" value="${rice.ldap.password}" />
+    </bean>
+    \end{lstlisting}
+  \item Configure your \verb|spring-kim.xml| so that it points to your institution's directory server and base DN.
+  \item Add \verb|spring-kim.xml| to institutional spring files in your \verb|kfs-build.properties|. Below is an example.
+  \begin{lstlisting}[caption=kfs-build.properties]
+    institution.spring.source.files=,com/rsmart/kim/spring-kim.xml
+  \end{lstlisting}
+\end{enumerate}
+\subsubsection*{Configure Credentials}
+\begin{enumerate}
+\item Add the following to the \verb|build/external/security.properties|
+    \begin{lstlisting}[caption=build/external/security.properties]
+rice.ldap.username=${rice.ldap.username}
+rice.ldap.password=${rice.ldap.password}
+rice.ldap.url=${rice.ldap.url}
+rice.ldap.base=${rice.ldap.base}
+\end{lstlisting}
+    
+    \item Add lines to your kfs-build.properties
+    \begin{lstlisting}[caption=kfs-build.properties]
+rice.ldap.username=your ldap user
+rice.ldap.password=your ldap password
+rice.ldap.url=your ldap url
+rice.ldap.base=your ldap base dn
+\end{lstlisting}
+\end{enumerate}
+
+\section{Steps for Integration into Rice}
+\subsection*{1. Checkout rice source code}
+The URL to checkout from is \verb|https://test.kuali.org/svn/rice/branches/rice-release-1-0-3-br|
+
+\subsection*{2. Checkout Ldap Customization}
+The URL to checkout from is \verb|https://svn.rsmart.com/svn/kuali/contribution/community/ldap_customization/branches/rice-release-1-0-3-br| into
+your rice path as \verb|ldap|. The resulting structure would be \verb|rice-release-1-0-3-br/ldap|
+
+\subsection*{3. Add ldap module to rice pom.xml}
+\begin{lstlisting}
+<modules>
+        <module>api</module>
+        <module>impl</module>
+        <module>ldap</module>
+        <module>web</module>
+        <module>sampleapp</module>
+        <module>ksb</module>
+        <module>kcb</module>
+        <module>kns</module>
+        <module>kim</module>
+        <module>kew</module>
+        <module>ken</module>
+</modules>
+\end{lstlisting}
+
+\subsection*{3. Add LDAP as a dependency to web}
+Edit the \verb|rice-release-1-0-3-br/pom.xml| and add the following:
+\begin{lstlisting}
+<dependencies>
+        <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>rice-impl</artifactId>
+                <version>${project.version}</version>
+        </dependency>
+        <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>rice-sampleapp</artifactId>
+                <version>${project.version}</version>
+        </dependency>
+        <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>rice-ldap</artifactId>
+                <version>${project.version}</version>
+        </dependency>
+...
+</dependencies>
+\end{lstlisting}
+
+
+\subsection*{2. Configure Spring with Directory Server Credentials}
+\subsubsection*{Modify a rice-config.xml}
+\begin{lstlisting}
+  <param name="rice.ldap.username">uid=ldap,ou=App Users,dc=ldap,dc=rsmart,dc=com</param>
+  <param name="rice.ldap.password">6h5aXHLGCysQf3N4S9zYnuOtTijDVFZk</param>
+  <param name="rice.ldap.url">ldaps://ldap.rsmart.com:636</param>
+  <param name="rice.ldap.base">ou=People,dc=ldap,dc=rsmart,dc=com</param>
+
+  <param name="rice.additionalSpringFiles">org/kuali/rice/kim/config/KIMLdapSpringBeans.xml</param>
+\end{lstlisting}
+
+The following line is what enables the LDAP integration. Comment it out to disable integration.
+\begin{lstlisting}
+  <param name="rice.additionalSpringFiles">org/kuali/rice/kim/config/KIMLdapSpringBeans.xml</param>
+\end{lstlisting}
+
+\section{Disabling/Enabling LDAP Integration}
+In order to disable the integration with LDAP, the method differs between KFS and Rice. Below
+are descriptions on the different methods.
+
+\subsection{KFS}
+You can remove the jar from the classpath.
+
+\subsection{Rice}
+Remove the KIMLdapSpringBeans.xml at build time.
+
+\section{Technical Details}
+\subsection{Spring LDAP}
+\emph{Spring LDAP} is an adapter layer between Spring and LDAP datasources. 
+
+The following description is taken from the \emph{Spring LDAP} website:
+\begin{quote}
+Spring LDAP is a Java library for simplifying LDAP operations, based on the pattern of Spring's JdbcTemplate. The framework relieves the user of common chores, such as looking up and closing contexts, looping through results, encoding/decoding values and filters, and more.
+
+The LdapTemplate class encapsulates all the plumbing work involved in traditional LDAP programming, such as creating a DirContext, looping through NamingEnumerations, handling exceptions and cleaning up resources. This leaves the programmer to handle the important stuff - where to find data (DNs and Filters) and what do do with it (map to and from domain objects, bind, modify, unbind, etc.), in the same way that JdbcTemplate relieves the programmer of all but the actual SQL and how the data maps to the domain model.
+
+In addition to this, Spring LDAP provides transaction support, a pooling library, exception translation from NamingExceptions to a mirrored unchecked Exception hierarchy, as well as several utilities for working with filters, LDAP paths and Attributes.
+
+Spring LDAP requires J2SE 1.4 or higher to run, and works with Spring Framework 2.0.x as well as 2.5.x. J2SE 1.4 or higher is required for building the release binaries from sources. Release 1.2.1 also requires an installation of JavaCC 4.0 when building from source. That is not necessary for release 1.3.x, since it uses Maven2, which handles all such dependencies behind the scenes.
+\end{quote}
+
+To use it:
+\begin{lstlisting}[caption=spring-datasource.xml]
+<beans>
+    ...
+    ...
+    <bean id="contextSource"
+        class="org.springframework.ldap.support.LdapContextSource">
+        <property name="url" value="ldaps://ldap.rsmart.com:636" />
+        <property name="base" value="ou=People,dc=com,dc=rsmart,dc=com" />
+        <property name="userName" value="uid=<userid>,ou=App Users,dc=com,dc=rsmart,dc=com" />
+        <property name="password" value="secret" />
+        <property name="pool" value="true"/>
+    </bean>
+    <bean id="ldapTemplate" class="org.springframework.ldap.LdapTemplate">
+        <constructor-arg ref="contextSource" />
+    </bean>
+    <bean id="ldapPrincipalDao"
+        class="com.rsmart.kim.dao.LdapPrincipalDao">
+        <property name="ldapTemplate" ref="ldapTemplate" />
+    </bean>
+</beans>
+
+\emph{Note that ldaps:// protocol is used.}
+
+\end{lstlisting}
+
+\subsection{KIM}
+\emph{KIM} interfaces need to be implemented within \emph{KFS} that communicate over LDAP. \emph{KIM}
+will delegate over LDAPs with \emph{Spring LDAP} by implementing the following service interfaces.
+
+\subsubsection{IdentityService}
+Below is an description of which methods need to be overwritten to supply \emph{KIM} with access to Person data from
+\begin{description}
+  \item [getPrincipal]
+\begin{lstlisting}
+/** Get a KimPrincipal object based on the principalName. */
+KimPrincipalInfo getPrincipal(String principalId);
+\end{lstlisting}
+
+\item[getPrincipalByPrincipalName]
+\begin{lstlisting}
+KimPrincipalInfo getPrincipalByPrincipalName(String principalName);
+\end{lstlisting}
+
+\item[lookupEntitys]
+\begin{lstlisting}
+/** Find entity objects based on the given criteria. */
+List<KimEntity> lookupEntitys(Map<String,String> searchCriteria);
+\end{lstlisting}
+
+\item[getEntityDefaultInfo]
+\begin{lstlisting}
+KimEntityDefaultInfo getEntityDefaultInfo( String entityId );
+\end{lstlisting}
+
+\item[getEntityDefaultInfoByPrincipalId]
+\begin{lstlisting}
+KimEntityDefaultInfo getEntityDefaultInfoByPrincipalId( String principalId );
+\end{lstlisting}
+
+\item[getEntityDefaultInfoByPrincipalName]
+\begin{lstlisting}
+KimEntityDefaultInfo getEntityDefaultInfoByPrincipalName( String principalName );
+\end{lstlisting}
+
+\item[lookupEntityDefaultInfo]
+\begin{lstlisting}
+List<? extends KimEntityDefaultInfo> lookupEntityDefaultInfo( Map<String,String> searchCriteria, boolean unbounded );
+\end{lstlisting}
+
+\item[getMatchingEntityCount]
+\begin{lstlisting}
+int getMatchingEntityCount( Map<String,String> searchCriteria );
+\end{lstlisting}
+
+\item[getEntityPrivacyPreferences]
+\begin{lstlisting}
+KimEntityPrivacyPreferencesInfo getEntityPrivacyPreferences( String entityId );
+\end{lstlisting}
+
+\item[getDefaultNamesForPrincipalIds]
+\begin{lstlisting}
+Map<String, KimEntityNamePrincipalNameInfo> getDefaultNamesForPrincipalIds(List<String> principalIds);
+\end{lstlisting}
+
+\item[getDefaultNamesForEntityIds]
+\begin{lstlisting}
+Map<String, KimEntityNameInfo> getDefaultNamesForEntityIds(List<String> entityIds);
+\end{lstlisting}
+\end{description}
+
+\subsubsection{UiDocumentServiceImpl}
+The \verb|IdentityManagementPersonDocument| is still used to save modify role, group, and delegation assignments
+even though all entity information is coming through LDAP. This splits principal and entity information, but
+the \verb|UiDocumentServiceImpl| makes it possible to accomplish this. The ``Modify Entity'' permission was
+removed from all roles because we no longer want entities to be managed through KFS.
+
+Originally, the \verb|UiDocumentServiceImpl|
+uses \verb|Impl| domain objects couple to a database implementation, so it needs to be modified not to use uncoupled
+\verb|Info| objects. Below is how \verb|UiDocumentServiceImpl| is modified to do that.
+
+\begin{description}
+\item[loadEntityToPersonDoc] is used to populate the \verb|IdentityManagementPersonDocument| when the
+page loads from ``edit'' or ``create new''. Even though entity information is not being stored in the database,
+it still needs to be present on persons.
+
+\item[saveEntityPerson] is used to store the information and actually update the person. It needed to modified to 
+take into consider the check for the ``Modify Entity'' permission. Normally, even if the permission isn't present,
+the document will try to save entity information. By checking for this permission, the desired behavior takes
+place which is entities will not be saved. Unlike \verb|loadEntityToPersonDoc|, \verb|Impl| domain objects are 
+desirable here. The domain object that is modified is the \verb|KimPrincipalImpl| which updates the \verb|KRIM_PRNCPL_T|
+table and the necessary role, group, and delegation tables.
+
+\end{description}
+
+\section{Development Steps}
+
+\subsection{Setup Spring LDAP}
+
+\subsubsection{Modifications to spring-kim.xml File}
+
+The following was added to connect \emph{Spring LDAP}
+
+\begin{lstlisting}
+<bean    id="contextSource"
+      class="org.springframework.ldap.core.support.LdapContextSource">
+    <property name="url" value="ldaps://ldap.rsmart.com:636" />
+    <property name="base" value="ou=People,dc=ldap,dc=rsmart,dc=com" />
+    <property name="authenticationSource" ref="authenticationSource" />
+</bean>
+
+<bean    id="authenticationSource"
+      class="org.springframework.ldap.authentication.DefaultValuesAuthenticationSourceDecorator">
+    <property name="target" ref="springSecurityAuthenticationSource" />
+    <property name="defaultUser" value="uid=user,ou=App Users,dc=ldap,dc=rsmart,dc=com" />
+    <property name="defaultPassword" value="[secret]" />
+</bean>
+
+<bean    id="springSecurityAuthenticationSource"
+      class="org.springframework.security.ldap.SpringSecurityAuthenticationSource" />
+
+<bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
+    <constructor-arg ref="contextSource" />
+</bean>
+\end{lstlisting}
+
+The \emph{Kuali Rice} \verb|ParameterService| is used to store the map between \emph{KIM} and \emph{LDAP} attributes. Still,
+many attribute names are stored in a constants class populated through Spring. See below
+\begin{lstlisting}
+<bean id="kimConstants" class="org.kuali.rice.kim.util.ConstantsImpl">
+  <!--
+  <property name="kimLdapIdProperty"         value="uaid" />
+  <property name="kimLdapNameProperty"       value="uid" />
+  -->
+  <property name="snLdapProperty"            value="sn" />
+  <property name="givenNameLdapProperty"     value="givenName" />
+  <property name="entityIdKimProperty"       value="entityId" />
+  <property name="employeeMailLdapProperty"  value="mail" />
+  <property name="employeePhoneLdapProperty" value="employeePhone" />
+  <property name="defaultCountryCode"        value="1" />
+  <property name="mappedParameterName"       value="KIM_TO_LDAP_FIELD_MAPPINGS" />
+  <property name="mappedValuesName"          value="KIM_TO_LDAP_VALUE_MAPPINGS" />
+  <property name="unmappedParameterName"     value="KIM_TO_LDAP_UNMAPPED_FIELDS" />
+  <property name="parameterNamespaceCode"    value="KR-SYS" />
+  <property name="parameterDetailTypeCode"   value="Config" />
+  <property name="personEntityTypeCode"      value="PERSON" />
+  <property name="employeeIdProperty"        value="emplId" />
+  <property name="departmentLdapProperty"    value="employeePrimaryDept" />  
+  <property name="employeeTypeProperty"      value="employeeType" />
+  <property name="employeeStatusProperty"    value="employeeStatus" />
+  <property name="defaultCampusCode"         value="MC" />
+  <property name="defaultChartCode"          value="UA" />
+  <property name="taxExternalIdTypeCode"     value="TAX" />
+  <property name="externalIdProperty"        value="externalIdentifiers.externalId" />
+  <property name="externalIdTypeProperty"    value="externalIdentifiers.externalIdentifierTypeCode" />
+  <property name="affiliationMappings"       value="staff=STAFF,faculty=FCLTY,employee=STAFF,student=STDNT,affilate=AFLT"/>
+  <property name="employeeAffiliationCodes"  value="STAFF,FCLTY" />
+</bean>
+\end{lstlisting}
+
+The constants class as well as the \emph{Spring LDAP} integration and \emph{Kuali Rice} \verb|ParameterService| are 
+injected into the \verb|LdapPrincipalDaoImpl| instance.
+\begin{lstlisting}
+<bean id="ldapPrincipalDao" class="org.kuali.rice.kim.dao.impl.LdapPrincipalDaoImpl">
+  <property name="ldapTemplate"     ref="ldapTemplate" />
+  <property name="parameterService" ref="parameterService" />
+  <property name="kimConstants"     ref="kimConstants" />
+
+</bean>\end{lstlisting}
+
+The \verb|LdapPrincipalDaoImpl| is an implementation of \verb|PrincipalDao| which is delegated by the 
+\verb|LdapIdentityServiceImpl|. The \verb|LdapPrincipalDaoImpl| connects to \emph{LDAP} and maps the principal
+and entity information into \emph{KIM} domain objects.
+
+\subsection*{2. Implement/Override Methods in IdentityService}
+
+\subsection*{3. Create PrincipalDao for searching for Principal/Entity information from LDAP.}
+\subsubsection{Retrieving LDAP Information as KIM Domain Objects}
+\emph{Spring LDAP} offers a \verb|ContextMapper| interface for these kinds of mappings; therefore, all of the
+mappings are in pure java. This is how \verb|KimPrincipal| is mapped from \emph{LDAP}.
+
+\begin{lstlisting}
+contextMappers.put(KimPrincipalInfo.class, new AbstractContextMapper() {
+    public Object doMapFromContext(DirContextOperations context) {
+        final KimPrincipalInfo person = new KimPrincipalInfo();
+        person.setPrincipalId(context.getStringAttribute(getKimConstants().getUaidLdapProperty()));
+        person.setEntityId(context.getStringAttribute(getKimConstants().getUaidLdapProperty()));
+        person.setPrincipalName(context.getStringAttribute(getKimConstants().getUidLdapProperty()));
+        return person;
+    }
+});
+\end{lstlisting}
+
+\verb|contextMappers| is an instance map created for holding \verb|ContextMapper| instances. Each DTO type
+has a mapper associated with it for retrieving the desired information from \emph{LDAP}. Notice the use of
+\verb|getKimConstants()|. This is how constant property names are used in the mapping. Also, notice that here the 
+\verb|ParameterService| is not used. The \verb|ParameterService| is only used for mapping \emph{KIM} criteria
+in lookup scenarios. When retrieving information from \emph{LDAP}, the \verb|ParameterService| is entirely
+useless. The \verb|ContextMapper| is used instead. It gives more flexibility when mapping attributes
+of a specific class. Below is how the \verb|ContextMapper| is actually used.
+
+\begin{lstlisting}
+public <T> List<T> search(Class<T> type, Map<String, Object> criteria) {
+    AndFilter filter = new AndFilter();
+    
+    for (Map.Entry<String, Object> entry : criteria.entrySet()) {
+        if (entry.getValue() instanceof Iterable) {
+            OrFilter orFilter = new OrFilter();
+            for (String value : (Iterable<String>) entry.getValue()) {
+                orFilter.or(new EqualsFilter(entry.getKey(), value));
+            }
+            filter.and(orFilter);
+        }
+        else {
+            filter.and(new EqualsFilter(entry.getKey(), (String) entry.getValue()));
+        }
+    }
+    return getLdapTemplate().search(DistinguishedName.EMPTY_PATH, filter.encode(), contextMappers.get(type));
+}
+\end{lstlisting}
+
+\emph{Spring LDAP} gives a very flexible API for querying Directory-Based systems. The \verb|search()| method
+takes advantage of several classes from the API in order to create a fairly generic query of \emph{LDAP}. On the 
+last line, the \verb|LdapTemplate| is used with a verb|ContextMapper| retrieved from the \verb|contextMappers|
+map. It is retrieved by passing through the desired type; therefore, in the case of searching for a \verb|KimPrincipal|
+we would use something like this:
+
+\begin{lstlisting}
+public KimPrincipalInfo getPrincipal(String principalId) {
+    Map<String, Object> criteria = new HashMap();
+    criteria.put(getKimConstants().getKimLdapProperty(), principalId);
+    List<KimPrincipalInfo> results = search(KimPrincipalInfo.class, criteria);
+
+    if (results.size() > 0) {
+        return results.get(0);
+    }
+    
+    return null;
+}
+\end{lstlisting}
+Again, there isn't any need for the \verb|ParameterService| yet because we know exactly what we want from 
+\emph{LDAP}.
+
+\subsubsection{Using Mapping KIM Attributes to LDAP Attributes for Lookups}
+\emph{KIM} has an API method called \verb|lookupEntityDefaultInfo| which is used by Kuali Lookups for 
+querying information. The call will provide a map of information in terms of \emph{KIM} attributes. This
+means that the map or search criteria is pretty meaningless to \emph{LDAP} or any Directory-based service
+for that matter. The \emph{KIM} attributes need to be mapped to \emph{LDAP} attributes in order for the
+query to be made. For this, the \verb|ParameterService| is used.
+
+\begin{lstlisting}
+public List<? extends KimEntityDefaultInfo> lookupEntityDefaultInfo(Map<String,String> searchCriteria, boolean unbounded) {
+    List<KimEntityDefaultInfo> results = new ArrayList();
+    Map<String, Object> criteria = new HashMap();
+        
+    for (Map.Entry<String, String> criteriaEntry : searchCriteria.entrySet()) {
+        info(String.format("Searching with criteria %s = %s", criteriaEntry.getKey(), criteriaEntry.getValue()));
+      
+        if (isMapped(criteriaEntry.getKey())) {
+            criteria.put(getLdapAttribute(criteriaEntry.getKey()), criteriaEntry.getValue());
+        }
+    }
+        
+    return search(KimEntityDefaultInfo.class, criteria);
+}
+
+private Matcher getKimAttributeMatcher(String kimAttribute) {
+    Parameter mappedParam = getParameterService()
+    .retrieveParameter(getKimConstants().getParameterNamespaceCode(),
+    getKimConstants().getParameterDetailTypeCode(),
+    getKimConstants().getMappedParameterName());
+
+    String regexStr = kimAttribute + "=([^=;]*).*";
+    return Pattern.compile(regexStr).matcher(mappedParam.getParameterValue());
+}
+
+private boolean isMapped(String kimAttribute) {
+    return getKimAttributeMatcher(kimAttribute).matches();
+}
+
+private String getLdapAttribute(String kimAttribute) {
+    Matcher matcher = getKimAttributeMatcher(kimAttribute);
+    matcher.matches();
+    return matcher.group(1);
+}
+\end{lstlisting}
+
+By using regular expressions and storing parameters in the database for retrieval by the \verb|ParameterService|, the
+task of mapping \emph{KIM} attributes to \emph{LDAP} attributes is pretty trivial.
+\end{document}
+
+\subsection{Implement Entity Prototype}
+Create a Entity prototype for fast object building and setting defaults with Spring.
+
+\begin{lstlisting}
+    <bean id="entityPrototype" class="org.kuali.rice.kim.bo.entity.dto.KimEntityInfo" scope="prototype">
+    ... 
+    ...
+    </bean>
+\end{lstlisting}
+
+Configure the prototype with default values.
+
+This causes problems because KIM \verb|KimEntityEntityTypeInfo| and \verb|KimEntityInfo|
+classes have setters/getters with different types. This prevents Spring from setting attributes.
+The classes need to be overridden in \verb|org.kuali.rice.kim.bo.entity.dto|
+
+\begin{lstlisting}
+public class KimEntityInfo extends org.kuali.rice.kim.bo.entity.dto.KimEntityInfo {
+
+	/**
+	 * @param defaultAffiliation the defaultAffiliation to set
+	 */
+	public void setDefaultAffiliation(KimEntityAffiliation defaultAffiliation) {
+        super.setDefaultAffiliation((KimEntityAffiliationInfo) defaultAffiliation);
+	}
+
+	/**
+	 * @param defaultName the defaultName to set
+	 */
+	public void setDefaultName(KimEntityName defaultName) {
+        super.setDefaultName((KimEntityNameInfo) defaultName);
+	}
+
+    public void setPrimaryEmployment(KimEntityEmploymentInformation primaryEmployment) {
+        super.setPrimaryEmployment((KimEntityEmploymentInformationInfo) primaryEmployment);
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}
+public class KimEntityEntityTypeInfo extends org.kuali.rice.kim.bo.entity.dto.KimEntityEntityTypeInfo {
+	private static final long serialVersionUID = -6585360231364528118L;
+
+	public void setDefaultAddress(KimEbntityAddress defaultAddress) {
+		super.setDefaultAddress((KimEntityAddressInfo) defaultAddress);
+	}
+	public void setDefaultPhoneNumber(KimEntityPhone defaultPhoneNumber) {
+		super.setDefaultPhoneNumber((KimEntityPhoneInfo) defaultPhoneNumber);
+	}
+	public void setDefaultEmailAddress(KimEntityEmail defaultEmailAddress) {
+		super.setDefaultEmailAddress((KimEntityEmailInfo) defaultEmailAddress);
+	}
+}
+\end{lstlisting}
+
+\subsection{Principal or Entity Not in LDAP}
+The University of Arizona encountered rare scenarios where principals and entities do not appear in
+LDAP and are not locatable through the \verb|IdentityService|. This can be a problem in some cases. For example, if a principal is added to a role 'KFS Users', and that principal is removed from LDAP, then a 
+\verb|NullPointerException| can occur. The \verb|NullPointerException| occurs because the user cannot 
+be found, and so the IdentityService returns a \verb|null|.
+
+\subsubsection{'admin', 'kr' and 'kfs' Users}
+One case where the principal is not found in LDAP is the 'kr' and 'kfs' users. These are system users;
+therefore, they do not exist in LDAP.
+
+The 'kr' and 'kfs' users hardcoded as constants within the application. These are users vital to the 
+application running. They are used from workflow to batch processing, and if they do not exist, the 
+application fails to function properly. This is the case for LDAP because they are system users and system
+users are not stored in LDAP.
+
+\subsubsection{Fallback on Reference Implementation IdentityService}
+Kuali distributes a reference KIM implementation of the \verb|IdentityService|. We use this functionality to fallback
+on in the case where a principal cannot be found in LDAP. What does is gives priority to LDAP for primary entity retrieval.
+When the user does not appear in LDAP, the RDBMS where the Kuali reference implementation is designed to look 
+is searched. The RDBMS is where the 'kr' and 'kfs' users are located, so this solves the problem of the
+system users.
+
+\subsubsection{Implement the DummyUser Pattern}
+What then of the all the other possible cases where a user is not located in LDAP. At the current time,
+we cannot address principals and entities not being in LDAP, but we can help rice to fail gracefully in this case.
+The way we do that is by using the DummyUser pattern. The DummyUser replaces any null returned from 
+\verb|IdentityService| and is an inactive user. By virtue of being inactive, it is unusable, unsearchable, and 
+uneditable. This means any workflow involving this user will not work, but we do prevent \verb|NullPointerException|
+cases.
+
+The user exists within the source code and is a singleton in the application. That is, there is only
+one DummyUser in the entire application that appears wherever a \verb|null| might.
+
+\begin{lstlisting}
+private static KimPrincipalInfo dummyUser;
+private static KimEntityInfo dummyUserEntity;
+    
+static {
+    dummyUserEntity = new KimEntityInfo();
+    dummyUserEntity.setActive(false);
+    dummyUserEntity.setEntityId("dummyUserId");
+    KimEntityNameInfo nameInfo = new KimEntityNameInfo();
+    nameInfo.setActive(false);
+    nameInfo.setFirstName("Non-existent");
+    nameInfo.setLastName("User");
+    dummyUserEntity.setNames(new ArrayList<KimEntityNameInfo>());
+    dummyUserEntity.getNames().add(nameInfo);
+    dummyUser = new KimPrincipalInfo();
+    dummyUser.setActive(false);
+    dummyUser.setPrincipalId("dummyUserId");
+    dummyUser.setEntityId("dummyUserId");
+    dummyUser.setPrincipalName("missingUser");
+    dummyUserEntity.setPrincipals(new ArrayList<KimPrincipalInfo>());
+    dummyUserEntity.getPrincipals().add(dummyUser);
+}
+\end{lstlisting}
+
+
+Since this only effects when the principal is queried directly, we only have
+delegate to the super class with a few methods.
+
+\begin{lstlisting}
+/** Get a KimPrincipal object based on it's unique principal ID */
+public KimPrincipalInfo getPrincipal(String principalId) {
+    KimPrincipalInfo edsInfo = getPrincipalDao().getPrincipal(principalId);
+    if (edsInfo != null) {
+        return edsInfo;
+    } else {
+        edsInfo = super.getPrincipal(principalId);
+        if (edsInfo != null) {
+            return edsInfo;
+        } else {
+            return dummyUser;
+        }
+    }
+}
+	
+/** Get a KimPrincipal object based on the principalName. */
+public KimPrincipalInfo getPrincipalByPrincipalName(String principalName) {
+    KimPrincipalInfo edsInfo = getPrincipalDao().getPrincipalByName(principalName);
+    if (edsInfo != null) {
+        return edsInfo;
+    } else {
+        return super.getPrincipalByPrincipalName(principalName);
+    }
+}
+
+/** Find entity objects based on the given criteria. */
+public KimEntityDefaultInfo getEntityDefaultInfo(String entityId) {
+    KimEntityDefaultInfo edsInfo = getPrincipalDao().getEntityDefaultInfo(entityId);
+    if (edsInfo != null) {
+       return edsInfo;
+    } else {
+       return super.getEntityDefaultInfo(entityId);
+    }
+}
+
+public KimEntityDefaultInfo getEntityDefaultInfoByPrincipalName(String principalName) {
+    KimEntityDefaultInfo edsInfo = getPrincipalDao().getEntityDefaultInfoByPrincipalName(principalName);
+    if (edsInfo != null) {
+        return edsInfo;
+    } else {
+        return super.getEntityDefaultInfoByPrincipalName(principalName);
+    }
+}
+\end{lstlisting}
