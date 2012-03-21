@@ -1,0 +1,7 @@
+#!/usr/bin/env groovy
+
+import org.kuali.kfs.sys.batch.service.impl.RemoteSchedulerServiceLocator
+
+def scheduler = new RemoteSchedulerServiceLocator().getRemoteSchedulerServiceImplPort();
+
+scheduler.runRemoteJob("purgeJob", "leo@rsmart.com");
