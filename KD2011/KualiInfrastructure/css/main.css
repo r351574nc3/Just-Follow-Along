@@ -44,6 +44,8 @@ html, body {
 				 aqua 0%, rgba(245,245,245,1.0) 100%, rgba(100,100,100,1.0) 100%);
      -webkit-radial-gradient(50% 50% 45deg, ellipse cover, rgba(245,245,245,1.0) 100%, rgba(100,100,100,1.0) 100%);*/
     /*
+background-image: -moz-radial-gradient(45px 45px, ellipse farthest-corner,
+				 aqua 0%, rgba(0, 0, 255, 0) 100%, blue 95%);
 -webkit-gradient(
 		radial, 
 		20% 50%, 0, 
@@ -53,11 +55,7 @@ html, body {
 	);
         */
 
-	background-image: -moz-radial-gradient(
-		50% 50% 90deg,
-		rgba(245,245,245,1.0) 0%, 
-		rgba(100,100,100,1.0) 100%
-	);
+	background-image: -moz-linear-gradient(30%, rgb(0,0,0) 15%, rgb(73,74,74) 58%);
 	
 }
 
