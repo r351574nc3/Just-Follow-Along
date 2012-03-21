@@ -1,0 +1,13 @@
+dn: dc=eds,dc=rsmart,dc=com
+objectClass: dcObject
+objectclass: organization
+o: rsmart.com
+dc: rsmart
+description: My LDAP Root
+
+dn: cn=admin,dc=eds,dc=rsmart,dc=com
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: admin
+userPassword: {MD5}XWEQMRxrgya+vr8lEDZK1w==
+description: LDAP administrator

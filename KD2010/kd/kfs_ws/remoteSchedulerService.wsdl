@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions name="remoteSchedulerService" targetNamespace="http://impl.service.batch.sys.kfs.kuali.org/" xmlns:ns1="http://service.batch.sys.kfs.kuali.org/" xmlns:ns2="http://cxf.apache.org/bindings/xformat" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://impl.service.batch.sys.kfs.kuali.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:import location="http://localhost:8080/kfs-dev/ws/remoteSchedulerService?wsdl=RemoteSchedulerService.wsdl" namespace="http://service.batch.sys.kfs.kuali.org/">
+    </wsdl:import>
+  <wsdl:binding name="remoteSchedulerServiceSoapBinding" type="ns1:RemoteSchedulerService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="runPurgeJob">
+      <soap:operation soapAction="" style="document" />
+      <wsdl:input name="runPurgeJob">
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output name="runPurgeJobResponse">
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getStatus">
+      <soap:operation soapAction="" style="document" />
+      <wsdl:input name="getStatus">
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output name="getStatusResponse">
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="runPurgeReportsAndStagingJob">
+      <soap:operation soapAction="" style="document" />
+      <wsdl:input name="runPurgeReportsAndStagingJob">
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output name="runPurgeReportsAndStagingJobResponse">
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="runRemoteJob">
+      <soap:operation soapAction="" style="document" />
+      <wsdl:input name="runRemoteJob">
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output name="runRemoteJobResponse">
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="remoteSchedulerService">
+    <wsdl:port binding="tns:remoteSchedulerServiceSoapBinding" name="RemoteSchedulerServiceImplPort">
+      <soap:address location="http://localhost:8080/kfs-dev/ws/remoteSchedulerService" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

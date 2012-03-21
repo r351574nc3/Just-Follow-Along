@@ -1,0 +1,161 @@
+dn: CN=eduPersonAffiliation,CN=Schema,CN=Configuration,DC=netid,DC=washington,DC=edu
+changetype: add
+objectClass: attributeSchema
+lDAPDisplayName: eduPersonAffiliation
+adminDisplayName: eduPersonAffiliation
+adminDescription: Specifies the person's relationship(s) to the institution, permissible values: faculty, student, staff, alum, member, affiliate, employee
+attributeID: 1.3.6.1.4.1.5923.1.1.1.1
+attributeSyntax: 2.5.5.12
+oMSyntax: 64
+schemaIDGUID:: +IXgIa4S2xGYBLYioe9Ukg==
+showInAdvancedViewOnly: TRUE
+
+dn: CN=eduPersonNickname,CN=Schema,CN=Configuration,DC=netid,DC=washington,DC=edu
+changetype: add
+objectClass: attributeSchema
+lDAPDisplayName: eduPersonNickname
+adminDisplayName: eduPersonNickname
+adminDescription: Person's nickname, or the informal name by which they are accustomed to be hailed
+attributeID: 1.3.6.1.4.1.5923.1.1.1.2
+attributeSyntax: 2.5.5.12
+oMSyntax: 64
+schemaIDGUID:: yvhggdsV2xGYBLYioe9Ukg==
+showInAdvancedViewOnly: TRUE
+
+dn: CN=eduPersonOrgDN,CN=Schema,CN=Configuration,DC=netid,DC=washington,DC=edu
+changetype: add
+objectClass: attributeSchema
+lDAPDisplayName: eduPersonOrgDN
+adminDisplayName: eduPersonOrgDN
+adminDescription: Specifies the person's relationship(s) to the institution, permissible values: faculty, student, staff, alum, member, affiliate, employee
+attributeID: 1.3.6.1.4.1.5923.1.1.1.3
+attributeSyntax: 2.5.5.1
+oMSyntax: 127
+isSingleValued: TRUE
+schemaIDGUID:: ilWXiNsV2xGYBLYioe9Ukg==
+showInAdvancedViewOnly: TRUE
+
+dn: CN=eduPersonOrgUnitDN,CN=Schema,CN=Configuration,DC=netid,DC=washington,DC=edu
+changetype: add
+objectClass: attributeSchema
+lDAPDisplayName: eduPersonOrgUnitDN
+adminDisplayName: eduPersonOrgUnitDN
+adminDescription: The distinguished name(s) (DN) of the directory entries representing the person's Organizational Unit(s)
+attributeID: 1.3.6.1.4.1.5923.1.1.1.4
+attributeSyntax: 2.5.5.1
+oMSyntax: 127
+schemaIDGUID:: 7tP6jdsV2xGYBLYioe9Ukg==
+showInAdvancedViewOnly: TRUE
+
+dn: CN=eduPersonPrimaryAffiliation,CN=Schema,CN=Configuration,DC=netid,DC=washington,DC=edu
+changetype: add
+objectClass: attributeSchema
+lDAPDisplayName: eduPersonPrimaryAffiliation
+adminDisplayName: eduPersonPrimaryAffiliation
+adminDescription: Specifies the person's PRIMARY relationship to the institution in broad categories such as student, faculty, staff, alum, etc
+attributeID: 1.3.6.1.4.1.5923.1.1.1.5
+attributeSyntax: 2.5.5.12
+oMSyntax: 64
+isSingleValued: TRUE
+schemaIDGUID:: 3s+nldsV2xGYBLYioe9Ukg==
+showInAdvancedViewOnly: TRUE
+
+dn: CN=eduPersonPrincipalName,CN=Schema,CN=Configuration,DC=netid,DC=washington,DC=edu
+changetype: add
+objectClass: attributeSchema
+lDAPDisplayName: eduPersonPrincipalName
+adminDisplayName: eduPersonPrincipalName
+adminDescription: The "NetID" of the person for the purposes of inter-institutional authentication. It should be represented in the form "user@scope" where scope defines a local security domain
+attributeID: 1.3.6.1.4.1.5923.1.1.1.6
+attributeSyntax: 2.5.5.12
+oMSyntax: 64
+isSingleValued: TRUE
+schemaIDGUID:: wAX0n9sV2xGYBLYioe9Ukg==
+showInAdvancedViewOnly: TRUE
+
+dn: CN=eduPersonEntitlement,CN=Schema,CN=Configuration,DC=netid,DC=washington,DC=edu
+changetype: add
+objectClass: attributeSchema
+lDAPDisplayName: eduPersonEntitlement
+adminDisplayName: eduPersonEntitlement
+adminDescription: URI (either URN or URL) that indicates a set of rights to specific resources
+attributeID: 1.3.6.1.4.1.5923.1.1.1.7
+attributeSyntax: 2.5.5.12
+oMSyntax: 64
+schemaIDGUID:: jDwpVNsV2xGYBLYioe9Ukg==
+showInAdvancedViewOnly: TRUE
+
+dn: CN=eduPersonPrimaryOrgUnitDN,CN=Schema,CN=Configuration,DC=netid,DC=washington,DC=edu
+changetype: add
+objectClass: attributeSchema
+lDAPDisplayName: eduPersonPrimaryOrgUnitDN
+adminDisplayName: eduPersonPrimaryOrgUnitDN
+adminDescription: The distinguished name (DN) of the directory entry representing the person's primary Organizational Unit(s)
+attributeID: 1.3.6.1.4.1.5923.1.1.1.8
+attributeSyntax: 2.5.5.1
+oMSyntax: 127
+isSingleValued: TRUE
+schemaIDGUID:: CuytptsV2xGYBLYioe9Ukg==
+showInAdvancedViewOnly: TRUE
+
+dn: CN=eduPersonScopedAffiliation,CN=Schema,CN=Configuration,DC=netid,DC=washington,DC=edu
+changetype: add
+objectClass: attributeSchema
+lDAPDisplayName: eduPersonScopedAffiliation
+adminDisplayName: eduPersonScopedAffiliation
+adminDescription: Specifies the person's affiliation (see eduPersonAffiliation) within a particular security domain, the values consist of a left (affiliation) and right component (security domain) separated by an "@" sign
+attributeID: 1.3.6.1.4.1.5923.1.1.1.9
+attributeSyntax: 2.5.5.12
+oMSyntax: 64
+schemaIDGUID:: ViuQrNsV2xGYBLYioe9Ukg==
+showInAdvancedViewOnly: TRUE
+
+dn: CN=eduPersonTargetedID,CN=Schema,CN=Configuration,DC=netid,DC=washington,DC=edu
+changetype: add
+objectClass: attributeSchema
+lDAPDisplayName: eduPersonTargetedID
+adminDisplayName: eduPersonTargetedID
+adminDescription: Specifies the person's relationship(s) to the institution, permissible values: faculty, student, staff, alum, member, affiliate, employee
+attributeID: 1.3.6.1.4.1.5923.1.1.1.10
+attributeSyntax: 2.5.5.12
+oMSyntax: 64
+schemaIDGUID:: Tgtcs9sV2xGYBLYioe9Ukg==
+showInAdvancedViewOnly: TRUE
+
+
+# Reload the schema cache to pick up altered classes and attributes
+
+dn:
+changetype: Modify
+add: schemaUpdateNow
+schemaUpdateNow: 1
+-
+
+dn: CN=eduPerson,CN=Schema,CN=Configuration,DC=netid,DC=washington,DC=edu
+changetype: add
+objectClass: classSchema
+lDAPDisplayName: eduPerson
+adminDisplayName: eduPerson
+adminDescription: Consists of a set of data elements or attributes about individuals within higher education
+governsID: 1.3.6.1.4.1.5923.1.1.2
+objectClassCategory: 3
+rDNAttID: cn
+mayContain: eduPersonAffiliation
+mayContain: eduPersonNickname
+mayContain: eduPersonOrgDN
+mayContain: eduPersonOrgUnitDN
+mayContain: eduPersonPrimaryAffiliation
+mayContain: eduPersonPrincipalName
+mayContain: eduPersonEntitlement
+mayContain: eduPersonPrimaryOrgUnitDN
+mayContain: eduPersonScopedAffiliation
+schemaIDGUID:: Vl2ivdsV2xGYBLYioe9Ukg==
+systemOnly: FALSE
+
+# Reload the schema cache to pick up altered classes and attributes
+
+dn:
+changetype: Modify
+add: schemaUpdateNow
+schemaUpdateNow: 1
+

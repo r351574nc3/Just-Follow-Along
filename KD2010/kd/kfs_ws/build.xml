@@ -1,0 +1,703 @@
+<?xml version="1.0"?>
+<!--
+ Copyright 2005-2006 The Kuali Foundation
+
+ Licensed under the Educational Community License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.opensource.org/licenses/ecl2.php
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project name="kfs" default="dist-local" basedir=".">
+	<!-- run the help target to view usage instructions for public targets -->
+
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="build/ant-contrib-1.0b3.jar" />
+			<pathelement location="build/bcel-5.2.jar" />
+		</classpath>
+	</taskdef>    	
+
+	<target name="dist-local" if="is.local.build" depends="clean,filter-project,filter-local,dist-local-cas,dist-local-rice,overlay-additional-web-content,filter-project-schema" description="Prepare local configuration files and tokenized resources and deploy tomcat context file on development workstation">
+		<copy file="${metainf.directory}/${context.file}" tofile="${appserver.localhost.dir}/${ant.project.name}-${build.environment}.xml" overwrite="true" />
+		<if>
+			<isset property="additional.lib.directory" />
+			<then>
+				<copy todir="${lib.directory}">
+					<fileset dir="${additional.lib.directory}" includes="*.jar" />
+				</copy>
+			</then>
+		</if>
+	</target>
+	
+	<target name="dist-local-cas" if="is.local.build" depends="filter-project">
+		<!-- need to check this way, so that the default can be true -->
+		<if>
+			<equals arg1="${deploy.local.cas.server}" arg2="true" />
+			<then>
+				<echo file="${metainf.directory}/${cas.context.file}" message="${cas.context}" />
+				<copy file="${metainf.directory}/${cas.context.file}" tofile="${appserver.localhost.dir}/${cas.context.name}.xml" overwrite="true" />
+			</then>
+		</if>
+	</target>
+	
+	<target name="dist-local-rice" if="is.local.build" depends="init-properties">
+		<if>
+			<equals arg1="${deploy.local.rice.server}" arg2="true" />
+			<then>
+		        <copy file="${build.appserver.directory}/${rice.server.war.file.name}" tofile="${appserver.deploy.dir}/${rice.application}-${build.environment}.war"/>
+        		<echo file="${rice.config.property.file}" message="${rice.config}"  />
+			</then>
+		</if>
+	</target>
+
+	<target name="test-local" depends="dist-local,make-tests,test" description="Run all unit tests and format results"/>
+
+	<target name="echo-properties" depends="init-properties" description="Print all build properties that have been set">
+		<echoproperties />
+	</target>
+
+	<target name="clean" depends="clean-project,clean-local" description="Remove all build output" />
+
+	<target name="init-property-files">
+		<echo message="Reading Properties: ${user.home}/${ant.project.name}-build.properties" />
+		<property file="${user.home}/${ant.project.name}-build.properties" />
+		<if>
+			<available file="${shared.external.build.properties}" />
+			<then>
+				<echo message="Reading Properties: ${shared.external.build.properties}" />
+			</then>
+		</if>
+		<property file="${shared.external.build.properties}" />
+		<property name="properties.directory" location="build/properties" />
+		<echo message="Reading Properties: ${properties.directory}/build.properties" />
+		<property file="${properties.directory}/build.properties" />
+		<echo message="Reading Properties: ${properties.directory}/database.properties" />
+		<property file="${properties.directory}/database.properties" />
+		<echo message="Reading Properties: ${properties.directory}/directory.properties" />
+		<property file="${properties.directory}/directory.properties" />
+		<echo message="Reading Properties: ${properties.directory}/logging.properties" />
+		<property file="${properties.directory}/logging.properties" />
+		<echo message="Reading Properties: ${properties.directory}/batch.properties" />
+		<property file="${properties.directory}/batch.properties" />
+		<echo message="Reading Properties: ${properties.directory}/email.properties" />
+		<property file="${properties.directory}/email.properties" />
+		<echo message="Reading Properties: ${properties.directory}/url.properties" />
+		<property file="${properties.directory}/url.properties" />
+		<echo message="Reading Properties: ${properties.directory}/cas.properties" />
+		<property file="${properties.directory}/cas.properties" />
+		<echo message="Reading Properties: ${properties.directory}/rice.properties" />
+		<property file="${properties.directory}/rice.properties" />
+		<echo message="Reading Properties: ${properties.directory}/spring.properties" />
+		<property file="${properties.directory}/spring.properties" />
+		<echo message="Reading Properties: ${properties.directory}/web.properties" />
+		<property file="${properties.directory}/web.properties" />
+		<echo message="Reading Properties: ${properties.directory}/b2b.properties" />
+		<property file="${properties.directory}/b2b.properties" />
+	</target>
+	
+	<target name="init-properties" depends="init-property-files">
+		<tstamp><format property="build.version" pattern="MM/dd/yyyy hh:mm aa" /></tstamp>
+	  	<tstamp><format property="current.year" pattern="yyyy" locale="en,US" /></tstamp>
+
+		<condition property="context.docbase" value=' docBase="${basedir}${file.separator}work${file.separator}web-root"'><isset property="is.local.build" /></condition>
+		<property name="context.docbase" value="" />
+		
+		<condition property="datasource.url" value="${mysql.datasource.url}"><equals arg1="${datasource.ojb.platform}" arg2="${mysql.ojb.platform}" /></condition>
+		<property name="datasource.url" value="${oracle.datasource.url}" />
+		<condition property="use.p6spy.local">
+			<and>
+			    <isset property="is.local.build" />
+				<equals arg1="${use.p6spy}" arg2="true" />
+			</and>
+		</condition>
+		<condition property="rice.standalone.flag">
+			<equals arg1="${rice.standalone}" arg2="true" />
+		</condition>
+		<condition property="datasource.driver.class" value="${p6spy.driver.class}"><equals arg1="${use.p6spy.local}" arg2="true"/></condition>
+		<condition property="datasource.driver.class" value="${mysql.driver.class}"><equals arg1="${datasource.ojb.platform}" arg2="${mysql.ojb.platform}" /></condition>
+		<property name="datasource.driver.class" value="${oracle.driver.class}" />
+		<condition property="p6spy.real.driver.class" value="${mysql.driver.class}"><equals arg1="${datasource.ojb.platform}" arg2="${mysql.ojb.platform}" /></condition>
+		<property name="p6spy.real.driver.class" value="${oracle.driver.class}" />
+		<condition property="datasource.ojb.sequence.manager" value="${mysql.ojb.sequence.manager}"><equals arg1="${datasource.ojb.platform}" arg2="${mysql.ojb.platform}" /></condition>
+		<property name="datasource.ojb.sequence.manager" value="${oracle.ojb.sequence.manager}" />		
+		
+		<condition property="appenders" value="INFO, LogFile, StdOut"><isset property="is.local.build" /></condition>
+		<property name="appenders" value="INFO, LogFile" />
+		
+		<condition property="use.quartz.jdbc.jobstore" value="false"><isset property="is.local.build" /></condition>
+		<property name="use.quartz.jdbc.jobstore" value="true" />
+		
+		<condition property="b2b.environment" value="${b2b.production.environment}">
+			<equals arg1="${build.environment}" arg2="${production.environment.code}" />
+		</condition>
+		<property name="b2b.environment" value="${b2b.test.environment}" />
+		<condition property="b2b.purchase.order.password" value="${b2b.production.purchase.order.password}">
+			<equals arg1="${build.environment}" arg2="${production.environment.code}" />
+		</condition>
+		<property name="b2b.purchase.order.password" value="${b2b.test.purchase.order.password}" />
+		<condition property="b2b.shopping.password" value="${b2b.production.shopping.password}">
+			<equals arg1="${build.environment}" arg2="${production.environment.code}" />
+		</condition>
+		<property name="b2b.shopping.password" value="${b2b.test.shopping.password}" />
+		<condition property="b2b.purchase.order.url" value="${b2b.production.purchase.order.url}">
+			<equals arg1="${build.environment}" arg2="${production.environment.code}" />
+		</condition>
+		<property name="b2b.purchase.order.url" value="${b2b.test.purchase.order.url}" />
+		<condition property="b2b.punch.back.url" value="${b2b.production.punch.back.url}">
+			<equals arg1="${build.environment}" arg2="${production.environment.code}" />
+		</condition>
+		<property name="b2b.punch.back.url" value="${b2b.test.punch.back.url}" />
+		<condition property="b2b.punch.out.url" value="${b2b.production.punch.out.url}">
+			<equals arg1="${build.environment}" arg2="${production.environment.code}" />
+		</condition>
+		<property name="b2b.punch.out.url" value="${b2b.test.punch.out.url}" />
+
+		<property name="rice.server.datasource.driver.class" value="${datasource.driver.class}" />
+		<property name="rice.server.datasource.url" value="${datasource.url}" />
+		<condition property="rice.server.datasource.platform" value="${mysql.server.datasource.platform}"><equals arg1="${datasource.ojb.platform}" arg2="${mysql.ojb.platform}" /></condition>
+		<property name="rice.server.datasource.platform" value="${oracle.server.datasource.platform}" />
+		<condition property="rice.dev.mode" value="false"><equals arg1="${rice.standalone}" arg2="true" /></condition>
+		<condition property="rice.dev.mode" value="true"><isset property="is.local.build" /></condition>
+		<property name="rice.dev.mode" value="false" />		
+		<!-- <rice module>.mode... 
+		    # local - used in development - embedding everything, including web content
+		    # embedded - using standalone rice server but running KEW / KIM services locally
+			# remote - accessing KIM core services over the KSB - not currently supported by KFS for KEW - KSB is always local  -->
+		<condition property="kim.mode" value="embedded" else="local"><equals arg1="${rice.standalone}" arg2="true" /></condition>
+		<condition property="kew.mode" value="embedded" else="local"><equals arg1="${rice.standalone}" arg2="true" /></condition>
+		<condition property="rice.url" value="${appserver.url}/${rice.application}-${build.environment}">
+		    <equals arg1="${rice.standalone}" arg2="true" />
+		</condition>
+        <property name="rice.url" value="${application.url}"/>
+        <property name="rice.kr.url" value="${rice.url}/${rice.application}"/>
+        <property name="rice.kim.url" value="${rice.url}/${kim.application}"/>
+        <property name="rice.kew.url" value="${rice.url}/${kew.application}"/>
+        <property name="rice.externalizable.images.url" value="${rice.kr.url}/static/images/"/>
+		<condition property="rice.ksb.message.persistence" value="false"><isset property="is.local.build" /></condition>
+		<property name="rice.ksb.message.persistence" value="true" />
+		<condition property="rice.ksb.use.quartz.database" value="true">
+			<and>
+				<equals arg1="${use.quartz.scheduling}" arg2="true" />
+			    <equals arg1="${use.quartz.jdbc.jobstore}" arg2="true" />
+			</and>
+		</condition>
+		<property name="rice.ksb.use.quartz.database" value="false" />
+		<condition property="rice.kew.exception.routing.immediate" value="true"><equals arg1="${use.quartz.scheduling}" arg2="false" /></condition>
+		<property name="rice.kew.exception.routing.immediate" value="false" />
+        <condition property="kfs.rice.override.spring.files" value="${base.kfs.rice.override.spring.files},spring-kfs-batch.xml"><equals arg1="${use.quartz.scheduling}" arg2="true"/></condition>
+        <property name="kfs.rice.override.spring.files" value="${base.kfs.rice.override.spring.files}" />
+		
+		<property name="cas.datasource.url" value="${datasource.url}" />
+		<property name="cas.datasource.driver.class" value="${datasource.driver.class}" />
+
+		<loadfile property="configuration" srcfile="${build.project.directory}/${configuration.file}"><filterchain><expandproperties/></filterchain></loadfile>
+	    <if>
+	        <not>
+	            <equals arg1="" arg2="${institutional.configuration.file}" trim="true" />
+	        </not>
+	        <then>
+	            <loadfile property="institutional.configuration" srcfile="${institutional.configuration.file}"><filterchain><expandproperties/></filterchain></loadfile>
+            </then>
+        </if>
+		<!-- tokenize and write out the files to the file system -->
+		<loadfile property="p6spy" srcfile="${build.project.directory}/${p6spy.file}"><filterchain><expandproperties/></filterchain></loadfile>
+		<loadfile property="web" srcfile="${build.project.directory}/${web.file}"><filterchain><expandproperties/></filterchain></loadfile>
+
+		<loadfile property="ojb-prop"    srcfile="${build.project.directory}/${ojb.properties.file}"><filterchain><expandproperties/></filterchain></loadfile>
+		<loadfile property="ojb-logging" srcfile="${build.project.directory}/${ojb.logging.file}"><filterchain><expandproperties/></filterchain></loadfile>
+		<loadfile property="ojb-repo"    srcfile="${build.project.directory}/${ojb.repository.file}"><filterchain><expandproperties/></filterchain></loadfile>
+		
+		<loadfile property="context" srcfile="${build.appserver.directory}/${context.file}"><filterchain><expandproperties/></filterchain></loadfile>
+		<loadfile property="log4j" srcfile="${user.home}/${log4j.file}" failonerror="false"><filterchain><expandproperties/></filterchain></loadfile>
+		<loadfile property="log4j" srcfile="${build.external.directory}/${log4j.file}"><filterchain><expandproperties/></filterchain></loadfile>
+		<loadfile property="security" srcfile="${build.external.directory}/${security.file}"><filterchain><expandproperties/></filterchain></loadfile>
+		
+		<loadfile property="cas.context" srcfile="${build.appserver.directory}/${cas.context.file}"><filterchain><expandproperties/></filterchain></loadfile>
+		<loadfile property="rice.config" srcfile="${build.appserver.directory}/standalone-rice-config.xml"><filterchain><expandproperties/></filterchain></loadfile>
+	</target>
+
+	<target name="init-make-references" depends="init-properties">
+		<path id="compile.source.classpath">
+			<fileset dir="${appserver.lib.dir}" includes="*.jar" />
+			<fileset dir="${lib.directory}" includes="*.jar" />
+		</path>
+		<path id="compile.tests.classpath">
+			<path refid="compile.source.classpath" />
+			<fileset dir="${test.lib.directory}" includes="*.jar" />
+		</path>
+		<!-- the test classes must come first so they can override classes as necessary in
+		     the loaded libraries -->
+		<path id="run.tests.classpath">
+			<pathelement location="${test.classes.directory}" />
+			<path refid="compile.tests.classpath" />
+		</path>
+	</target>
+	
+	<target name="make-javadoc" depends="init-make-references">
+		<mkdir dir="${build.doc.directory}"/>
+		<javadoc destdir="${build.doc.directory}" packagenames="org.*" locale="en" useexternalfile="yes" maxmemory="${javadoc.max.memory}">
+			<sourcepath><pathelement location="${source.directory}"/></sourcepath>
+			<classpath refid="compile.source.classpath"/>
+		</javadoc>
+	</target>
+
+	<target name="clean-help" if="do.filter.project.help" depends="init-property-files">
+		<delete failonerror="false">
+			<fileset dir="${basedir}">
+				<include name="${help.directory}/**" />
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="clean-rice" unless="dont.filter.project.rice" depends="init-property-files">
+		<echo message="Cleaning Rice web content from KFS ${webroot.directory}" />
+		<delete failonerror="false" includeemptydirs="true">
+			<fileset dir="${basedir}">
+				<include name="${webroot.directory}/ksb/**" />
+				<include name="${webroot.directory}/kew/**" />
+				<include name="${webroot.directory}/kr/**" />
+				<include name="${webroot.directory}/ken/**" />
+				<include name="${webroot.directory}/kcb/**" />
+				<include name="${webroot.directory}/kim/**" />
+				<include name="${webroot.directory}/rice-portal/**" />
+				<include name="${tags.directory}/kr/**" />
+				<include name="${tags.directory}/kim/**" />
+				<include name="${tags.directory}/kew/**" />
+				<include name="${tags.directory}/rice-portal/**" />
+			</fileset>
+		</delete>
+	</target>
+	
+	<target name="clean-spring-ide" unless="dont.filter.project.spring.ide" depends="init-property-files">
+		<delete dir="${rice.datadictionary.directory}" failonerror="false" />
+		<delete file="${spring.ide.support.file}" failonerror="false" />
+	</target>
+
+	<target name="clean-project" depends="init-property-files,clean-help,clean-rice,clean-spring-ide">
+		<delete failonerror="false" includeemptydirs="true">
+			<fileset dir="${basedir}">
+				<include name="${source.directory}/${configuration.file}" />
+				<include name="${source.directory}/${p6spy.file}" />
+				<include name="${source.directory}/${ojb.properties.file}" />
+				<include name="${source.directory}/${ojb.logging.file}" />
+				<include name="${source.directory}/${ojb.repository.file}" />
+				<include name="${webinf.directory}/${web.file}" />
+				<include name="${lib.directory}/${log4j.library.file}" />
+				<include name="${xsd.directory}/**/**" />
+				<include name="${war.directory}/**/**" />
+				<include name="${test.directory}/**/**" />
+				<include name="*.war" />
+				<include name="*.zip" />
+				<include name="workflow.xml"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="clean-local-work" if="is.local.build" unless="dont.clean.local.work" depends="init-property-files">
+		<delete failonerror="false" includeemptydirs="true">
+			<fileset dir="${appserver.work.dir}" includes="${ant.project.name}-*/**" />
+			<fileset dir="${appserver.work.dir}" includes="${cas.context.name}/**" />
+		</delete>
+	</target>
+
+	<target name="clean-local" if="is.local.build" depends="clean-local-work">
+		<delete failonerror="false" includeemptydirs="true">
+			<fileset dir="${base.security.directory}" includes="**/${ant.project.name}/"/>
+			<fileset dir="${base.settings.directory}" includes="**/${ant.project.name}/"/>
+			<fileset dir="${base.logs.directory}" includes="**/${ant.project.name}/"/>
+			<fileset dir="${base.work.directory}" includes="**/${ant.project.name}/"/>
+			<fileset dir="${base.deploy.directory}" includes="**/${ant.project.name}/"/>
+		</delete>
+		<delete failonerror="false">
+			<fileset dir="${appserver.lib.dir}">
+				<or>
+					<present targetdir="${build.directory}" />
+					<present targetdir="${build.appserver.directory}" />
+					<present targetdir="${drivers.directory}" />
+				</or>
+			</fileset>
+		</delete>
+		<delete failonerror="false">
+			<fileset dir="${appserver.classes.dir}">
+				<present targetdir="${build.appserver.directory}" />
+			</fileset>
+		</delete>
+	    <delete file="${appserver.deploy.dir}/${rice.application}-${build.environment}.war" failonerror="false" verbose="true" />
+	    <delete dir="${appserver.deploy.dir}/${rice.application}-${build.environment}" failonerror="false"/>
+	    <delete file="${rice.config.property.file}" failonerror="false" verbose="true" />
+		<delete failonerror="false">
+			<fileset dir="${appserver.localhost.dir}" includes="${ant.project.name}-*.xml,${cas.context.name}.xml" />
+		</delete>
+	</target>
+
+	<target name="filter-project-log4j" unless="use.p6spy.local" depends="init-properties">
+		<copy file="${build.directory}/${log4j.library.file}" todir="${lib.directory}"/>
+	</target>
+
+	<target name="filter-project-p6spy" if="use.p6spy.local" depends="filter-project-log4j">
+		<copy file="${build.directory}/${log4j.library.file}" todir="${appserver.lib.dir}"/>
+	</target>
+	
+	<target name="filter-project-help" if="do.filter.project.help" depends="init-properties">
+		<unzip dest="${help.directory}" src="${build.project.directory}/help.zip" />
+	</target>
+
+	<target name="filter-project-rice" unless="dont.filter.project.rice" depends="init-properties,clean-rice">
+		<echo message="Copying Rice Web Content from ${build.appserver.directory}/${rice.server.war.file.name}" />
+		<!--
+		<if>
+			<isset property="rice.standalone.flag" />
+			<then>
+				<echo message="Excluding the kew, kim, and ken content since configured to work with a standalone Rice server." />
+			</then>
+		</if>
+		-->
+		<unzip dest="${webroot.directory}" src="${build.appserver.directory}/${rice.server.war.file.name}">
+			<patternset>
+				<exclude name="META-INF/**"/>
+				<exclude name="WEB-INF/*"/>
+				<exclude name="WEB-INF/classes/**"/>
+				<exclude name="WEB-INF/lib/**"/>
+				<exclude name="WEB-INF/jsp/**"/>
+				<exclude name="**/rice-portal/**"/>
+				<exclude name="*"/>
+				<!--
+				<exclude name="**/kew/**" if="rice.standalone.flag" />
+				<exclude name="**/kim/**" if="rice.standalone.flag" />
+				<exclude name="**/ken/**" if="rice.standalone.flag" />
+				<exclude name="**/kcb/**" if="rice.standalone.flag" />
+				-->
+			</patternset>
+		</unzip>
+	</target>
+	
+  	<target name="filter-project-spring-ide" unless="dont.filter.project.spring.ide" depends="init-properties">
+		<echo message="Reading Properties: ${properties.directory}/springide.properties" />
+		<property file="${properties.directory}/springide.properties" />
+		<delete dir="${rice.datadictionary.directory}" failonerror="false" quiet="true"/>
+		<mkdir dir="${rice.datadictionary.directory}"/>
+		<unjar dest="${rice.datadictionary.directory}">
+			<patternset>
+				<include name="${spring.ide.support.datadictionary.files}"/>
+				<exclude name="**/conversion/**"/>
+			</patternset>
+			<fileset dir="${lib.directory}">
+				<include name="${rice.name}-*-${rice.version}.jar" />
+			</fileset>
+		</unjar>
+		<path id="rice.datadictionary.files"><fileset dir="${rice.datadictionary.directory}" includes="${spring.ide.support.datadictionary.files}"><contains casesensitive="true" text="&lt;beans"/></fileset></path>
+		<path id="kfs.datadictionary.files"><fileset dir="${source.directory}" includes="${spring.ide.support.datadictionary.files}"><contains casesensitive="true" text="&lt;beans"/></fileset></path>
+		<path id="kfs.service.files"><fileset dir="${source.directory}" includes="**/*.xml" excludes="${spring.ide.support.datadictionary.files}"><contains casesensitive="true" text="&lt;beans"/></fileset></path>
+  		
+    	<echo append="false" file="${spring.ide.support.file}" message="${spring.ide.support.file.prefix}" />
+		<for param="spring.file.path"><path refid="rice.datadictionary.files" /><sequential><echo append="true" file="${spring.ide.support.file}" message="${spring.ide.support.file.line.prefix}@{spring.file.path}${spring.ide.support.file.line.suffix}" /></sequential></for>
+		<for param="spring.file.path"><path refid="kfs.datadictionary.files" /><sequential><echo append="true" file="${spring.ide.support.file}" message="${spring.ide.support.file.line.prefix}@{spring.file.path}${spring.ide.support.file.line.suffix}" /></sequential></for>
+		<for param="spring.file.path"><path refid="kfs.service.files" /><sequential><echo append="true" file="${spring.ide.support.file}" message="${spring.ide.support.file.line.prefix}@{spring.file.path}${spring.ide.support.file.line.suffix}" /></sequential></for>
+    	<echo append="true" file="${spring.ide.support.file}" message="${spring.ide.support.file.datadictionary}" />
+		<for param="spring.file.path"><path refid="rice.datadictionary.files" /><sequential><echo append="true" file="${spring.ide.support.file}" message="${spring.ide.support.file.line.prefix}@{spring.file.path}${spring.ide.support.file.line.suffix}" /></sequential></for>
+		<for param="spring.file.path"><path refid="kfs.datadictionary.files" /><sequential><echo append="true" file="${spring.ide.support.file}" message="${spring.ide.support.file.line.prefix}@{spring.file.path}${spring.ide.support.file.line.suffix}" /></sequential></for>
+    	<echo append="true" file="${spring.ide.support.file}" message="${spring.ide.support.file.services}" />
+		<for param="spring.file.path"><path refid="kfs.service.files" /><sequential><echo append="true" file="${spring.ide.support.file}" message="${spring.ide.support.file.line.prefix}@{spring.file.path}${spring.ide.support.file.line.suffix}" /></sequential></for>
+    	<echo append="true" file="${spring.ide.support.file}" message="${spring.ide.support.file.suffix}" />
+		<replace file="${spring.ide.support.file}" token="${basedir}${file.separator}" />
+		<replace file="${spring.ide.support.file}" token="${file.separator}" value="/" />
+  	</target>
+	
+	<target name="filter-project" depends="filter-project-p6spy,filter-project-help,filter-project-rice,filter-project-spring-ide">
+		<echo file="${source.directory}/${configuration.file}" message="${configuration}" />
+		
+		<echo file="${source.directory}/${ojb.properties.file}" message="${ojb-prop}" />
+		<echo file="${source.directory}/${ojb.logging.file}" message="${ojb-logging}" />
+		<echo file="${source.directory}/${ojb.repository.file}" message="${ojb-repo}" />
+	    <if>
+	        <isset property="institutional.configuration" />
+	        <then>
+	            <echo append="true" file="${source.directory}/${configuration.file}" message="${institutional.configuration}" />
+            </then>
+        </if>
+		<echo file="${source.directory}/${p6spy.file}" message="${p6spy}" />
+		<echo file="${webinf.directory}/${web.file}" message="${web}" />
+		<mkdir dir="${metainf.directory}" />
+		<echo file="${metainf.directory}/${context.file}" message="${context}" />
+	</target>
+
+	<target name="check-filter-project-schema" if="dont.filter.project.schema">
+		<property name="dont.make.source" value="true"/>
+	</target>
+	
+	<target name="filter-project-schema" unless="dont.filter.project.schema" depends="init-properties,init-make-references,check-filter-project-schema,make-source">
+		<path id="run.source.classpath">
+			<pathelement location="${war.classes.directory}" />
+			<path refid="compile.source.classpath" />
+		</path>
+		
+		<condition property="rebuild.dd.schema" value='false'><not><isset property="rebuild.dd.schema"/></not></condition>
+		
+		<java classname="org.kuali.kfs.sys.context.SchemaBuilder" fork="true">
+		    <arg value="${build.project.directory}"/>
+		    <arg value="${static.directory}"/>
+		    <arg value="${use.dd.schema.validation}"/>
+		    <arg value="${externalizable.static.content.url}"/>
+		    <arg value="${rebuild.dd.schema}"/>
+		    <jvmarg value="-Xms${run.tests.min.memory}" />
+			<jvmarg value="-Xmx${run.tests.max.memory}" />
+			<jvmarg value="-XX:MaxPermSize=${run.tests.max.permsize}" />
+		    <classpath refid="run.source.classpath" />
+		</java>
+	</target>
+	
+	<target name="rebuild-xsd-from-datadictionary">
+		<property name="rebuild.dd.schema" value="true"/>
+		<antcall target="filter-project-schema"/>
+	</target>
+	
+	<target name="filter-local" if="is.local.build" depends="init-properties">
+		<copy file="${build.appserver.directory}/${carol.file}" todir="${appserver.classes.dir}" overwrite="true" />
+		<copy todir="${appserver.lib.dir}" overwrite="true">
+			<fileset dir="${build.appserver.directory}" includes="*.jar" />
+		</copy>
+		<copy todir="${appserver.lib.dir}" overwrite="true">
+			<fileset dir="${drivers.directory}" />
+		</copy>
+		<mkdir dir="${settings.directory}" />
+		<echo file="${log4j.settings.file}" message="${log4j}" />
+		<mkdir dir="${security.directory}" />
+		<echo file="${security.property.file}" message="${security}"  />
+		<mkdir dir="${logs.directory}" />
+		<copy file="${build.external.directory}/${keystore.filename}" tofile="${keystore.file}"/>
+		<copy todir="${external.work.directory}">
+			<fileset dir="${build.work.directory}" />
+			<filterset>
+				<filter token="externalizable.static.content.url" value="${externalizable.static.content.url}" />
+			</filterset>
+		</copy>
+	</target>
+
+	<target name="make-source" unless="dont.make.source" depends="make-foundation-source,make-additional-source" />
+	
+	<target name="make-foundation-source" depends="init-make-references,filter-project" unless="dont.make.source">
+		<mkdir dir="${war.classes.directory}" />
+	    <echo message="Compiling Source from ${source.directory} into ${war.classes.directory}" />
+		<javac destdir="${war.classes.directory}" srcdir="${source.directory}"
+			   source="1.5" target="1.5"
+			   debug="true" nowarn="true" optimize="true" fork="true" memoryinitialsize="${compile.min.memory}" memorymaximumsize="${compile.max.memory}">
+			<classpath refid="compile.source.classpath" />
+		</javac>
+		<copy todir="${war.classes.directory}">
+			<fileset dir="${source.directory}" includes="${non.java.resources}" />
+		</copy>
+	</target>
+	
+	<target name="make-additional-source" if="additional.source.directory" unless="dont.make.source" depends="init-make-references,filter-project">
+        <echo message="Compiling Source from ${additional.source.directory} into ${war.classes.directory}" />
+        <javac destdir="${war.classes.directory}" srcdir="${additional.source.directory}"
+               debug="true" nowarn="true" optimize="true" fork="true" 
+               memoryinitialsize="${compile.min.memory}" memorymaximumsize="${compile.max.memory}">
+            <!-- add the just compiled files to the classpath for compiling the customizations -->
+            <classpath>
+                <pathelement location="${war.classes.directory}"/>
+                <path refid="compile.source.classpath" />
+                <fileset dir="${additional.lib.directory}">
+                    <include name="*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+        <copy todir="${war.classes.directory}" overwrite="true" verbose="true">
+            <fileset dir="${additional.source.directory}" includes="${non.java.resources}" />
+        </copy>
+	</target>
+
+	<target name="make-tests" depends="make-foundation-tests,make-additional-tests" />
+
+	<target name="make-foundation-tests" depends="init-make-references,filter-project">
+		<mkdir dir="${test.classes.directory}" />
+		<javac destdir="${test.classes.directory}" 
+	 	    source="1.5" target="1.5"
+			debug="true" nowarn="true" optimize="true" fork="true" memoryinitialsize="${compile.min.memory}" memorymaximumsize="${compile.max.memory}">
+			<classpath refid="compile.tests.classpath" />
+			<src path="${source.directory}" />
+			<src path="${test.infrastructure.source.directory}" />
+			<src path="${test.unit.source.directory}" />
+			<src path="${test.integration.source.directory}" />
+		</javac>
+		<copy todir="${test.classes.directory}">
+			<fileset dir="${test.infrastructure.source.directory}" includes="${tests.non.java.resources}" />
+			<fileset dir="${test.unit.source.directory}" includes="${tests.non.java.resources}" />
+			<fileset dir="${test.integration.source.directory}" includes="${tests.non.java.resources}" />
+		</copy>
+		<copy todir="${test.classes.directory}">
+			<fileset dir="${source.directory}" includes="${non.java.resources}" />
+		</copy>
+	</target>
+
+	<target name="make-additional-tests" depends="init-make-references,filter-project" if="additional.test.source.directory">
+        <echo message="Compiling Test Source from ${additional.test.source.directory} into ${test.classes.directory}" />
+        <javac destdir="${test.classes.directory}" debug="true" nowarn="true" optimize="true" fork="true" memoryinitialsize="${compile.min.memory}" memorymaximumsize="${compile.max.memory}">
+            <src path="${additional.source.directory}" />
+            <src path="${additional.test.source.directory}" />
+            <classpath>
+                <pathelement location="${test.classes.directory}"/>
+                <path refid="compile.tests.classpath" />
+                <fileset dir="${additional.lib.directory}">
+                    <include name="*.jar"/>
+                </fileset>
+                <fileset dir="${additional.test.lib.directory}">
+                    <include name="*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+        <echo message="Copying Non-Java files from ${additional.test.source.directory} into ${test.classes.directory}" />
+        <copy todir="${test.classes.directory}">
+            <fileset dir="${additional.test.source.directory}" includes="${non.java.resources}" />
+        </copy>
+        <echo message="Copying Non-Java files from ${additional.source.directory} into ${test.classes.directory}" />
+        <copy todir="${test.classes.directory}">
+            <fileset dir="${additional.source.directory}" includes="${non.java.resources}" />
+        </copy>
+	</target>
+	
+	<!-- please be careful if you muck with these settings - you can seriously hose the continuous integration process -->
+	<target name="test">
+		<mkdir dir="${all.temp.directory}" />
+		<mkdir dir="${test.xml.results.directory}" />
+		<junit showoutput="true" fork="true" forkmode="once" failureproperty="tests.failed" errorproperty="tests.errored" tempdir="${all.temp.directory}" >
+			<jvmarg value="-Xms${run.tests.min.memory}" />
+			<jvmarg value="-Xmx${run.tests.max.memory}" />
+			<jvmarg value="-XX:MaxPermSize=${run.tests.max.permsize}" />
+			<classpath refid="run.tests.classpath" />
+			<test name="org.kuali.kfs.sys.context.${tests.startup.class}" todir="${test.xml.results.directory}" />
+		</junit>
+		<junit showoutput="true" fork="true" forkmode="once" failureproperty="tests.failed" errorproperty="tests.errored" tempdir="${all.temp.directory}" >
+			<jvmarg value="-DKualiTestBase.skipOpenOrInProgressOrReopenedJiraIssues" />
+			<jvmarg value="-Xms${run.tests.min.memory}" />
+			<jvmarg value="-Xmx${run.tests.max.memory}" />
+			<jvmarg value="-XX:MaxPermSize=${run.tests.max.permsize}" />
+			<classpath refid="run.tests.classpath" />
+			<formatter type="xml" />
+			<batchtest todir="${test.xml.results.directory}">
+				<!-- use of the single "includes" attribute allows multiple comma-delimited patterns to be provided -->
+				<fileset dir="${test.unit.source.directory}" includes="${tests.includes}" />
+				<fileset dir="${test.integration.source.directory}" includes="${tests.includes}" />
+			</batchtest>
+			<test name="org.kuali.kfs.sys.context.${tests.shutdown.class}" todir="${test.xml.results.directory}" />
+		</junit>
+		<mkdir dir="${test.html.results.directory}" />
+		<junitreport todir="${test.html.results.directory}">
+			<fileset dir="${test.xml.results.directory}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${test.html.results.directory}" />
+		</junitreport>
+		<delete dir="${all.temp.directory}" failonerror="false" />
+		<echo message="Generated test results: ${test.html.results.directory}/index.html" />
+	</target>
+
+	<target name="dist-external" depends="init-properties">
+		<echo file="${log4j.file}" message="${log4j}" />
+		<echo file="${security.file}" message="${security}"  />
+		<copy file="${build.external.directory}/${keystore.filename}" tofile="${keystore.filename}"/>
+		<zip destfile="${deploy.working.directory}/settings.zip" basedir="${basedir}" includes="${log4j.file}" />
+		<zip destfile="${deploy.working.directory}/security.zip" basedir="${basedir}" includes="${security.file},${keystore.filename}" />
+		<zip destfile="${deploy.working.directory}/skel.zip" basedir="${build.work.directory}" />
+	</target>
+	
+	<target name="dist" depends="make-source,overlay-additional-web-content,filter-project-schema">
+		<copy todir="${war.directory}">
+			<fileset dir="${webroot.directory}" excludes="WEB-INF/classes/**/**" />
+		</copy>
+		<if>
+			<isset property="additional.lib.directory" />
+			<then>
+				<copy todir="${war.directory}/WEB-INF/lib">
+					<fileset dir="${additional.lib.directory}" includes="*.jar" />
+				</copy>
+			</then>
+		</if>
+		<jar jarfile="${ant.project.name}-${build.environment}.war" basedir="${war.directory}" compress="false" />
+	</target>
+
+    <target name="overlay-additional-web-content" depends="init-property-files" if="additional.web.content.directory">
+        <copy todir="${webroot.directory}" preservelastmodified="true" overwrite="true">
+            <fileset dir="${additional.web.content.directory}">
+                <include name="**/*" />
+            </fileset>
+        </copy>
+    </target>
+	
+	<target name="continuous-integration" depends="clean,make-tests,test">
+		<fail if="tests.failed" message="Tests failed" />
+	</target>
+
+	<target name="post-load-encrypt" depends="make-source">
+		<java classname="org.kuali.kfs.sys.context.BatchStepRunner" fork="true">
+			<jvmarg value="-Xms${run.postloadencrypt.min.memory}" />
+			<jvmarg value="-Xmx${run.postloadencrypt.max.memory}" />
+			<jvmarg value="-XX:MaxPermSize=${run.postloadencrypt.max.permsize}" />
+			<arg value="postDataLoadEncryptionStep" />
+			<classpath>
+				<pathelement location="${war.classes.directory}" />
+				<path refid="compile.source.classpath" />
+			</classpath>
+		</java>
+	</target>
+
+	<target name="help" depends="init-properties" description="Describe public targets">
+		<echo>--- OVERVIEW ---
+
+	the following configuration files are involved in the build process
+			- build.xml
+			- build.properties
+			- build/*
+			- ${ant.project.name}-build.properties in ${user.home}
+
+	you should start using this build script as follows
+
+			1. copy the ${ant.project.name}-build.properties from ${build.user.directory} in
+			${basedir} to ${user.home}
+			    - fill in the missing values in the sections related to tempoarily and permanently customizing the
+			      build for your machine (you do not need to worry about the rice development section)
+			    - override other property values in ${user.home}/${ant.project.name}-build.properties as needed
+			    - save your changes
+
+			2. run the echo-properties target and review the results
+
+			3. follow the instructions associated with the dist-local target and run that target
+
+			4. right click on the root project directory and select "Refresh"
+
+			5. click the "Run/Stop/Restart MyEclipse Application Servers" button in the "Java (default)" perspective in
+			eclipse to start tomcat
+
+			6. launch a browser and access http://localhost:8080/kuali-dev
+
+	you can override the default log4j settings for your local deployments by copying
+		${basedir}/${build.external.directory}/${log4j.file} to
+			${user.home}/${log4j.file} and modifying as desired.  you will also need to run the dist-local target
+			for this change to take effect.
+
+			--- TARGETS ---
+
+			dist-local: prepares tokenized resources and local configuration files and deploys tomcat context file on development workstation
+			- this target should be run each time you update the project or change property values in ${user.home}/${ant.project.name}-build.properties
+			- tomcat should not be running when you are executing this target
+
+			test-local: runs all project tests and generates results
+             - criteria for running dist-local must be met before running this target
+			- you can customize the set of tests that run by modifying the value of tests.includes in ${user.home}/${ant.project.name}-build.propertie
+			- tomcat should not be running when you execute this target
+
+			echo-properties: executes ant echoproperties task, thereby printing out all the properties that have been set
+
+			clean: removes all build output
+		</echo>
+	</target>
+
+	<import file="build-foundation.xml"/>
+</project>

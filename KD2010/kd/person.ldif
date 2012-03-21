@@ -1,0 +1,15 @@
+uid: przybyls
+eduPersonAffiliation: staff
+eduPersonAffiliation: affiliate
+eduPersonAffiliation: faculty
+eduPersonAffiliation: student
+employeeType: A
+objectClass: eduMember
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: top
+objectClass: eduPerson
+objectClass: organizationalPerson
+sn: Przybylski
+cn: Leo Przybylski
+userPassword: 6h5aXHLGCysQf3N4S9zYnuOtTijDVFkZ

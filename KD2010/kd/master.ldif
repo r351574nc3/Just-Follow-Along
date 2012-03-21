@@ -1,0 +1,10 @@
+rootdn "cn=admin,dc=eds,dc=rsmart,dc=com"
+rootpw 6h5aXHLGCysQf3N4S9zYnuOtTijDVFZk
+
+index cn,sn,uid pres,eq,approx,sub
+index objectClass eq
+
+
+include /usr/local/etc/openldap/schema/core.schema
+include /usr/local/etc/openldap/schema/cosine.schema
+include /usr/local/etc/openldap/schema/inetorgperson.schema
