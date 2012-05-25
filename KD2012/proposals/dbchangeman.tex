@@ -1,0 +1,42 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\title{\includegraphics[width=0.75\textwidth]{kuali_base.png}\\Database Change Migrations with Liquibase}
+\date{}
+\pagestyle{fancy}
+\fancyhead{} % Clear all header fields 
+\fancyhead[OL]{\sectionmark}
+\fancyhead[OR]{\includegraphics[height=26pt]{kuali_base.png}}% 
+\fancyhead[ER]{\sectionmark}
+\fancyhead[EL]{\includegraphics[height=26pt]{kuali_base.png}}% 
+
+\begin{document}
+\maketitle
+
+\abstract{Database changes via DDL/DML can be difficult to manage. Much of the time, DDL changes will be unreversable. For example, a table rename may require a table drop and recreate. This is usually favorable because then developers can ignore the proprietary language nature of SQL across RDBMS. Liquibase provides a common language and method supporting almost every database there is. Liquibase can also provide a common methodology for applying updates from the Kuali Foundation across different software systems. This can be very useful in apply upgrades from the Kuali Foundation or managing changes for your local institution.}
+
+This session covers intuitive and simple database change management
+process and how to integrate it with existing data migration, change
+management, and foundation KC, KFS and Rice updates.
+
+\section{Objectives}
+\begin{itemize}
+\item Implementors will learn best practices for structuring their projects.
+\item Implementors will learn how to accept database changes from the foundation and structure theirs around.
+\item Developers will learn how to test changes and the effects of change management within their development process.
+\item Implementors will learn how to rollback software versions including database changes.
+\item Implementors will learn how to play/fast-forward changes acrossed several revisions to update to a later version of database and source code.
+\item Business Intelligence Analysts will learn how to integrate database change management and ETL processes so that source code changes have minimal impact upon their conversion processes.
+\item Introduce a common methodology for apply upgrades across projects (KC,
+KFS, and Rice) using Maven and Liquibase.
+\end{itemize}
+
+\section{Audience}
+Technical track for: 
+\begin{itemize}
+\item DBA’s
+\item developers
+\item DevOps
+\end{itemize}
+\end{document}
