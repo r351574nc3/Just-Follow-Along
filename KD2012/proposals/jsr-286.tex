@@ -1,83 +1,30 @@
 \documentclass[12pt,notitlepage]{article}
 \author{Leo Przybylski}
+\usepackage{fancyhdr}
 \usepackage{graphicx}
+\title{\includegraphics[width=0.75\textwidth]{kuali_base.png}\\The Status is Not Quo! JSR-286 and Rice}
+\date{}
+\pagestyle{fancy}
+\fancyhead{} % Clear all header fields 
+\fancyhead[OL]{\sectionmark}
+\fancyhead[OR]{\includegraphics[height=26pt]{kuali_base.png}}% 
+\fancyhead[ER]{\sectionmark}
+\fancyhead[EL]{\includegraphics[height=26pt]{kuali_base.png}}% 
 
 \begin{document}
-Overview
-Below are proposals I am submitting for Kuali Days. Please vote in a comment!
+\maketitle
+\abstract{JSR-286 is the 2.0 portlet specification. This is a walkthrough of implementing web services as a portlet.}
+\section{Objectives}
+\begin{itemize}
+\item Developers will see what goes into producing a portlet implementation
+\item Developers will learn/understand how to create a web services client in java to communicate with Kuali Rice
+\item Developers will learn how to deploy a portlet to a portlet
+  container
+\end{itemize}
 
-The Impact of Dev Ops on Kuali Development and Hosting
-
-Abstract
-There is a movement occurring acrossed the OSS universe. It is DEVOPS. The concept is where developers are also the operational staff. They become basically swiss-army knives of software. In organizations spread out remotely, it can be difficult for developers to interact with support staff. Timezones can produce bottlenecks that delay projects. DEVOPS basically come out of necessity. 
-Objectives
-Implementations will see how to utilize DEVOPS in their organization.
-Developers will be discover how to use their skills at their organization to improve development productivity.
-SAAS systems hugely benefit from DEVOPS to provide the best possible uptime for your hosted software. Implementors and will see how SAAS solutions are more reliable, cost-effective, and secure because of utilizing DEVOPS.
-
-Audience
-Implementation Track
-Developers
-Project Managers
-
-The Status is Not Quo! JSR-286 and Rice
-
-Abstract
-JSR-286 is the 2.0 portlet specification. This is a walkthrough of implementing web services as a portlet.
-Objectives
-Developers will see what goes into producing a portlet implementation
-Developers will learn/understand how to create a web services client in java to communicate with Kuali Rice
-Developers will learn how to deploy a portlet to a portlet container
-
-Audience
-Technical track for developers
-
-Rice 1.1.1(2.0) Project: From the Cradle to the Grave
-
-Abstract
-A major version update for Kuali Rice is released, but not much is known about implementing it. There will undoubtably be numerous panels and presentations on taking advantage of the new version’s greatest features; however, this will be the one presentation that shows how to set up a new project, prepare it for Continuous Integration and deployment with use cases and best practices. This presentation overviews the new version project setup start to end.
-Objectives
-Best practices for setting up your SVN project to pull in your rice codebase
-Best practices for structuring your rice project
-Setting up a strong Continuous Integration environment for development
-Developing with overlays
-Deploying to tomcat
-Deploying to jetty
-Maven best practices
-
-Audience
-Technical Rice track for developers and configuration managers
-
-Scripting Batch Processing with Web Services
-
-Abstact
-One of the necessities implementers have is to remotely execute batch processes. Many institutions already have existing enterprise scheduling systems that are far more robust than Quartz which is shipped with KFS. The cases for this are when implementing institutions use a third-party scheduling system (Peoplesoft or BMC). Institutions certainly will want to put in place something more robust or may even already have a campus-wide scheduling system.
-
-This is an informative talk on how to connect an enterprise scheduling system with KFS. Attendees will see examples of how to integrate using shell-scripting and web-services.
-Objectives
-Learn about caveats of normal shell-scripting of batch processes.
-Learn of creating a simple web service that isn't published to Kuali Service Bus (KSB) for executing isolated batch processes.
-Learn how to create a client for communicating with the batch Web Services Definition Language (WSDL).
-Batch processes and WS-SEC with Rice and KFS
-
-Audience
-Developers on a technical
-
-Database Change Migrations with Liquibase
-
-Abstact
-Database changes via DDL/DML can be difficult to manage. Much of the time, DDL changes will be unreversable. For example, a table rename may require a table drop and recreate. This is usually favorable because then developers can ignore the proprietary language nature of SQL across RDBMS. Liquibase provides a common language and method supporting almost every database there is. Liquibase can also provide a common methodology for applying updates from the Kuali Foundation across different software systems. This can be very useful in apply upgrades from the Kuali Foundation or managing changes for your local institution.
-
-This session covers intuitive and simple database change management process and how to integrate it with existing data migration, change management, and foundation KC, KFS and Rice updates.
-Objectives
-Implementors will learn best practices for structuring their projects
-Implementors will learn how to accept database changes from the foundation and structure theirs around
-Developers will learn how to test changes and the effects of change management within their development process
-Implementors will learn how to rollback software versions including database changes
-Implementors will learn how to play/fast-forward changes acrossed several revisions to update to a later version of database and source code
-Business Intelligence Analysts will learn how to integrate database change management and ETL processes so that source code changes have minimal impact upon their conversion processes
-Introduce a common methodology for apply upgrades across projects (KC, KFS, and Rice) using Maven and Liquibase
-
-Audience
-Technical track for DBA’s, developers, and DevOps
+\section{Audience}
+Technical track for
+\begin{itemize}
+\item developers
+\end{itemize}
 \end{document}
