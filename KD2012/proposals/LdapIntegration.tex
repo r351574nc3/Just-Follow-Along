@@ -1,0 +1,57 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski}
+
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\title{\includegraphics[width=0.75\textwidth]{kuali_base.png}\\CAS and
+KIM LDAP Implementation for Developers}
+\date{}
+\pagestyle{fancy}
+\fancyhead{} % Clear all header fields 
+\fancyhead[OL]{\sectionmark}
+\fancyhead[OR]{\includegraphics[height=26pt]{kuali_base.png}}% 
+\fancyhead[ER]{\sectionmark}
+\fancyhead[EL]{\includegraphics[height=26pt]{kuali_base.png}}% 
+
+
+\begin{document}
+\maketitle
+
+\abstract{KIM's reference implementation requires a RDBMS datastore. For systems that work together, all will 
+access to the same datastore for principal/entity information.
+However, systems university wide will need
+a common system for identity management and authentication. KIM must also tie-in 
+authorization across software from the Kuali Foundation.
+
+This session covers the ease of integrating Spring LDAP with KIM and the caveats of KIM integration and alternative
+datastores. 
+
+Attendees will see and experience taking an existing Kuali application and adding a directory service datastore for
+entities. The goals are that attendees will learn about what goes into mapping a directory service to KIM, and how
+to implement the necessary service overrides. They will also learn how
+to setup CAS to communicate with KIM and how to manage developing with
+LDAP integration and CAS implemented together.
+
+\section{Presenters}
+Leo Przybylski
+
+\section{Audience}
+Technical track for
+\begin{itemize}
+\item Developers
+\item Devops
+\end{itemize}
+
+
+\subsection{Level}
+Intermediate
+
+\section{Focus Area}
+Technical
+
+\section{Track}
+Kuali Financial System
+
+\section{Format}
+Information Session
+\end{document}
