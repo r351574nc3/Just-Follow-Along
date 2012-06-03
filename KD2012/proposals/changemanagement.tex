@@ -1,0 +1,64 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\title{\includegraphics[width=0.75\textwidth]{kuali_base.png}\\Maven
+  Overlays: Use Cases for Change Management}
+\date{}
+\pagestyle{fancy}
+\fancyhead{} % Clear all header fields 
+\fancyhead[OL]{\sectionmark}
+\fancyhead[OR]{\includegraphics[height=26pt]{kuali_base.png}}% 
+\fancyhead[ER]{\sectionmark}
+\fancyhead[EL]{\includegraphics[height=26pt]{kuali_base.png}}% 
+
+\begin{document}
+\maketitle
+\abstract{Changes can come from numerous places. They can come from
+  the Kuali FOundation,vendors, consultants, patches, and
+  developers. Two common problems with these for institutions are
+  determining how to stay on top of them and how projects should be
+  organized to deal with incoming changes as well as local
+  customizations. In this session, change managers and developers will
+be introduced to processes and policies for managing incoming changes
+from varying sources. Devops will observe how to leverage maven
+overlays and VCS (SVN and Git) to structure your projects. We will
+observe caveats and exceptional cases as well as common cases like
+dealing with distributing Rice updates to KFS or KC instances. We will
+examine maven overlay use cases for Rice, KC, and KFS projects.}
+
+\section{Objectives}
+\begin{itemize}
+\item Describe how to setup maven overlays for kuali projects.
+\item Show how to use maven overlays in development as well as for packaging
+  individual changes for change promotion.
+\item Describe how to utilize features in SVN and/or Git for managing
+  changes and promoting them to environments.
+\item Show the advantages of convention over configuration for
+  managing environments and software deployment.
+\item Show how convention over configuration can be used to simplify
+  processes for managing changes from varying sources.
+\item Illustrate how to manage project changes granularly or generally.
+\end{itemize}
+
+\section{Audience}
+Technical track for
+\begin{itemize}
+\item Developers
+\item Devops
+\item Change managers
+\end{itemize}
+
+\subsection{Level}
+Advanced
+
+\section{Focus Area}
+Technical
+
+\section{Track}
+Kuali Rice or Kuali Coeus or Kuali Financials
+
+\section{Format}
+Information Session
+
+\end{document}
