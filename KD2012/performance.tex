@@ -56,6 +56,10 @@
   \begin{itemize}
     \item Setup and Installation
     \item How it works
+      \begin{itemize}
+        \item Request simulation (Not browser simulation)
+        \item Tests the application, not the server
+      \end{itemize}
     \item Features
   \end{itemize}
 \end{frame}
@@ -89,7 +93,11 @@
     \item Impacting External Live Systems
       \begin{itemize}
         \item The boundary between testing environment and user environment
+        \item When is it too realistic?
         \item External live systems impact your application and can create latency that needs to be tested
+        \item CAS
+        \item Kerberoas
+        \item LDAP
       \end{itemize}
   \end{itemize}
 \end{frame}
@@ -109,7 +117,18 @@
 \begin{frame}{Optimization}
   \begin{itemize}
     \item Improving Request Times
+      \begin{itemize}
+        \item SessionDocumentService
+        \item Improved Logging
+        \item Reducing data transfered
+        \item Reducing web service calls
+        \item Transactional vs. Non-transactional datasources
+      \end{itemize}
     \item Optimal hardware configurations
+      \begin{itemize}
+        \item CPU impact
+        \item Memory impact
+      \end{itemize}
   \end{itemize}
 \end{frame}
 
