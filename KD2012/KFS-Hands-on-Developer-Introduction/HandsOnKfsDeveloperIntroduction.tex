@@ -1,4 +1,5 @@
 \documentclass[xcolor=dvipsnames,14pt]{beamer}
+\usepackage{minted}
 \usetheme{kualidays2012}
 \usecolortheme[RGB={125,25,25}]{structure}
 \setbeamerfont{structure}{family=\rmfamily,series=\bfseries} 
@@ -33,65 +34,150 @@
 		\begin{itemize}
 			\item Virtual Machines
 		\end{itemize}
-		\item Exercises
-			\begin{enumerate}
-				\item Setup the Database
-			\end{enumerate}
+        \item Exercises
+        \begin{enumerate}
+            \item Setup the Database                  
+        \end{enumerate}
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Exercise 1: Import Project}
+\begin{frame}[fragile]{Exercise 1: Import Project}
 	\begin{itemize}
 		\item Goals
+          \begin{itemize}
+            \item Introduction to Eclipse and KFS
+            \item Understand importing KFS into Eclipse from source
+          \end{itemize}          
 		\item Tasks
+          \begin{itemize}
+            \item Import KFS into Eclipse
+          \end{itemize}          
 	\end{itemize}
+
 \end{frame}
 
 \begin{frame}{Exercise 2: Database Setup}
 	\begin{itemize}
 		\item Goals
+          \begin{itemize}
+            \item Familiarize with the impex tool
+            \item Understand how to configure the impex tool
+            \item Learn how the exported database is structured and loaded
+          \end{itemize}          
 		\item Tasks
+          \begin{itemize}
+          \item Locate impex within the workspace
+          \item Modify the impex-build.properties to create a new
+            database
+          \item Begin the database import process
+          \end{itemize}          
+
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{About some business object}
+\begin{frame}{FERPA Certification}
+  \begin{itemize}
+    \item Used to process what people have been FERPA certified
+    \item Allows us to use verify FERPA certification from other documents
+    \item Not a real FERPA implementation. Just an example on how
+      MaintenanceDocuments and Business Objects in KFS can be used.
+    \item Setting up routing based on FERPA Certification
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Exercise 3: Create Business Object Table}
 	\begin{itemize}
 		\item Goals
+          \begin{itemize}
+            \item Understand how the OR/M, DataDictionary, and Java
+              classes map class information and metadata for Business
+              Objects and Documents
+            \item See common patterns for creating tables in KFS
+            \item Understand naming conventions
+          \end{itemize}          
 		\item Tasks
+          \begin{itemize}
+            \item Create a database table with constraints
+          \end{itemize}          
 	\end{itemize}
 \end{frame}
 
 \begin{frame}{Exercise 4: Setup Business Object}
 	\begin{itemize}
 		\item Goals
-		\item Tasks
-	\end{itemize}
+          \begin{itemize}
+            \item Understand how the OR/M, DataDictionary, and Java
+              classes map class information and metadata for Business
+              Objects and Documents
+            \item Learn patterns for creating Business Objects
+            \item Understand controls, lookups, and inquiries and how
+              to configure them
+          \end{itemize}          
+		\item Tasks	
+          \begin{itemize}
+            \item Create a FerpaCertification class
+            \item Create a DataDictionary BusinessObjectEntry
+          \end{itemize}          
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Exercise 4: Create Maintenance Document}
 	\begin{itemize}
 		\item Goals
-		\item Tasks
-	\end{itemize}
+          \begin{itemize}
+            \item Understand how the OR/M, DataDictionary, and Java
+              classes map class information and metadata for Business
+              Objects and Documents
+            \item Learn how to add fields to a document and modify controls.
+          \end{itemize}          
+		\item Tasks	
+          \begin{itemize}
+            \item Create a DataDictionary MaintenanceDocumentEntry
+          \end{itemize}          
+        \end{itemize}
 \end{frame}
 
-\begin{frame}{DataDictionary Demystified: Business Objects and Maintenance Documents}
+\begin{frame}{DataDictionary Demystified: Business Objects and
+    Maintenance Documents}
+  \begin{itemize}
+    \item MaintenanceDocuments are simplifying the user interface
+      design of a document/page.
+    \item BusinessObject entries are for describing metadata about the
+      business object for use in other documents/objects. Some of the
+      information may not be necessary for a document.
+    \item BusinessObject entries also define metadata about lookups
+      and inquiries.
+  \end{itemize}           
 \end{frame}
 
 \begin{frame}{Exercise 5: Basic Routing}
 	\begin{itemize}
 		\item Goals
+          \begin{itemize}
+            \item Understand how to create and then ingest workflow doctypes
+          \end{itemize}          
 		\item Tasks
+          \begin{itemize}
+            \item Create a workflow doctype for FerpaCertificationDocument
+            \item Ingest the workflow doctype into Rice using the ingester
+          \end{itemize}          
 	\end{itemize}
 \end{frame}
 
 \begin{frame}{Exercise 6: Split Node}
 	\begin{itemize}
 		\item Goals
+          \begin{itemize}
+            \item Learn about how to create more complicated workflows
+              based on decisions and document information
+            \item Understand what java and xml needs to be modified
+              for split nodes
+          \end{itemize}          
 		\item Tasks
+          \begin{itemize}
+            \item Add split node routing information to the doctype
+            \item Add a method to handle split nodes to the document
+          \end{itemize}          
 	\end{itemize}
 \end{frame}
 
