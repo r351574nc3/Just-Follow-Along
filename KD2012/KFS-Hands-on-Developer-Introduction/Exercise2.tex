@@ -17,6 +17,50 @@ Database Setup}
 
 \addcontentsline{toc}{subsection}{Instructions}
 \subsection*{Instructions}
+\subsubsection{1 Update impex-build.properties}
+Open \textbf{/home/kuali/impex-build.properties}. Locate the section of code that looks like
+\begin{minted}{yaml}
+import.torque.database = mysql
+import.torque.database.driver = com.mysql.jdbc.Driver
+import.torque.database.url = jdbc:mysql://localhost:3306/kuldemo
+import.torque.database.user=kuldemo
+import.torque.database.schema=KULDEMO
+import.torque.database.password=kuldemo
+\end{minted}
+
+and change it to
+
+\begin{minted}{yaml}
+import.torque.database = mysql
+import.torque.database.driver = com.mysql.jdbc.Driver
+import.torque.database.url = jdbc:mysql://localhost:3306/kuldev
+import.torque.database.user=kuldev
+import.torque.database.schema=KULdev
+import.torque.database.password=kuldev
+\end{minted}
+
+\subsubsection{1 Update kfs-build.properties}
+Open \textbf{/home/kuali/kfs-build.properties} Locate the section of code that looks like
+\begin{minted}{yaml}
+datasource.username=kuldemo
+datasource.password=kuldemo
+mysql.datasource.url=jdbc:mysql://localhost:3306/kuldemo
+\end{minted}
+
+and change it to
+
+\begin{minted}{yaml}
+datasource.username=kuldev
+datasource.password=kuldev
+mysql.datasource.url=jdbc:mysql://localhost:3306/kuldev
+\end{minted}
+
+\subsubsection{2 Run Impex}
+Using a terminal window do the following:
+\begin{minted}{sh}
+  cd /home/kuali/workspace/kul-cfg-dbs/impex
+  ant create-schema import
+\end{minted}
 
 \newpage
 {\setlength{\baselineskip}%

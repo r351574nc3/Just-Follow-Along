@@ -1,10 +1,11 @@
 \documentclass[letterpaper,notitlepage,12pt]{book}
 \author{Leo Przybylski}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{minted}
 \usepackage{graphicx}
 \usepackage{epstopdf}
 \usepackage{listings}
 \usepackage{fancyhdr}
-\usepackage[usenames,dvipsnames]{color}
 \usepackage{hyperref}
 \hypersetup{
     colorlinks,
@@ -13,8 +14,8 @@
     linkcolor=ForestGreen,
     urlcolor=ForestGreen
 }
-%%\hypersetup{linktocpage}
-\definecolor{ubergray}{RGB}{245,245,245}
+\hypersetup{linktocpage}
+%%\definecolor{ubergray}{RGB}{245,245,245}
 \title{\includegraphics[width=\textwidth]{cover.png}\\KFS Hands-On Developer Introduction}
 \date{}
 \pagestyle{fancy}
@@ -66,13 +67,22 @@ Exercise instructions are included in this document. All software and
 examples are available on the VirtualBox appliance distributed during
 class. To install the VirtualBox appliance:
 \begin{enumerate}
-  \item Copy the \textbf{Ubuntu.ova} from the distributed USB drive to
-    your hard disk.
-  \item Also, copy the VirtualBox installer for your operating system
-    from the USB drive to your hard disk.
   \item Execute the VirtualBox installer to install the software.
-  \item Double-click on the \textbf{Ubuntu.ova}. This will begin the
-    VM import process.
+  \item Copy the \textbf{KFSDev.box} from the distributed USB drive to
+    your hard disk.
+  \item Execute from a shell 
+    \begin{minted}{sh}
+      vagrant box add KFSDev KFSDev.box
+    \end{minted}
+  \item Import the Virtual Machine
+    \begin{minted}{sh}
+      vagrant up
+    \end{minted}
+  \item Stop the Virtual Machine
+    \begin{minted}{sh}
+      vagrant halt
+    \end{minted}
+  \item Start VirtualBox
 \end{enumerate}
 
 \addcontentsline{toc}{subsection}{Virtual Machine Manifest}
@@ -82,27 +92,20 @@ the software we will use for this class:
 \begin{description}
   \item [Eclipse Indigo] the IDE used for class. Includes Subclipse,
     the m2eclipse plugin, and pre-installed projects with examples.
-  \item [Oracle jrockit JVM] the JVM used for executing/testing
+  \item [OpenJDK 1.7.0\_06 IcedTea] the JVM used for executing/testing
     examples.
-  \item [soapUI] Utility for debugging soap communication
   \item [Maven 3] used to build Rice applications, run tests, and
     start the Tomcat6 application
-  \item [OpenLDAP slapd] the OpenLDAP project LDAP server used for the
-    LDAP integration examples.
-  \item [ldap-utils] the OpenLDAP project utilities for working with
-    Directory Services.
-  \item [Oracle MySQL Database Server] where the Rice applications
-    will store persistent information.
 \end{description}
 
 \subsubsection*{Credentials}
 \begin{description}
-\item [User Account] is \textbf{rice} with the password
-  \textbf{rice}. This is used to unlock the VM after it has suspended,
+\item [User Account] is \textbf{kuali} with the password
+  \textbf{kuali}. This is used to unlock the VM after it has suspended,
   gone to sleep, or locked. The password is also required for
   executing commands as \textbf{root} which may on occassion be
   required. The user account home directory is located at
-  \textbf{/home/rice} and will frequently be referred to during the training.
+  \textbf{/home/kuali} and will frequently be referred to during the training.
 \item [Database Account] uses the jdbc connection string
   \textbf{jdbc:mysql://localhost:3306/kuldemo} and the
   username/password \textbf{kuldemo}/\textbf{kuldemo}. These are the
@@ -111,17 +114,18 @@ the software we will use for this class:
 \end{description}
 
 \subsubsection*{Structure}
-The Eclipse workspace is located at \textbf{/home/rice/workspace}. In
-it are three projects used during the training: \textbf{cas},
-\textbf{rice-src}, and \textbf{trnapp}.
+The Eclipse workspace is located at \textbf{/home/kuali/workspace}. 
 
-Other examples and exercises from the \textbf{Basic Kuali Rice
-  Training} can be found in \textbf{/home/rice/Aug2011}. You may feel
-free to go through these as well at your leisure.
 
 \addcontentsline{toc}{section}{Training Overview}
 \section*{Training Overview}
 
 \include{Exercise1}
+\include{Exercise2}
+\include{Exercise3}
+\include{Exercise4}
+\include{Exercise5}
+\include{Exercise6}
+\include{Exercise7}
 
 \end{document}
