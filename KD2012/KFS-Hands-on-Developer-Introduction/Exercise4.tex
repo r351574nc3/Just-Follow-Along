@@ -1,0 +1,136 @@
+\addcontentsline{toc}{part}{Exercise 4: Create Maintenance Document}
+\part*{Exercise 4: \\
+Setup Business Object}
+
+\addcontentsline{toc}{section}{Exercise 5: Create Maintenance Document}
+{\setlength{\baselineskip}%
+  {0.0\baselineskip}
+  \section*{\flushright Exercise r: \\
+Setup Business Object}
+  \hrulefill \par}
+
+\addcontentsline{toc}{subsection}{Description}
+\subsection*{Description}
+
+\addcontentsline{toc}{subsection}{Goals}
+\subsection*{Goals}
+
+\addcontentsline{toc}{subsection}{Instructions}
+\subsection*{Instructions}
+
+\subsubsection*{1 Create Business Object Class}
+Create a file in \textbf{work/src/org/kuali/kfs/sys/businessobject/}
+called \textbf{FerpaCertification}
+\begin{minted}{java}
+/*
+ * Copyright 2005-2008 The Kuali Foundation
+ * 
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.opensource.org/licenses/ecl2.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.kuali.kfs.sys.businessobject;
+
+
+/**
+ * Ferpa Certification Business Object
+ */
+public class FerpaCertification extends PersistableBusinessObjectBase implements Inactivateable {
+  
+  private Long id;
+  private String principalId;
+  private String Person;
+
+  /**
+  * Default no-arg constructor.
+  */
+  
+  public FerpaCertification() {
+        super();
+    }
+
+    /**
+     * Gets the id attribute.
+     * 
+     * @return Returns the id.
+     */
+    public String getId() {
+        return id;
+    }
+
+
+    /**
+     * Sets the id attribute value.
+     * 
+     * @param id The id to set.
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+
+    /**
+     * Gets the principalId attribute.
+     * 
+     * @return Returns the principalId.
+     */
+    public Long getPrincipalId() {
+        return principalId;
+    }
+
+
+    /**
+     * Sets the principalId attribute value.
+     * 
+     * @param principalId The principalId to set.
+     */
+    public void setPrincipalId(String principalId) {
+        this.principalId = principalId;
+    }
+
+
+    /**
+     * Gets the person attribute.
+     * 
+     * @return Returns the person.
+     */
+    public String getPerson() {
+        return person;
+    }
+
+
+    /**
+     * Sets the person attribute value.
+     * 
+     * @param person The person to set.
+     */
+    public void setPerson(String person) {
+        this.person = person;
+    }
+}
+\end{minted}
+
+\subsubsection*{2 Create Business DataDictionary Metadata}
+\begin{minted}{xml}
+\end{minted}
+
+\subsubsection*{3 Create O/R Mapping}
+
+\begin{minted}{xml}
+\end{minted}
+
+\subsubsection*{Add a link to the portal}
+
+\newpage
+{\setlength{\baselineskip}%
+  {0.0\baselineskip}
+  \section*{Notes}
+  \hrulefill \par}
