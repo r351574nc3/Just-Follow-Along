@@ -1,19 +1,16 @@
 \documentclass[xcolor=dvipsnames,14pt]{beamer}
+\usepackage{minted}
+\usepackage{etoolbox}
 \usetheme{kualidays2012}
 \usecolortheme[RGB={125,25,25}]{structure}
 \setbeamerfont{structure}{family=\rmfamily,series=\bfseries} 
 \setbeamerfont{subtitle}{family=\sffamily,series=\bfseries} 
 \setbeamercolor{normal text}{bg=brown!46}
-
 \begin{document}
 
 \title{Si Vis Bellum Para Bellum}
 \subtitle{KC Customization using Maven's WAR overlays}
-\author[Leo]{Leo Przybylski}
-
-\institute[rSmart]{rSmart\inst{1} \\[1ex] 
-  \texttt{leo@rsmart.com}
-}
+\author[Leo]{Kousheh, Mohammed A and Leo Przybylski}
 
 \begin{frame}[plain]
   \titlepage
@@ -25,6 +22,9 @@
   \item About Presenters
   \item Overlay Basics
   \item Overlay Patterns
+  \item Overlays and VCS
+  \item Overlays and Appserver Plugins
+  \item Multi-module vs. Regular Webapp Project
   \end{itemize}
 \end{frame}
 
@@ -42,24 +42,11 @@
 
 \begin{frame}{Overlay Basics}
   \begin{itemize}
-  \item First Overlay
   \item How Overlays work
+  \item What overlays are not
+  \item First Overlay
   \end{itemize}
 \end{frame}
-
-\begin{frame}{First Overlay}
-  Using KC as an Example to add CAS Support
-  \begin{enumerate}
-    \item Build KC.
-    \item Install as a prototype.
-    \item Setup prototype jar.
-    \item Create overlay project.
-    \item Add CAS dependency.
-    \item Add dependencies for KC.
-    \item Configure war plugin for overlay.
-  \end{enumerate}
-\end{frame}
-
 
 \begin{frame}{How Overlays Work}
   \begin{itemize}
@@ -90,33 +77,140 @@
   \end{itemize}
 \end{frame}
 
+\begin{frame}{First Overlay}
+  Using KC as an Example to switch out CAS support for the login dummy
+  \begin{enumerate}
+    \item Package KC.
+    \item Install as a prototype.
+    \item Setup prototype jar.
+    \item Create overlay project.
+    \item Add CAS dependency.
+    \item Add dependencies for KC.
+    \item Configure war plugin for overlay.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Package and Install KC as a prototype}
+  \begin{enumerate}
+  \item Do install
+  \begin{minted}[fontsize=\footnotesize]{sh}
+mvn install
+  \end{minted}
+  \item Create a and Install Prototype Jar
+  \begin{minted}[fontsize=\scriptsize]{sh}
+mvn jar:jar
+mvn install:install-file \
+    -DgroupId=org.kuali.kra \
+    -DarchetypeId=kc_project \ 
+    -Dversion=5.1  \
+    -Dpackaging=jar \
+    -Dfile=target/kc_project-5.0.1.jar \
+    -DpomFile=pom.xml
+  \end{minted}
+  ... or ...
+  \begin{minted}[fontsize=\scriptsize]{sh}
+mvn deploy:deploy-file \
+    -DgroupId=org.kuali.kra \
+    -DarchetypeId=kc_project \ 
+    -Dversion=5.1  \
+    -Dpackaging=jar \
+    -Dfile=target/kc_project-5.0.1.jar \
+    -DpomFile=pom.xml
+  \end{minted}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Create an Overlay Project the Old-Fashioned
+    Way}
+  \begin{itemize}
+  \item Configure the maven-war-plugin
+  \end{itemize}
+  \begin{minted}[fontsize=\scriptsize]{xml}
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-war-plugin</artifactId>
+  <version>\${maven-war-plugin.version}</version>
+  <configuration>
+    <overlays>
+      <overlay>
+        <groupId>\${kcPrototypeGroupId}</groupId>
+        <artifactId>\${kcPrototypeArtifactId}</artifactId>
+        <excludes>
+          <exclude>WEB-INF/classes/ApplicationResources.properties</exclude>
+          <exclude>WEB-INF/tags/portal/</exclude>
+          <exclude>WEB-INF/web.xml</exclude>
+          <exclude>**/lib/**</exclude>
+        </excludes>
+      </overlay>
+    </overlays>
+  </configuration>
+</plugin>
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Configure the maven-war-plugin}
+  \begin{minted}[fontsize=\scriptsize]{xml}
+<dependencies>
+<!--
+    These are the prototype dependencies. It is used by the overlay to refer back
+    to the classes in the prototype.
+  -->
+  <dependency>
+    <groupId>\${kcPrototypeGroupId}</groupId>
+    <artifactId>\${kcPrototypeArtifactId}</artifactId>
+    <version>\${kcPrototypeVersion}</version>
+    <type>war</type>
+  </dependency>
+  
+  <dependency>
+    <groupId>\${kcPrototypeGroupId}</groupId>
+    <artifactId>\${kcPrototypeArtifactId}</artifactId>
+    <version>\${kcPrototypeVersion}</version>
+    <type>jar</type>
+  </dependency>
+</dependencies>
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Overlay Archetypes}
+  \begin{itemize}
+  \item Leo has developed an archetype for creating and overlay KC project.
+  \item https://github.com/r351574nc3/kualigan-maven-plugins/tree/master/kc-maven-plugin
+  \item To create an Overlay Project from Archetype
+  \begin{minted}[fontsize=\scriptsize]{sh}
+mvn -Dkc:create-overlay \
+-DgroupId=com.rsmart.kuali.kra \
+-DartifactId=kc -Dversion=5.1
+  \end{minted}
+  \end{itemize}
+\end{frame}
+
 \begin{frame}{Overlay Patterns}
   \begin{itemize}
     \item Overlaying configuration modifications.
     \item Overlay to activate a module.
     \item Overlay theming for UX/UI.
+    \item Filtering overlay resources.
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Overwriting Changes in an Overlaid Project}
-%  \begin{itemize}
-%  \end{itemize}
+\begin{frame}[fragile]{Overlays and Appserver Plugins}
+\begin{itemize}
+\item Can run unassembled wars
+\item Alow hot-code replacement of overlaying code
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Multi-module vs. Regular Webapp Project}
   \begin{itemize}
     \item Always difficult to build/manage multi-module webapp
       projects.
-    \item Jar dependencies from the parent may not match up and
-      therefore will not get overlaid (redundant jars).
+%    \item Jar dependencies from the parent may not match up;
+%      therefore, will not get overlaid (redundant jars).
+    \item Module artifacts are jars. This is adds problems for plugins that run on unassembled projects.
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Overlay Archetypes}
-  \begin{itemize}
-  \item Leo has developed an archetype for creating and overlay KC project.
-  \end{itemize}
+\begin{frame}{Solutions to Multi-module Issues}
 \end{frame}
-
-
 \end{document}

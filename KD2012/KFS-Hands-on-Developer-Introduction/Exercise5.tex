@@ -18,6 +18,77 @@ Create Maintenance Document}
 \addcontentsline{toc}{subsection}{Instructions}
 \subsection*{Instructions}
 
+\subsubsection*{1 Create FerpaCertificationMaintenanceDocument.xml}
+\begin{minted}{xml}
+<?xml version="1.0" encoding="UTF-8"?><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p" xmlns:dd="http://rice.kuali.org/dd" xsi:schemaLocation="http://www.springframework.org/schema/beans         http://www.springframework.org/schema/beans/spring-beans-2.0.xsd         http://rice.kuali.org/dd         http://rice.kuali.org/dd/dd.xsd">
+<!--
+ Copyright 2008-2009 The Kuali Foundation
+ 
+ Licensed under the Educational Community License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+ http://www.opensource.org/licenses/ecl2.php
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+  <bean id="FerpaCertificationMaintenanceDocument" parent="FerpaCertificationMaintenanceDocument-parentBean"/>
+
+  <bean id="FerpaCertificationMaintenanceDocument-parentBean" abstract="true" parent="MaintenanceDocumentEntry">
+    <property name="businessObjectClass" value="org.kuali.kfs.sys.businessobject.FerpaCertification"/>
+    <property name="maintainableClass" value="org.kuali.kfs.sys.document.FinancialSystemMaintainable"/>
+    <property name="maintainableSections">
+      <list>
+        <ref bean="FerpaCertificationMaintenanceDocument-EditFerpaCertification"/>
+      </list>
+    </property>
+    <property name="defaultExistenceChecks">
+      <list>
+        <bean parent="ReferenceDefinition" p:attributeName="person" p:attributeToHighlightOnFail="principalId"/>
+      </list>
+    </property>
+    <property name="lockingKeys">
+      <list>
+        <value>principalId</value>
+      </list>
+    </property>
+            
+    <property name="documentTypeName" value="FERPA"/>
+    <property name="businessRulesClass" value="org.kuali.kfs.sys.document.validation.impl.FerpaCertificationRule"/>
+    <property name="documentAuthorizerClass" value="org.kuali.kfs.sys.document.authorization.FinancialSystemMaintenanceDocumentAuthorizerBase"/>
+    <property name="workflowAttributes">
+    	<ref bean="FerpaCertificationMaintenanceDocument-workflowAttributes"/>
+    </property>
+  </bean>
+
+<!-- Maintenance Section Definitions -->
+
+
+  <bean id="FerpaCertificationMaintenanceDocument-EditFerpaCertification" parent="FerpaCertificationMaintenanceDocument-EditFerpaCertification-parentBean"/>
+
+  <bean id="FerpaCertificationMaintenanceDocument-EditFerpaCertification-parentBean" abstract="true" parent="MaintainableSectionDefinition">
+    <property name="id" value="Edit FerpaCertification"/>
+    <property name="title" value="Edit FerpaCertification"/>
+    <property name="maintainableItems">
+      <list>
+        <bean parent="MaintainableFieldDefinition" p:name="id" p:required="true"/>
+        <bean parent="MaintainableFieldDefinition" p:name="principalId" p:required="true"/>
+        <bean parent="MaintainableFieldDefinition" p:name="active" p:required="true"/>
+      </list>
+    </property>
+  </bean>
+  
+  <!-- workflow attributes -->
+  <bean id="FerpaCertificationMaintenanceDocument-workflowAttributes" parent="FerpaCertificationMaintenanceDocument-workflowAttributes-parentBean"/>
+  
+  <bean id="FerpaCertificationMaintenanceDocument-workflowAttributes-parentBean" class="org.kuali.rice.kns.datadictionary.WorkflowAttributes" abstract="true"/>
+</beans>\end{minted}
+
 \subsubsection*{Add a link to the portal}
 
 \newpage

@@ -1,4 +1,5 @@
 \documentclass[xcolor=dvipsnames,14pt]{beamer}
+\usepackage{minted}
 \usetheme{kualidays2012}
 \usecolortheme[RGB={125,25,25}]{structure}
 \setbeamerfont{structure}{family=\rmfamily,series=\bfseries} 
@@ -9,12 +10,10 @@
 
 \title[A short proof]{Optimizing Performance at UConn}
 \subtitle[Errors]{Testing, Analyzing, and Improving KFS Performance}
-\author[Leo]{Leo Przybylski \inst{1} \and Mitch Saba \inst{2} \and James Gedarovich \inst{3}}
+\author[Leo]{Leo Przybylski \inst{1} \and James Gedarovich \inst{3}}
 
 \institute[rSmart]{rSmart\inst{1} \\[1ex] 
   \texttt{leo@rsmart.com}
-  \and UConn \inst{2} \\[1ex]
-  \texttt{mitch.saba@uconn.edu}  
   \and UConn \inst{3} \\[1ex]
   \texttt{james.gedarovich@uconn.edu}
 }
@@ -27,13 +26,17 @@
 \begin{frame}{About Presenters}
   \begin{itemize}
     \item Jim Gedarovich
-    \item Mitch Saba
     \item Leo Przybylski
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Overview}
   \begin{itemize}
+    \item Planning
+    \begin{itemize}
+      \item Test plan and schedule
+      \item Notifying interested parties (get people involved)
+    \end{itemize}
     \item Infastructure 
       \begin{itemize}
         \item Test Exercisers
@@ -44,11 +47,22 @@
         \item Tsung
         \item Recorder
         \item Open Performance Automation Framework
+        \item Open-Synchronized-System-Resource-Monitoring
+        \item jstat
+        \item aragozin/jvm-tools (JTop GCRep)
+        \item JVisualVM and AppDynamics
       \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{More Overview}
+  \begin{itemize}
     \item Building Tests with the Open Performance Automation Framework
     \item Running Tests
+    \item Reporting Statistics
     \item Analyzing Test Results
     \item Translating Analysis Data into Optimizations
+    \item Lessons Learned
   \end{itemize}
 \end{frame}
 
@@ -73,23 +87,189 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Building Tests with the Open Automation Framework}
+\begin{frame}{Tools - Open-Synchronized-System-Resource-Monitoring}
+  \begin{itemize}
+    \item Aggregates resource reports (sar, jstat, netstat, etc...) from multiple sources.
+    \item Utilizes perl modules.
+    \item Needed to create a module for jstat.
+    \item Eliminates human error by automating report generation and gathering.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Tools - jstat and jstatd}
+  It's a command line tool
+  \begin{minted}[fontsize=\scriptsize]{sh}
+r351574nc3@behemoth~
+(13:41:22) [24] jstat
+invalid argument count
+Usage: jstat -help|-options
+       jstat -<option> [-t] [-h<lines>] <vmid> [<interval> [<count>]]
+
+Definitions:
+  <option>      An option reported by the -options option
+  <vmid>        Virtual Machine Identifier. A vmid takes the following form:
+                     <lvmid>[@<hostname>[:<port>]]
+                Where <lvmid> is the local vm identifier for the target
+                Java virtual machine, typically a process id; <hostname> is
+                the name of the host running the target Java virtual machine;
+                and <port> is the port number for the rmiregistry on the
+                target host. See the jvmstat documentation for a more complete
+                description of the Virtual Machine Identifier.
+  <lines>       Number of samples between header lines.
+  <interval>    Sampling interval. The following forms are allowed:
+                    <n>["ms"|"s"]
+                Where <n> is an integer and the suffix specifies the units as 
+                milliseconds("ms") or seconds("s"). The default units are "ms".
+  <count>       Number of samples to take before terminating.
+  -J<flag>      Pass <flag> directly to the runtime system.
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Tools - jstat and jstatd}
+  Kicking it off
+  \begin{minted}[fontsize=\scriptsize]{sh}
+r351574nc3@behemoth~
+(13:50:33) [36] jstat 99672 10 720
+ S0     S1     E      O      P     YGC     YGCT    FGC    FGCT     GCT   
+  0.00   0.00  73.14  32.32  53.38   2758   93.932    30   51.206  145.137
+  0.00   0.00  79.10  32.32  53.38   2758   93.932    30   51.206  145.137
+  0.00   0.00  86.86  32.32  53.38   2758   93.932    30   51.206  145.137
+  0.00   0.00  96.22  32.32  53.38   2758   93.932    30   51.206  145.137
+  0.00   0.00   1.93  33.27  53.38   2759   94.013    30   51.206  145.218
+  0.00   0.00  16.57  33.27  53.38   2759   94.013    30   51.206  145.218
+  0.00   0.00  24.34  33.27  53.38   2759   94.013    30   51.206  145.218
+  0.00   0.00  33.70  33.27  53.38   2759   94.013    30   51.206  145.218
+  0.00   0.00  45.62  33.27  53.38   2759   94.013    30   51.206  145.218
+  0.00   0.00  68.19  33.27  53.38   2759   94.013    30   51.206  145.218
+  0.00   0.00  79.84  33.27  53.38   2759   94.013    30   51.206  145.218  
+  \end{minted}
+\end{frame}
+
+\begin{frame}{Tools - aragozin/jvm-tools (JTop GCRep)}
+  \begin{itemize}
+  \item https://github.com/aragozin/jvm-tools
+  \item Very useful for dumping cpu and gc usage per thread. 
+  \item Much like jstat.
+  \item More of the information you want all in one place.
+  \item JTopStats https://github.com/ybart/JTopStats displays information in a web application
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Building Tests with the Open Performance Automation Framework}
   \begin{itemize}
     \item The framework
+    \item http://www.github.com/leo-at-rsmart/Open-Performance-Automation-Framework
     \item Handling posts
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Starting with the Tsung Recorder}
+\begin{frame}[fragile]{Open Performance Automation Framework Structure}
+\begin{minted}[fontsize=\scriptsize]{sh}
+ |-
+ |-/config
+ |---data
+ |-----kfs
+ |-------data
+ |---import
+ |-----kfs
+ |---tests
+ |---lib
+ |-----kfs
+ |---tests
+ |------kfs
+ |-/lib
+ |---kfs
+ |-----common
+ |-----dv
+ |-/log
+ |-/suites
+ |---kfs
+ |-/tests
+ |---kfs
+ \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Starting with the Tsung Recorder}
+  \begin{itemize}
+    \item Eliminates human error.
+    \item Useful for gathering data for multipart form submissions.
+    \item It's a proxy
+    \item to start it:
+    \begin{minted}[fontsize=\scriptsize]{sh}
+(11:24:33) [1] /opt/local/bin/tsung-recorder --help
+/opt/local/bin/tsung-recorder: illegal option -- -
+Usage: tsung-recorder <options> start|stop|restart
+Options:
+    -p <plugin>    plugin used for the recorder
+                     available: http, pgsql,webdav (default is http)
+    -L <port>      listening port for the recorder (default is 8090)
+    -I <IP>        for the pgsql recorder (or parent proxy): server IP
+                      (default  is 127.0.0.1)
+    -P <port>      for  the  pgsql recorder (or parent proxy): server port
+                      (default is 5432)
+    -u             for the http recorder: use a parent proxy
+    -d <level>     set log level from 0 to 7 (default is 5)
+    -v             print version information and exit
+    -h             display this help and exit    
+    \end{minted}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Starting with the Tsung Recorder}
+  To start
+  \begin{minted}{sh}
+tsung-recorder start
+  \end{minted}
+  Don't forget to set the proxy in your browser.
+\end{frame}
+
+\begin{frame}[fragile]{Recorder Results}
+Stores in $\$HOME/.tsung/$ formatted as $tsung_recorder20120502-1006-1.bin$
+\begin{minted}[fontsize=\scriptsize]{yaml}
+-----------------------------19277021961952509530130060903
+Content-Disposition: form-data; name="tabStates(DocumentOverview)"
+
+OPEN
+-----------------------------19277021961952509530130060903
+Content-Disposition: form-data; name="document.documentHeader.documentNumber"
+
+%%_document_number%%
+-----------------------------19277021961952509530130060903
+Content-Disposition: form-data; name="document.documentHeader.documentDescription"
+
+Duplicating
+-----------------------------19277021961952509530130060903
+Content-Disposition: form-data; name="document.documentHeader.explanation"
+\end{minted}
 \end{frame}
 
 \begin{frame}{Test Development Patterns}
   \begin{itemize}
-    \item CAS login
+    \item Develop tests per document
+    \item Common actions can be moved into libraries and reused
+    \item Simulate user clicks by adding pauses
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Infrastructure/Creating a Test Environment}
+\begin{frame}{Infrastructure/Creating a Test Environment: Exercisors}
+  \begin{itemize}
+    \item Plan on Unix open file limitations for socket connections
+    \item Exercisers can consume CPU and hard disk resources
+    \item Shoot for a minimum of
+    \begin{itemize}
+      \item 2.5Ghz 4 Cores with 4 Gb of memory.
+      \item 250 Gb of hard disk space (logs can take up a lot of space).
+      \item 2 - 4 exercisers (assume 1 exercisor is equivalent to 50 users).
+    \end{itemize}
+    \item Virtual machines are acceptable.    
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Infrastructure/Creating a Test Environment: Application Servers}
+  \begin{itemize}
+    \item Isolate environments.
+    \item Configure environments with and without balancing.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Caveats}
@@ -138,7 +318,20 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Conclusion}
+\begin{frame}{Lessons Learned}
+  \begin{enumerate}
+    \item Test frequently.
+    \item Establish a baseline for analysis.
+    \item Isolate environments for load testing.
+    \item Determine the impact on users through external systems.
+    \item Keep support staff informed and available during testing.
+    \item They are tests. Automate as much as possible to avoid human error.
+    \item Establish a feedback system to interested parties to resolve issues quickly.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Thank you}
+  We hope this session was informative
 \end{frame}
 
 \end{document}
