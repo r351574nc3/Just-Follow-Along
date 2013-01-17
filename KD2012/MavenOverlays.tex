@@ -212,5 +212,47 @@ mvn -Dkc:create-overlay \
 \end{frame}
 
 \begin{frame}{Solutions to Multi-module Issues}
+  \begin{itemize}
+    \item Build classes into \texttt{web\/target\/classes}
+      \begin{itemize}
+        \item Requires a profile to only do this for developers
+        \item Not appropriate for production at all
+      \end{itemize}
+    \item JRebel will watch multiple src folders for changes
+    \item Jetty will also watch multiple src folders
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Configuring JRebel}
+  \begin{minted}[fontsize=\scriptsize]{xml}
+<plugin>
+    <groupId>org.zeroturnaround</groupId>
+    <artifactId>jrebel-maven-plugin</artifactId>
+    <configuration>
+      <alwaysGenerate>true</alwaysGenerate>
+      <addResourcesDirToRebelXml>true</addResourcesDirToRebelXml>
+      <!--
+        root is 2 directories away from jar/war modules
+      -->
+      <relativePath>../../</relativePath>
+      <!--
+        use a system property for specifing root directory (note the double $)
+        start your application with -Drebel.root=c:/projects/
+      -->
+      <rootPath>${rebel.root}</rootPath>
+    </configuration>
+</plugin>
+    \end{minted}
+\end{frame}
+
+\begin{frame}{JRebel and the KC Archetype}
+\begin{itemize}
+  \item The KC Archetype automatically configures your overlay as a multi-module project
+  \item Comes with JRebel configuration already
+\end{itemize}
+\end{frame}
+
+\begin{frame}{The end}
+Thanks
 \end{frame}
 \end{document}

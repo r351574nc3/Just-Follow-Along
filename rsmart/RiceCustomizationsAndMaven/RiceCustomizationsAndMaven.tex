@@ -1,0 +1,35 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage[usenames,dvipsnames]{color}
+
+\title{\includegraphics[width=0.75\textwidth]{../../images/rsmart_base.png}\\\includegraphics[width=0.70\textwidth]{../../images/kuali_base.png}\\rSmart
+Rice Customizations and Maven}
+\pagestyle{fancy}
+\fancyhead{} % Clear all header fields 
+\fancyhead[OL]{\sectionmark}
+\fancyhead[OR]{\includegraphics[height=26pt]{../../images/rsmart_base.png}}% 
+\fancyhead[ER]{\sectionmark}
+\fancyhead[EL]{\includegraphics[height=26pt]{../../images/rsmart_base.png}}% 
+\definecolor{ubergray}{RGB}{245,245,245}
+\hypersetup{colorlinks}
+\lstset{basicstyle=\scriptsize,
+  backgroundcolor=\color{ubergray},
+  breaklines=true,
+  frame=single,
+  includerangemarker=false}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\abstract{When an institution wants to implement customizations and/or fixes from another rice distribution, how do these customizations get pushed out to other projects? The best way is through maven and the institution's Maven repository. The trouble is that Rice is a modular project where modules depend on the parent. It is important to keep the following in mind: \begin{itemize}
+\item Original project parents
+\item Do not use the org.kuali groupId
+\end{itemize}
+This document is about how to go about this.}
+
+\section{Original Rice Layout and Structure}
+\end{document}
