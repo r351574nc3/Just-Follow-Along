@@ -187,9 +187,9 @@ This creates a problem because if you create a new custom rice instance with a s
 </project>
   \end{lstlisting}
 
-The problem with this is that it makes your custom impl module inherit changes from your rice parent instead of the foundation impl module. See illustration below:
+The problem with this is that it makes your custom impl module inherit changes from your rice parent instead of the foundation impl module. See illustration below: \newpage
 
-\begin{figure}[hbp]
+\begin{figure}[!hbp]
   \includegraphics[width=\textwidth]{diagrams/RiceMaven1.png}
   \caption{Parallel Hierarchy from org.kuali.rice:rice as the parent}
 \end{figure}
@@ -214,7 +214,7 @@ Just like overlays, we want to assume any software in our project is going on to
 
 Since \textbf{org.kuali.rice:rice-impl} already inherits from \textbf{org.kuali.rice:rice}, then \textbf{org.kuali.rice:rice-impl} should be made the parent instead.
 
-\begin{figure}[hbp]
+\begin{figure}[!hbp]
   \includegraphics[width=\textwidth]{diagrams/RiceMaven2.png}
   \caption{Hierarchy with org.kuali.rice:rice-impl as the parent to com.rsmart.kuali.rice:rice-impl}
 \end{figure}
