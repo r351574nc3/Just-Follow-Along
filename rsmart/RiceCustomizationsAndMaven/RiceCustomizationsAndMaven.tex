@@ -31,5 +31,120 @@ Rice Customizations and Maven}
 \end{itemize}
 This document is about how to go about this.}
 
-\section{Original Rice Layout and Structure}
+\section{Overview}
+
+The following is the module layout for Rice:
+{\ttfamily \begin{list}{|->}{\setlength{\leftmargin}{1em}}
+  \item rice
+    
+    \begin{list}{|->}{\setlength{\leftmargin}{1em}}
+    \item[\textbackslash->] client-contrib 
+    \item config
+      \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+      \item[\textbackslash->] access 
+      \item archetype
+      \item checkstyle
+      \item deploy
+      \item ide
+      \end{list}
+    \item core
+      \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+      \item[\textbackslash->] api 
+      \item framework
+      \item impl
+      \item web
+      \end{list}
+    \item core-service
+      \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+      \item[\textbackslash->] api 
+    \item framework
+    \item impl
+    \item web
+    \end{list}
+  \item db
+    \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+    \item[\textbackslash->] impex
+      \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+      \item[\textbackslash->] client
+        \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+        \item[\textbackslash->] bootstrap
+        \item demo
+        \end{list}
+      \item master
+      \item server
+        \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+        \item[\textbackslash->] bootstrap
+        \item demo
+        \end{list}
+      \end{list}
+    \item sql
+    \end{list}
+    
+  \item development-tools
+  \item dist
+  \item edl
+    \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+    \item[\textbackslash->] framework
+      \item impl
+    \end{list}
+  \item impl
+  \item it
+    \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+    \item[\textbackslash->] config
+      \item core
+      \item edl
+      \item impl
+      \item internal-tools
+      \item kcb
+      \item ken
+      \item kew
+      \item kim
+      \item krad
+      \item krms
+      \item ksb
+      \item location
+      \item vc
+    \end{list}
+  \item ken
+    \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+    \item[\textbackslash->] api
+    \end{list}
+  \item kew
+    \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+    \item[\textbackslash->] api
+      \item framework
+      \item impl
+    \end{list}
+  \item kim
+    \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+    \item[\textbackslash->] kim-api
+    \item kim-framework
+    \item kim-impl
+    \item kim-ldap
+    \end{list} 
+  \item kns
+  \item krad
+    \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+    \item[\textbackslash->] krad-app-framework
+    \item krad-web-framework
+    \end{list}
+  \item krms
+    \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+    \item[\textbackslash->] api
+    \item framework
+    \item impl
+    \end{list}
+  \item ksb
+    \begin{list}{|->}{\setlength{\leftmargin}{0.5em}}
+    \item[\textbackslash->] client-impl
+    \item server-impl
+    \end{list} 
+  \item location
+  \item sampleapp
+  \item serviceregistry
+  \item serviceregistry
+  \item standalone
+  \item web
+  \end{list}
+\end{list}}
 \end{document}
