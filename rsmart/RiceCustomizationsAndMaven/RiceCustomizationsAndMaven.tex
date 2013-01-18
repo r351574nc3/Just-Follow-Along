@@ -1,5 +1,7 @@
 \documentclass[12pt,notitlepage]{article}
 \author{Leo Przybylski}
+\usepackage{minted}
+\usepackage{etoolbox}
 \usepackage{fancyhdr}
 \usepackage{graphicx}
 \usepackage{hyperref}
@@ -147,4 +149,21 @@ The following is the module layout for Rice:
   \item web
   \end{list}
 \end{list}}
+
+Each module is a child that has a Maven parent back to the another module closer to the root parent. For example, \texttt{impl}'s parent is:
+  \begin{minted}[fontsize=\footnotesize]{xml}
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <name>Rice Implementation</name>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.kuali.rice</groupId>
+    <artifactId>rice</artifactId>
+    <version>2.3.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>rice-impl</artifactId>
+...
+...
+</project>
+  \end{minted}
+
 \end{document}
