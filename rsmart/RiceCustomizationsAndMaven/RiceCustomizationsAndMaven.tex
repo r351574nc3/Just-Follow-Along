@@ -242,6 +242,87 @@ Since \textbf{org.kuali.rice:rice-impl} already inherits from \textbf{org.kuali.
 Now the \textbf{rice-impl} module gets the benefits of being a child of the original. The \textbf{com.rsmart.kuali.rice:rice} parent should just be a dummy parent for managing the version and keeping the same version for all the other modules. The biggest issue with this proposed solution is that all the modules (there are many) would need to be updated with a new parent in order for this to work properly.
 
 \subsection*{3 Unpack source dependencies from \emph{org.kuali.rice} into their respective modules}
+\begin{lstlisting}[numbers=left,language=xml,basicstyle=\scriptsize,backgroundcolor=\color{ubergray},caption={Impl Example for unpacking the org.kuali.rice:rice-impl source}]
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                         http://maven.apache.org/maven-v4_0_0.xsd">
+  <name>Rice Implementation</name>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.kuali.rice</groupId>
+    <artifactId>rice-impl</artifactId>
+    <version>2.3.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>rice-impl</artifactId>
+  <version>2.3.0-SNAPSHOT</version>
+...
+...
+<build>
+...
+...
+  <plugins>
+...
+...
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-dependency-plugin</artifactId>
+      <version>${maven-dependency-plugin.version}</version>
+      <executions>
+...
+...
+        <execution>
+          <id>unpack-rice-impl-sources</id>
+          <phase>generate-sources</phase>
+          <goals>
+            <goal>unpack</goal>
+          </goals>
+          <configuration>
+            <artifactItems>
+              <artifactItem>
+                <groupId>${project.parent.groupId}</groupId>
+                <artifactId>${project.parent.artifactId}</artifactId>
+                <version>${project.parent.version}</version>
+                <type>jar</type>
+                <classifier>sources</classifier>
+                <overWrite>false</overWrite>
+              </artifactItem>
+            </artifactItems>
+            <includes>**/*.java</includes>
+            <excludes>**/*.properties,**/*.xml</excludes>
+            <outputDirectory>${project.build.outputDirectory}/generated-sources/${project.parent.artifactId}</outputDirectory>
+          </configuration>
+        </execution>
+        <execution>
+          <id>unpack-rice-impl-resources</id>
+          <phase>generate-resources</phase>
+          <goals>
+            <goal>unpack</goal>
+          </goals>
+          <configuration>
+            <artifactItems>
+              <artifactItem>
+                <groupId>${project.parent.groupId}</groupId>
+                <artifactId>${project.parent.artifactId}</artifactId>
+                <version>${project.parent.version}</version>
+                <type>jar</type>
+                <classifier>sources</classifier>
+                <overWrite>false</overWrite>
+              </artifactItem>
+            </artifactItems>
+            <excludes>**/*.java</excludes>
+            <includes>**/*.properties,**/*.xml</includes>
+            <outputDirectory>${project.build.outputDirectory}/generated-resources/${project.parent.artifactId}</outputDirectory>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+...
+...
+</build>
+</project>
+\end{lstlisting}
 
 \subsection*{4 Make modules behave like overlays}
 
