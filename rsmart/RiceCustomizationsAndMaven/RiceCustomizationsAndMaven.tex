@@ -151,7 +151,10 @@ The following is the module layout for Rice:
 
 Each module is a child that has a Maven parent back to the another module closer to the root parent. For example, \texttt{impl}'s parent is:
   \begin{minted}[fontsize=\footnotesize]{xml}
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                         http://maven.apache.org/maven-v4_0_0.xsd">
   <name>Rice Implementation</name>
   <modelVersion>4.0.0</modelVersion>
   <parent>
