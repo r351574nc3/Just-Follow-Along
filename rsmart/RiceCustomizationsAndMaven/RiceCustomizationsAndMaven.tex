@@ -242,6 +242,10 @@ Since \textbf{org.kuali.rice:rice-impl} already inherits from \textbf{org.kuali.
 Now the \textbf{rice-impl} module gets the benefits of being a child of the original. The \textbf{com.rsmart.kuali.rice:rice} parent should just be a dummy parent for managing the version and keeping the same version for all the other modules. The biggest issue with this proposed solution is that all the modules (there are many) would need to be updated with a new parent in order for this to work properly.
 
 \subsection*{3 Unpack source dependencies from \emph{org.kuali.rice} into their respective modules}
+We want our modules to behave like overlays. Unfortunately, overlays only exist for WAR projects and not for JAR. That is not to say we cannot create this scenario. A WAR overlay is just extracting the WAR file, throwing new source on top of it, and building a new WAR from that. We can do this with a normal JAR and the dependency plugin. 
+
+With each snapshot and release, the Rice project publishes to the Maven repository a \emph{sources} jar for each module. This means that the \textbf{rice-impl} module has a sources jar. We can download and unpack the sources jar into an alternate location. Then, it can be compiled, and subsequently compiled into our project to build the overlay.
+
 \begin{lstlisting}[numbers=left,language=xml,basicstyle=\scriptsize,backgroundcolor=\color{ubergray},caption={Impl Example for unpacking the org.kuali.rice:rice-impl source}]
 <project xmlns="http://maven.apache.org/POM/4.0.0" 
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
@@ -324,11 +328,18 @@ Now the \textbf{rice-impl} module gets the benefits of being a child of the orig
 </project>
 \end{lstlisting}
 
+The above illustrates how the dependency plugin can be used to extract the rice-impl source into a separate area for compilation at build time to produce a single jar. The above goes for all JAR projects. Rice also has a sampleapp, standalone, and web WAR project. These will simply behave like normal overlays. That means we will no need the above code. We just add the normal overlay code.
+
 \subsection*{4 Make modules behave like overlays}
+I think the above will do this for us, but I am leaving this section to outline our goal.
 
 \section{Use Cases}
 
-\subsubsection{}
+\subsection{Committing modifications to the WAR}
+
+It should be maintained that in all cases, the preferred solution is not to modify the core code, but add new code that overrides its original behavior. Only modify core code when there is no other choice. This mostly happens with datadictionary and configuration of Spring sources. It can also happen when modifying inherent behavior that needs to process through a hierarchy or modification of private members.
+
+\subsection{Committing modifications to a JAR}
 
 \newpage
 \listoffigures
