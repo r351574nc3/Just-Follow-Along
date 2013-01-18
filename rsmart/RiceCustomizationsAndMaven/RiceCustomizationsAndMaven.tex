@@ -189,10 +189,19 @@ This creates a problem because if you create a new custom rice instance with a s
 
 The problem with this is that it makes your custom impl module inherit changes from your rice parent instead of the foundation impl module. See illustration below:
 
-\begin{figure}{!hbp}
+\begin{figure}[hbp]
   \includegraphics[width=\textwidth]{diagrams/RiceMaven1.png}
   \caption{Parallel Hierarchy from org.kuali.rice:rice as the parent}
 \end{figure}
+
+As the figure shows, this creates a parallel hierarchy where the customized \textbf{rice-impl} regards the \textbf{org.kuali.rice:rice} parent module as its parent instead of \textbf{org.kuali.rice:rice-impl} as its parent. This means whatever changes are made to the \textbf{org.kuali.rice:rice-impl} will not be reflected. Since \textbf{org.kuali.rice:rice-impl} already inherits from \textbf{org.kuali.rice:rice}, then \textbf{org.kuali.rice:rice-impl} should be made the parent instead.
+
+\begin{figure}[hbp]
+  \includegraphics[width=\textwidth]{diagrams/RiceMaven2.png}
+  \caption{Hierarchy with org.kuali.rice:rice-impl as the parent to com.rsmart.kuali.rice:rice-impl}
+\end{figure}
+
+
 \listoffigures
 \lstlistoflistings
 \end{document}
