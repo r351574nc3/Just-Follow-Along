@@ -197,6 +197,20 @@ The problem with this is that it makes your custom impl module inherit changes f
 As the figure shows, this creates a parallel hierarchy where the customized \textbf{rice-impl} regards the \textbf{org.kuali.rice:rice} parent module as its parent instead of \textbf{org.kuali.rice:rice-impl} as its parent. This means whatever changes are made to the \textbf{org.kuali.rice:rice-impl} will not be reflected. 
 
 \section{Proposal}
+To summarize, we want to make it so each module is basically an overlay of the original rice module. We also want to maintain the behavior of the rice parent module.
+
+The proposed solution involves a few parts, but by no means is it complicated. It is simply some effort because of the large number of modules in rice.
+\begin{enumerate}
+\item Create a project skeleton.
+\item Change the module parents to point to the original rice.
+\item Unpack source dependencies from \emph{org.kuali.rice} into their respective modules.
+\item Make modules behave like overlays.
+\end{enumerate}
+
+\subsection*{1 Create project skeleton}
+Just like overlays, we want to assume any software in our project is going on top of the original; therefore, there shouldn't be any code in it. It is basically a rice skeleton.
+
+\subsection*{2 Change the module parents to point to original Rice modules}
 
 Since \textbf{org.kuali.rice:rice-impl} already inherits from \textbf{org.kuali.rice:rice}, then \textbf{org.kuali.rice:rice-impl} should be made the parent instead.
 
@@ -226,6 +240,14 @@ Since \textbf{org.kuali.rice:rice-impl} already inherits from \textbf{org.kuali.
   \end{lstlisting}
 
 Now the \textbf{rice-impl} module gets the benefits of being a child of the original. The \textbf{com.rsmart.kuali.rice:rice} parent should just be a dummy parent for managing the version and keeping the same version for all the other modules. The biggest issue with this proposed solution is that all the modules (there are many) would need to be updated with a new parent in order for this to work properly.
+
+\subsection*{3 Unpack source dependencies from \emph{org.kuali.rice} into their respective modules}
+
+\subsection*{4 Make modules behave like overlays}
+
+\section{Use Cases}
+
+\subsubsection{}
 
 \newpage
 \listoffigures
