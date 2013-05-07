@@ -1,0 +1,27 @@
+\contentsline {part}{Preface}{4}{chapter*.1}
+\contentsline {section}{Copyright}{7}{part*.2}
+\contentsline {subsection}{Copyright Holder}{7}{section*.3}
+\contentsline {subsection}{Disclaimer}{7}{section*.4}
+\contentsline {section}{About the Trainer}{7}{section*.5}
+\contentsline {section}{Using these Exercises}{7}{section*.6}
+\contentsline {subsection}{VirtualBox Appliance}{7}{section*.7}
+\contentsline {subsection}{Virtual Machine Manifest}{8}{Item.7}
+\contentsline {section}{Training Overview}{9}{section*.11}
+\contentsline {part}{Exercise 1: Import Project}{10}{section*.12}
+\contentsline {section}{Exercise 1: Import Project}{13}{part*.13}
+\contentsline {subsection}{Description}{13}{section*.14}
+\contentsline {subsection}{Goals}{13}{section*.15}
+\contentsline {subsection}{Instructions}{13}{section*.16}
+\contentsline {part}{Exercise 2: Database Setup}{15}{section*.18}
+\contentsline {section}{Exercise 2: Database Setup}{17}{part*.19}
+\contentsline {subsection}{Description}{17}{section*.20}
+\contentsline {subsection}{Goals}{17}{section*.21}
+\contentsline {subsection}{Instructions}{17}{section*.22}
+\contentsline {subsubsection}{1 Update impex-build.properties}{17}{section*.24}
+\contentsline {subsubsection}{1 Update kfs-build.properties}{17}{section*.25}
+\contentsline {subsubsection}{2 Run Impex}{18}{section*.26}
+\contentsline {part}{Exercise 3: Create Business Object Table}{20}{section*.27}
+\contentsline {section}{Exercise 3: Create Business Object Table}{23}{part*.28}
+\contentsline {subsection}{Description}{23}{section*.29}
+\contentsline {subsection}{Goals}{23}{section*.30}
+\contentsline {subsection}{Instructions}{23}{section*.31}

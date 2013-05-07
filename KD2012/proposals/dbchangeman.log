@@ -1,0 +1,229 @@
+This is pdfTeX, Version 3.1415926-2.3-1.40.12 (TeX Live 2011/MacPorts 2011_5) (format=pdflatex 2011.8.20)  14 JUN 2012 18:32
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**dbchangeman
+(./dbchangeman.tex
+LaTeX2e <2009/09/24>
+Babel <v3.8l> and hyphenation patterns for english, dumylang, nohyphenation, et
+hiopic, arabic, farsi, czech, slovak, dutch, ukenglish, usenglishmax, basque, f
+rench, german-x-2009-06-19, ngerman-x-2009-06-19, german, ngerman, swissgerman,
+ italian, polish, portuguese, spanish, catalan, galician, loaded.
+(/opt/local/share/texmf-texlive-dist/tex/latex/base/article.cls
+Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
+(/opt/local/share/texmf-texlive-dist/tex/latex/base/size12.clo
+File: size12.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/opt/local/share/texmf-texlive-dist/tex/latex/fancyhdr/fancyhdr.sty
+\fancy@headwidth=\skip43
+\f@ncyO@elh=\skip44
+\f@ncyO@erh=\skip45
+\f@ncyO@olh=\skip46
+\f@ncyO@orh=\skip47
+\f@ncyO@elf=\skip48
+\f@ncyO@erf=\skip49
+\f@ncyO@olf=\skip50
+\f@ncyO@orf=\skip51
+)
+(/opt/local/share/texmf-texlive-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/opt/local/share/texmf-texlive-dist/tex/latex/graphics/keyval.sty
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks14
+)
+(/opt/local/share/texmf-texlive-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+(/opt/local/share/texmf-texlive-dist/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(/opt/local/share/texmf-texlive-dist/tex/latex/latexconfig/graphics.cfg
+File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
+)
+Package graphics Info: Driver file: pdftex.def on input line 91.
+
+(/opt/local/share/texmf-texlive-dist/tex/latex/pdftex-def/pdftex.def
+File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
+
+(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/infwarerr.sty
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/message (HO)
+)
+(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/ltxcmds.sty
+Package: ltxcmds 2011/04/18 v1.20 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count87
+))
+\Gin@req@height=\dimen103
+\Gin@req@width=\dimen104
+)
+
+Package Fancyhdr Warning: \fancyhead's `E' option without twoside option is use
+less on input line 11.
+
+
+Package Fancyhdr Warning: \fancyhead's `E' option without twoside option is use
+less on input line 12.
+
+(./dbchangeman.aux)
+\openout1 = `dbchangeman.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+
+(/opt/local/share/texmf-texlive-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count88
+\scratchdimen=\dimen105
+\scratchbox=\box26
+\nofMPsegments=\count89
+\nofMParguments=\count90
+\everyMPshowfont=\toks15
+\MPscratchCnt=\count91
+\MPscratchDim=\dimen106
+\MPnumerator=\count92
+\makeMPintoPDFobject=\count93
+\everyMPtoPDFconversion=\toks16
+) (/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/pdftexcmds.sty
+Package: pdftexcmds 2011/04/22 v0.16 Utilities of pdfTeX for LuaTeX (HO)
+
+(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/ifluatex.sty
+Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
+)
+(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/ifpdf.sty
+Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
+Package ifpdf Info: pdfTeX in PDF mode is detected.
+)
+Package pdftexcmds Info: LuaTeX not detected.
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
+(/opt/local/share/texmf-texlive-dist/tex/latex/oberdiek/epstopdf-base.sty
+Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
+
+(/opt/local/share/texmf-texlive-dist/tex/latex/oberdiek/grfext.sty
+Package: grfext 2010/08/19 v1.1 Managing graphics extensions (HO)
+
+(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/kvdefinekeys.sty
+Package: kvdefinekeys 2011/04/07 v1.3 Defining keys (HO)
+))
+(/opt/local/share/texmf-texlive-dist/tex/latex/oberdiek/kvoptions.sty
+Package: kvoptions 2010/12/23 v3.10 Keyval support for LaTeX options (HO)
+
+(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/kvsetkeys.sty
+Package: kvsetkeys 2011/04/07 v1.13 Key value parser (HO)
+
+(/opt/local/share/texmf-texlive-dist/tex/generic/oberdiek/etexcmds.sty
+Package: etexcmds 2011/02/16 v1.5 Prefix for e-TeX command names (HO)
+Package etexcmds Info: Could not find \expanded.
+(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
+(etexcmds)             that some package has redefined \expanded.
+(etexcmds)             In the latter case, load this package earlier.
+)))
+Package grfext Info: Graphics extension search list:
+(grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPE
+G,.JBIG2,.JB2,.eps]
+(grfext)             \AppendGraphicsExtensions on input line 452.
+
+(/opt/local/share/texmf-texlive-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+<kuali_base.png, id=1, 323.7696pt x 79.0152pt>
+File: kuali_base.png Graphic file (type png)
+ <use kuali_base.png>
+Package pdftex.def Info: kuali_base.png used on input line 15.
+(pdftex.def)             Requested size: 292.5pt x 71.38791pt.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <14.4> on input line 15.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 15.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 26.
+
+(/opt/local/share/texmf-texlive-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 26.
+
+Overfull \hbox (11.78447pt too wide) in paragraph at lines 26--27
+[]\OT1/cmr/m/n/10.95 Implementors will learn best prac-tices for struc-tur-ing 
+their projects. 
+ []
+
+
+Overfull \hbox (6.21812pt too wide) in paragraph at lines 30--31
+[]\OT1/cmr/m/n/10.95 Implementors will learn how to play/fast-forward changes a
+crossed
+ []
+
+[1
+
+{/opt/local/var/db/texmf/fonts/map/pdftex/updmap/pdftex.map} <./kuali_base.png>
+]
+Overfull \hbox (4.51485pt too wide) in paragraph at lines 31--32
+[]\OT1/cmr/m/n/10.95 Business In-tel-li-gence An-a-lysts will learn how to in-t
+e-grate database
+ []
+
+Missing character: There is no â in font cmr10!
+Missing character: There is no € in font cmr10!
+Missing character: There is no ™ in font cmr10!
+File: kuali_base.png Graphic file (type png)
+<use kuali_base.png>
+Package pdftex.def Info: kuali_base.png used on input line 63.
+(pdftex.def)             Requested size: 106.538pt x 26.0pt.
+
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 30.35004pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[2] (./dbchangeman.aux) ) 
+Here is how much of TeX's memory you used:
+ 1595 strings out of 494752
+ 22695 string characters out of 3171002
+ 76006 words of memory out of 3000000
+ 4836 multiletter control sequences out of 15000+200000
+ 6928 words of font info for 25 fonts, out of 3000000 for 9000
+ 134 hyphenation exceptions out of 8191
+ 37i,14n,43p,669b,326s stack positions out of 5000i,500n,10000p,200000b,50000s
+</opt/local/share/texmf-texlive-dist/fonts/type1/publi
+c/amsfonts/cm/cmbx10.pfb></opt/local/share/texmf-texlive-dist/fonts/type1/publi
+c/amsfonts/cm/cmbx12.pfb></opt/local/share/texmf-texlive-dist/fonts/type1/publi
+c/amsfonts/cm/cmr10.pfb></opt/local/share/texmf-texlive-dist/fonts/type1/public
+/amsfonts/cm/cmr12.pfb></opt/local/share/texmf-texlive-dist/fonts/type1/public/
+amsfonts/cm/cmr17.pfb></opt/local/share/texmf-texlive-dist/fonts/type1/public/a
+msfonts/cm/cmsy10.pfb>
+Output written on dbchangeman.pdf (2 pages, 87568 bytes).
+PDF statistics:
+ 38 PDF objects out of 1000 (max. 8388607)
+ 25 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+

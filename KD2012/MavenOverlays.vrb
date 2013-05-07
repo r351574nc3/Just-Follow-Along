@@ -1,0 +1,20 @@
+\frametitle{Configuring JRebel}
+\begin{minted}[fontsize=\scriptsize]{xml}
+<plugin>
+    <groupId>org.zeroturnaround</groupId>
+    <artifactId>jrebel-maven-plugin</artifactId>
+    <configuration>
+      <alwaysGenerate>true</alwaysGenerate>
+      <addResourcesDirToRebelXml>true</addResourcesDirToRebelXml>
+      <!--
+        root is 2 directories away from jar/war modules
+      -->
+      <relativePath>../../</relativePath>
+      <!--
+        use a system property for specifing root directory (note the double $)
+        start your application with -Drebel.root=c:/projects/
+      -->
+      <rootPath>${rebel.root}</rootPath>
+    </configuration>
+</plugin>
+    \end{minted}

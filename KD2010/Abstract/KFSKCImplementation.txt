@@ -1,0 +1,15 @@
+Kuali Coeus and Kuali Financials are the one-two punch most institutions have been waiting for. Both solve problems institutions have had in their own way. Together they fill a space for higher education. Many institutions are looking to implement these two applications either both at once or separately. The University of Arizona has decided to implement both at once.
+
+This presentation will cover:
+
+    * The integration points for KC and KFS.
+    * The impact differing versions of Kuali Rice had on our implementations.
+    * Discussions made early on and the effects of those decisions later.
+    * LDAP/KIM Integration
+    * Struggles with differing datasets.
+
+Attendees should expect to leave this discussion having:
+
+    * Learned the importance of coordinating these implementing projects.
+    * Knowledge of gaps for integration between KC and KFS pivotal to implementing.
+    * Awareness complications brought on by differing versions of Rice.

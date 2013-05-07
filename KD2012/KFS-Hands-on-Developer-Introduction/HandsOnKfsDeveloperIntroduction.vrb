@@ -1,0 +1,13 @@
+\frametitle{Exercise 1: Import Project}
+\begin{itemize}
+\item Goals
+          \begin{itemize}
+            \item Introduction to Eclipse and KFS
+            \item Understand importing KFS into Eclipse from source
+          \end{itemize}
+\item Tasks
+          \begin{itemize}
+            \item Import KFS into Eclipse
+          \end{itemize}
+\end{itemize}
+

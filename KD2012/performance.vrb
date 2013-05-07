@@ -1,0 +1,18 @@
+\frametitle{Recorder Results}
+Stores in $\$HOME/.tsung/$ formatted as $tsung_recorder20120502-1006-1.bin$
+\begin{minted}[fontsize=\scriptsize]{yaml}
+-----------------------------19277021961952509530130060903
+Content-Disposition: form-data; name="tabStates(DocumentOverview)"
+
+OPEN
+-----------------------------19277021961952509530130060903
+Content-Disposition: form-data; name="document.documentHeader.documentNumber"
+
+%%_document_number%%
+-----------------------------19277021961952509530130060903
+Content-Disposition: form-data; name="document.documentHeader.documentDescription"
+
+Duplicating
+-----------------------------19277021961952509530130060903
+Content-Disposition: form-data; name="document.documentHeader.explanation"
+\end{minted}
