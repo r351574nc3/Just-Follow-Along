@@ -1,0 +1,45 @@
+\documentclass[12pt,notitlepage]{article}
+\author{Leo Przybylski}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\title{\includegraphics[width=0.75\textwidth]{kuali_base.png}\\Redis: A more efficient Data Dictionary}
+\date{}
+\pagestyle{fancy}
+\fancyhead{} % Clear all header fields 
+\fancyhead[OL]{\sectionmark}
+\fancyhead[OR]{\includegraphics[height=26pt]{kuali_base.png}}% 
+\fancyhead[ER]{\sectionmark}
+\fancyhead[EL]{\includegraphics[height=26pt]{kuali_base.png}}% 
+
+\begin{document}
+\maketitle
+\abstract{A case study exploring the possibility of using a nosql datastore like Redis to store the datadictionary. The result is infinitesmally short startup times, live modifications of the datadictionary without restart, better change management of datadictionary modifications, and the ability to make modifications to the datadictionary without having to use the application. Explore how this is possible. Leo will also throw in a comment here and there about how Kuali is becoming a platform that Rice provides a framework for and how the concept of using middleware is changing.}
+
+\section{Objectives}
+\begin{itemize}
+\item Overview of how Redis is used as a datastore.
+\item Explanation of what services were overridden and why.
+\item Use cases for a live DD.
+\item Use cases in Rice for nosql.
+\end{itemize}
+
+\section{Audience}
+Technical track for
+\begin{itemize}
+\item developers
+\end{itemize}
+
+
+\subsection{Level}
+Advanced
+
+\section{Focus Area}
+Technical
+
+\section{Track}
+Kuali Rice
+
+\section{Format}
+Information Session
+
+\end{document}
