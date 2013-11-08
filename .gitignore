@@ -12,3 +12,13 @@ KD2013/.DS_Store
 KD2013/proposals/.DS_Store
 
 .DS_Store
+
+*.nav
+
+*.out
+
+*.snm
+
+*.toc
+
+*.vrb

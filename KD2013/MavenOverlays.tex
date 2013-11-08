@@ -32,8 +32,8 @@
 \begin{document}
 
 \title{Si Vis Bellum Para Bellum}
-\subtitle{KC with Maven Overlays: Best Practices, Caveats, and Anti-Patterns}
-\author[Leo]{Leo Przybylski}
+\subtitle{KC Customization using Maven's WAR overlays}
+\author[Leo]{Kousheh, Mohammed A and Leo Przybylski}
 
 \usebackgroundtemplate%
 {%
@@ -49,16 +49,13 @@
 
 \begin{frame}{Overview}
   \begin{itemize}
-  \item Welcome \& Colophon.
-  \item About Presenters.
-  \item Maven Overlays.
-  \item Using Rice Modules.
-  \item Appserver Plugins.
-  \item Institutional Modification Best Practices.
-  \item Tips and Tricks.
-  \item Proposal: Contributing a Modification as a Maven Dependency.
-  \item Rice DataDictionary Reloading vs. JRebel.
-  \item Multi-module vs. Regular Webapp Project.
+  \item Welcome \& Colophon
+  \item About Presenters
+  \item Overlay Basics
+  \item Overlay Patterns
+  \item Overlays and VCS
+  \item Overlays and Appserver Plugins
+  \item Multi-module vs. Regular Webapp Project
   \end{itemize}
 \end{frame}
 
@@ -67,7 +64,7 @@
     \item Hi!
     \item ``Si Vis Bellum Para Bellum'' is a play on ``Si Vis Pacem
       Para Bellum'' and Web Archive (WAR) files. It means ``If you
-      wish for war, prepare for war.'' WAR being a web archive rather than turning your project into a battlefield.
+      wish for war, prepare for war.'' War being a web archive for context.
   \end{itemize}
 \end{frame}
 
@@ -76,9 +73,9 @@
 
 \begin{frame}{Overlay Basics}
   \begin{itemize}
-  \item How Overlays work.
-  \item What overlays are not.
-  \item First Overlay.
+  \item How Overlays work
+  \item What overlays are not
+  \item First Overlay
   \end{itemize}
 \end{frame}
 
@@ -163,7 +160,21 @@ mvn deploy:deploy-file \
 <plugin>
   <groupId>org.apache.maven.plugins</groupId>
   <artifactId>maven-war-plugin</artifactId>
-  <version>${maven-war-plugin.version}</version>
+  <version>\${maven-war-plugin.version}</version>
+  <configuration>
+    <overlays>
+      <overlay>
+        <groupId>\${kcPrototypeGroupId}</groupId>
+        <artifactId>\${kcPrototypeArtifactId}</artifactId>
+        <excludes>
+          <exclude>WEB-INF/classes/ApplicationResources.properties</exclude>
+          <exclude>WEB-INF/tags/portal/</exclude>
+          <exclude>WEB-INF/web.xml</exclude>
+          <exclude>**/lib/**</exclude>
+        </excludes>
+      </overlay>
+    </overlays>
+  </configuration>
 </plugin>
 \end{minted}
 \end{frame}
@@ -176,16 +187,16 @@ mvn deploy:deploy-file \
     to the classes in the prototype.
   -->
   <dependency>
-    <groupId>${kcPrototypeGroupId}</groupId>
-    <artifactId>${kcPrototypeArtifactId}</artifactId>
-    <version>${kcPrototypeVersion}</version>
+    <groupId>\${kcPrototypeGroupId}</groupId>
+    <artifactId>\${kcPrototypeArtifactId}</artifactId>
+    <version>\${kcPrototypeVersion}</version>
     <type>war</type>
   </dependency>
   
   <dependency>
-    <groupId>${kcPrototypeGroupId}</groupId>
-    <artifactId>${kcPrototypeArtifactId}</artifactId>
-    <version>${kcPrototypeVersion}</version>
+    <groupId>\${kcPrototypeGroupId}</groupId>
+    <artifactId>\${kcPrototypeArtifactId}</artifactId>
+    <version>\${kcPrototypeVersion}</version>
     <type>jar</type>
   </dependency>
 </dependencies>
@@ -214,36 +225,11 @@ mvn -Dkc:create-overlay \
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Institutional Modification Best Practices}
-  \begin{itemize}
-    \item Use Rice Modules whenever possible.
-    \item Use institution packages and namespaces instead of Kuali ones. For example,
-      \begin{itemize}
-        \item \texttt{com/rsmart/kuali/kra} instead of \texttt{org/kuali/kra}
-        \item \texttt{com/rsmart/kuali/rice} \texttt{org/kuali/rice}
-      \end{itemize}
-    \item Use \texttt{rice.kr.additionalSpringFiles}, et al to override spring configuration.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{Tips and Tricks}
-  \begin{itemize}
-    \item Use JRebel! It's free!
-    \item Take advantage of the default classpath for runtime Data Dictionary overrides.
-    \item Overriding Rice Services.
-    \item Overriding KC Services.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{Proposal: Contributing a Modification as a Maven Dependency}
-  \begin{itemize}
-    \item Develop modifications as a separate maven project or module.
-    \item Include the modifications as dependencies in your Maven Overlay project.
-    \item Distribute modifications with documentation to a Maven Repository.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{Rice DataDictionary Reloading vs. JRebel.}
+\begin{frame}[fragile]{Overlays and Appserver Plugins}
+\begin{itemize}
+\item Can run unassembled wars
+\item Alow hot-code replacement of overlaying code
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Multi-module vs. Regular Webapp Project}
