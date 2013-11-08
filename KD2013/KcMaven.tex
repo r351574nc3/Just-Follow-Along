@@ -220,48 +220,6 @@ mvn -Dkc:create-overlay \
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Institutional Modification Best Practices}
-  \begin{itemize}
-    \item Use Rice Modules whenever possible.
-    \item Use institution packages and namespaces instead of Kuali ones. For example,
-      \begin{itemize}
-        \item \texttt{com/rsmart/kuali/kra} instead of \texttt{org/kuali/kra}
-        \item \texttt{com/rsmart/kuali/rice} \texttt{org/kuali/rice}
-      \end{itemize}
-    \item Use \texttt{rice.kr.additionalSpringFiles}, et al to override spring configuration.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{Tips and Tricks}
-  \begin{itemize}
-    \item Use JRebel! It's free!
-    \item Take advantage of the default classpath for runtime Data Dictionary overrides.
-    \item Overriding Rice Services.
-    \item Overriding KC Services.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{Proposal: Contributing a Modification as a Maven Dependency}
-  \begin{itemize}
-    \item Develop modifications as a separate maven project or module.
-    \item Include the modifications as dependencies in your Maven Overlay project.
-    \item Distribute modifications with documentation to a Maven Repository.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{Rice DataDictionary Reloading vs. JRebel.}
-\end{frame}
-
-\begin{frame}{Multi-module vs. Regular Webapp Project}
-  \begin{itemize}
-    \item Always difficult to build/manage multi-module webapp
-      projects.
-%    \item Jar dependencies from the parent may not match up;
-%      therefore, will not get overlaid (redundant jars).
-    \item Module artifacts are jars. This is adds problems for plugins that run on unassembled projects.
-  \end{itemize}
-\end{frame}
-
 \begin{frame}{Solutions to Multi-module Issues}
   \begin{itemize}
     \item Build classes into \texttt{web\/target\/classes}
@@ -302,6 +260,25 @@ mvn -Dkc:create-overlay \
   \item Comes with JRebel configuration already
 \end{itemize}
 \end{frame}
+
+\begin{frame}[fragile]{Tips and Tricks}
+  \begin{itemize}
+    \item Use JRebel! It's free!
+    \item Take advantage of the default classpath for runtime Data Dictionary overrides.
+    \item Overriding Rice Services.
+    \item Overriding KC Services.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Proposal: Contributing a Modification as a Maven Dependency}
+  \begin{itemize}
+    \item Develop modifications as a separate maven project or module.
+    \item Include the modifications as dependencies in your Maven Overlay project.
+    \item Distribute modifications with documentation to a Maven Repository.
+  \end{itemize}
+\end{frame}
+
+
 
 \begin{frame}{The end}
 Thanks
