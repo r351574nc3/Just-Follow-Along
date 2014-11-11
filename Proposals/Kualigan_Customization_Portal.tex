@@ -256,23 +256,78 @@ Upon pushing changes to the \textbf{release} branch
 
 \section{True Continuous Delivery}
 
+At this point, the best continuous delivery that can be offered for Kuali applications is that the application deploys continuously
+between stops and restarts; however, true continuous delivery allows deployments without the application ever stopping. 
+
 \subsection{Built on the New Customization Methodology}
+There are several customizations that will be available through the customization portal that allow true continuous delivery. Each
+customization offers a step closer.
 
 \subsection{Live Changes to DataDictionary}
+This customization abstracts the DataDictionary out of in-memory beans into a Redis NOSQL database. This allows the modifications to
+be made to the DataDictionary without the application running which means that modifications also no longer require the application
+to restart.
 
 \subsection{Production Supported Hot Code Replacement}
 
+In JDK 8, the JDI and JDPA allows better support for hot code replacement including full schema replacement of classes. This allows an 
+entire class to be replaced if necessary within the running virtual machine. 
+
+Prior to JDK 8, JDI and JDPA do support hot code replacement. It is not as extensive as in JDK 8, but it provides nominal replacement.
+
+This feature does not exist yet and is not implemented as a customization since this feature is mostly configuration related and cannot
+be described as a customization; however, it is something being investigated and will be supported in different implementations.
+
 \subsection{Maven Dependency Management at Runtime Not Buildtime}
+
+There is a customization project that embeds Maven within Kuali applications allowing the application to load dependencies at runtime
+using a \verb|UrlJarClassloader| and reading dependencies from the project POM included in the WAR. With hot code replacement, classes and other 
+classpath resources are loaded at runtime and can in most cases replace existing resources. For example, with JDK 8, a dependency
+change will force transitive dependencies to be retrieved without rebuild or restart. 
+
+One specific use case for this is when adding a new customization. Once the POM is updated with the customization, Maven will detect
+the dependency change and begin retrieving dependencies.
 
 \subsection{Liquibase Dependency Management}
 
+Similar to the embedded Maven dependency management, there is a project for Liquibase changelog execution at runtime. Liquibase already
+supports using Spring to execute changelogs upon startup; however, they are only executed once at startup. With this customization,
+if a changelog is added to the project, it will be discovered and executed. 
+
+One specific use case for this is when adding a new customization. Once the dependencies are retrieved for the customization, Liquibase
+will detect a changelog within the classpath coming from that new customization and execute it.
+
 \subsection{Alternative Templating and View Resolution}
+
+This is a future planned project that replaces Freemarker with Mustache templating. Mustache templates are supported in various
+languages like Scala, Java, Javascript, Ruby, C\#, Python, Perl, Clojure, Scheme, and many others. At this time, Freemarker template 
+modifications require application restart to refresh changes. This project will install a new view resolver that will make use of realtime
+Mustache rendering.
 
 \section{Use Cases}
 
-\subsection{Creating a New Customization}
+A list of use cases have been put together to give a more case-specific perspective of the features within the Customization Portal.
 
-\subsection{Customization that Includes DDL}
+\subsection{Creating a New Generic Customization}
+
+Execute the following Maven command:
+
+\begin{minted}[fontsize=\scriptsize]{bash}
+> mvn kfs:newCustomization -DgroupId=edu.yourinstitution.kuali.kfs \
+                        -DartifactId=customization1 \
+                           -Dversion=1.0-SNAPSHOT
+\end{minted}
+
+\subsection{Customization that Includes Only Changelogs}
+
+Execute the following Maven command:
+
+\begin{minted}[fontsize=\scriptsize]{bash}
+> mvn kfs:newCustomization -DgroupId=edu.yourinstitution.kuali.kfs \
+                        -DartifactId=customization1 \
+                           -Dversion=1.0-SNAPSHOT \
+                        -Dclassifier=changelogs
+\end{minted}
 
 \subsection{Customization Change to Templates}
 
@@ -287,5 +342,24 @@ Upon pushing changes to the \textbf{release} branch
 \subsection{Archetype}
 
 \subsection{Kuali Maven Integration}
+
+\subsection{Better Hot Code Replacement Support}
+
+\subsection{Mustache Templates to Replace Freemarker}
+
+\section{Appendices}
+\subsection{Structure}
+
+\subsection{Artifacts}
+
+\subsubsection{POM}
+
+\subsubsection{javadoc}
+
+\subsubsection{tests}
+
+\subsubsection{classes}
+
+\subsubsection{changelog}
 
 \end{document}
