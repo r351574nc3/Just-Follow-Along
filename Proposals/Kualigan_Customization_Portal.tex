@@ -1,0 +1,291 @@
+\documentclass[12pt]{report}
+\author{Leo Przybylski}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{minted}
+
+\title{\includegraphics[width=0.70\textwidth]{../images/kuali_base.png}\\Customization Portal Technical Proposal}
+\pagestyle{fancy}
+\fancyhead{} % Clear all header fields 
+\fancyhead[OL]{\sectionmark}
+\fancyhead[OR]{\includegraphics[height=26pt]{../images/kuali_base.png}}% 
+\fancyhead[ER]{\sectionmark}
+\fancyhead[EL]{\includegraphics[height=26pt]{../images/kuali_base.png}}% 
+\hypersetup{colorlinks}
+\lstset{basicstyle=\scriptsize,
+  backgroundcolor=\color{ubergray},
+  breaklines=true,
+  frame=single,
+  includerangemarker=false}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\abstract{This document outlines some technical details about how a developer or configuraiton manager might
+interact with and use the Customization Portal. Part of what is included is how to configure and use archetypes, 
+setup Maven dependencies, and configure Tomcat.}
+
+\section{Overview}
+
+This is a proposal to streamline customizations by providing:
+\begin{itemize}
+  \item A new customization methodology.
+  \item A well-defined structure for customization projects.
+  \item A pathway to continuous delivery of customizations.
+  \item A process for assuring quality of customizations.
+  \item A process that builds, packages, and releases customizations.
+  \item A portal for locating customizations by feature, issue, or module.
+  \item A community for maintaining customizations and promoting contributions back to the Kuali Foundation.
+  \item A singular repository for locating and housing customizations.
+\end{itemize}
+
+\subsection{About Customizations}
+
+Customizations are changes to original source code of Kuali Foundation projects implemented at an institution. For example, an
+alteration in the field label of a Capital Asset Managment document within KFS would be considered a customization. The addition of
+a field to a table or form within Kuali Rice would also be considered a customization. Customizations can be either:
+\begin{itemize}
+  \item A new feature.
+  \item An enhancement.
+  \item A bug fix.
+\end{itemize}
+
+Basically, anything that requires a rebuild of the software from its original, out-of-the box source code, and then requires the
+source code to be maintained in a VCS would be considered a customization.
+
+\subsection{The Problem}
+
+Currently, customizations and contributions have no structural order or consistent method of integration. Developers can build
+customizations in any number of ways. Most importantly, developers can develop customizations in ways that make it difficult to 
+configure, modify, and/or maintain. 
+
+Further, a consolidated view of all customizations is basically Jira. If an institution is determining whether it needs to develop
+a customization for a specific feature, enhancement, or bug, it currently lacks a portal to determine if a customization exists
+or not or to what extent it needs to be updated.
+
+Documentation for customizations are inconsistent. They can be in docx, Wiki, LaTeX, Docbook, or any number of other documentation 
+formats. Mostly, the documentation is non-existent. Understanding what dependencies, configuration, or idiosyncracies that may exist
+is difficult.
+
+\section{A New Customization Methodology}
+
+I propose a new methodology that streamlines the creation of customizations and provides conventions for managing the customizations.
+
+\subsection{Built on Maven}
+
+This methodology is built upon the concept of Maven dependency management which enforces that customizations can utilize transitive 
+dependency management. Further, it will allow us to easily add customizations to an application. For example,
+
+\begin{minted}[fontsize=\scriptsize]{xml}
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+...
+...
+  <dependencies>
+...
+...
+    <dependency>
+      <groupId>edu.yourinstitution.kuali.kfs</groupId>
+      <artifactId>customization1</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+  </dependencies>
+...
+...
+
+</project>
+\end{minted}
+
+The dependency can contain the following:
+\begin{itemize}
+\item Liquibase changesets.
+\item Spring configuration.
+\item Other dependencies.
+\item POM file(s).
+\end{itemize}
+
+\subsubsection{Directory Structure/Conventions}
+
+\subsection{Custom Archetype for New Projects}
+By using Maven for customizations, this means that there is a project that follows the conventions for Maven is required. To 
+simplify the creation of customizations and also to ensure that the required conventions are followed, an archetype is provided. The
+archetype includes:
+\begin{itemize}
+  \item Basic directory structure.
+  \item Requirements for updating the Rice module to notify it of the customization.
+  \item POM file for the customization.
+  \item Initial Liquibase changelog for archetypes that use it.
+\end{itemize}
+
+The archetype is configurable based on different customization use cases. That is, if a customization requires a Spring change, the
+necessary files are included to make that change. If there is a database change, an initial Liquibase changelog is provided to add
+the change to. If there are java sources that will be included in the customization, sample integration and unit tests are provided.
+
+\subsection{Private Nexus Repository}
+
+A private repository will exist intended to be exclusively for Kuali application customizations. By being private, it will require
+credentials to access simply by registering with the customization portal as a developer. Each developer gets his/her own 
+credentials for accessing. Automated systems should use the credentials of the configuration manager.
+
+\subsection{Integrated Database Change Management}
+
+Liquibase has already been mentioned as the database change management tool. Its support as we as well as extensions will be available
+as part of the proposed methodology.
+
+Changelogs can take on many forms from XML
+\begin{minted}[fontsize=\scriptsize]{xml}
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ora="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:kualiext="http://www.liquibase.org/xml/ns/rice-lb-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.2.xsd
+	http://www.liquibase.org/xml/ns/dbchangelog-ext
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+	http://www.liquibase.org/xml/ns/rice-lb-ext 
+    http://r351574nc3.github.io/rice-lb-ext/rice-lb-ext.xsd">
+
+    <changeSet id="create-type" author="lb-ext">
+        <kualiext:createKimType namespace="KR-NS" 
+                                  service="namespacePermissionTypeServiceTest" 
+                                     name="Namespace">
+	        <kualiext:attribute label="Test" 
+                            namespace="KR-NS" 
+                                 name="namespaceCode" 
+                            component="org.kuali.rice.kim.bo.impl.KimAttributes" />
+        </kualiext:createKimType>
+    </changeSet>
+</databaseChangeLog>
+\end{minted}
+
+or YAML
+
+\begin{minted}[fontsize=\scriptsize]{yaml}
+databaseChangeLog:
+  - changeSet:
+      id: create-type
+      author: lb-ext
+      changes:
+        - createKimType:
+            namespace: KRNS
+            name: Namespace
+              - attribute:
+                  label: Test
+                  namespace: KR-NS
+                  name: namespaceCode
+\end{minted}
+
+\subsection{Integration with Kuali Jira}
+
+A Jira plugin is currently in development that will allow jira issues for a given project to link to repositories, pull requests, 
+and issues in GitHub. When a customization is released, Jira will automatically be updated with release information, and the dependency
+code to add to your project for implementation
+
+\begin{minted}[fontsize=\scriptsize]{xml}
+<dependency>
+    <groupId>edu.yourinstitution.kuali.kfs</groupId>
+    <artifactId>customization1</artifactId>
+    <version>1.0.0</version>
+</dependency>
+\end{minted}
+
+\section{A Community Built on Github}
+
+Github provides everything a project needs to get started quickly. 
+\begin{itemize}
+  \item APIs for a customization portal to gain access to pull request, issue and repository data surrounding a customization.
+  \item Credentials, authentication and authorization management.
+  \item Publicly available repositories to promote open source projects.
+\end{itemize}
+
+With the above it is possible for continuous integration to run upon modification. Releases can automatically promote nexus repository
+updates. We can allow simple signups and logins simply by using Oauth and Github account information.
+
+\subsection{Forking to Enhance Customizations}
+
+Github provides easy forking for projects. If each customization is its own project, then forking is a simple button click in Github. 
+Reasons for forking a project are few. Whatever customizations your institution uses, it is recommended that you fork it. Why? If 
+there is an issue with the customization, a source code change will be required. How then do you handle that source code change? The
+customization methodology would require the project to be forked. The change can then be made in the forked project and a pull
+request can then be made to the original project. 
+
+\subsection{Pull Requests to Improve Quality}
+This is a normal pattern for handling changes that is intuitive to git users. As
+a distributed VCS, git demands that each clone of a project is itself a repository. The best way to get changes into the original
+source tree is to make a pull request. The pull request process allows for better vetting of code. Also, with the Github API, 3rd-party
+applications like Continuous Integration tools and source code analysis tools can run against a pull request to verify it. This means,
+that before source code even gets into the repository, we know that it has been tested and verified by an automated system and human
+eyes.
+
+\subsection{gh-pages, Issues, README, and Wiki for Documentation}
+
+As part of the conventions, a Maven site is created. The Maven site is deployed to the Gihub gh-pages brance associated with the
+repository for the customization. This will provide a front-facing documentation site for anyone that browses to the project page. 
+The Maven site provides readers with information about dependencies of the customization, usage, Javadocs, source code cross-referencing,
+ Github and Jira link information, and any other information the developer considered important to share with readers.
+
+Further, Github supports markdown formated README and LICENSE files embedded within the repository to document the type of licensing
+used for the customization as well as any documentation about how to use the customization.
+
+Github also includes its own issue system which is helpful for managing defects and issues specifically related to the customization. 
+Beyond that, there is also a wiki that can be used for documentation. A wiki may be a bit excessive for customizations, and it
+in itself is not part of any convention enforced by the methodology. However, it is there if necessary.
+
+\subsection{Consistent Rules and Guidelines for Quality Assurance}
+
+As part of the release process flow, in order for a release to be successful, it must undergo automated testing that tests
+the Kuali application itself and verifies its functionality. The application can be any application like Rice or KFS. 
+
+\subsection{Provided Continuous Integration}
+
+Continuous Integration runs against all branches whenever a change is made. Integration and unit tests included within the
+customization project are executed as well as standard tests provided by the customization portal.
+
+\subsection{Release Process Flow}
+
+Upon pushing changes to the \textbf{release} branch
+\begin{enumerate}
+  \item Standard tests run in CI.
+  \item Project tests run in CI.
+  \item Maven release plugin executed.
+\end{enumerate}
+
+\section{True Continuous Delivery}
+
+\subsection{Built on the New Customization Methodology}
+
+\subsection{Live Changes to DataDictionary}
+
+\subsection{Production Supported Hot Code Replacement}
+
+\subsection{Maven Dependency Management at Runtime Not Buildtime}
+
+\subsection{Liquibase Dependency Management}
+
+\subsection{Alternative Templating and View Resolution}
+
+\section{Use Cases}
+
+\subsection{Creating a New Customization}
+
+\subsection{Customization that Includes DDL}
+
+\subsection{Customization Change to Templates}
+
+\subsection{Releasing a Customization}
+
+\subsection{Testing a Customization}
+
+\section{What's Left}
+
+\subsection{Portal User Interface}
+
+\subsection{Archetype}
+
+\subsection{Kuali Maven Integration}
+
+\end{document}
